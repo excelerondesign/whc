@@ -1,0 +1,26 @@
+{
+	"name": "whc-plugin",
+	"version": "1.0.0",
+	"description": "",
+	"main": "dist/whc.js",
+	"unpkg": "dist/whc.umd.js",
+	"source": "src/index.js",
+	"scripts": {
+		"start": "rm -rf dist && microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
+		"build": "rm -rf dist && microbundle -f modern,umd --no-sourcemap"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/excelerondesign/whc-plugin.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/excelerondesign/whc-plugin/issues"
+	},
+	"homepage": "https://github.com/excelerondesign/whc-plugin#readme",
+	"devDependencies": {
+		"microbundle": "^0.12.1"
+	}
+}
