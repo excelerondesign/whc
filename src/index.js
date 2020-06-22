@@ -27,7 +27,7 @@ import worker from './includes/worker';
 		];
 
 		// find the average difficulty of all the buttons on the page or use five
-		if (Private.buttons.length === 1) {
+		if (Private.buttons.length < 2) {
 			Private.difficulty =
 				parseInt(Private.buttons[0].dataset.difficulty) || 5;
 		} else {
