@@ -36,7 +36,7 @@ import worker from './includes/worker';
 					(a, b) =>
 						parseInt(a.dataset.difficulty) +
 						parseInt(b.dataset.difficulty)
-				) / length || 5;
+				) / Private.buttons.length || 5;
 		}
 
 		Private.eventName = 'WHC::Message -> ';
