@@ -47,10 +47,21 @@ import worker from './includes/worker';
 		// so truthy becomes Boolean true, and Falsy becomes Boolean false
 		// (https://developer.mozilla.org/en-US/docs/Glossary/Truthy - https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
 		// checks all the forms to see if any of them have the debug flag, and then checks if it is true
-		Private.debug = Private.forms.some(
-			(form) =>
-				'debug' in form.dataset && Boolean(form.dataset.debug === true)
+		Private.debug = Private.forms.some((form) =>
+			'debug' in form.dataset &&
+			parseInt(form.dataset.debug) === parseInt(form.dataset.debug)
+				? parseInt(form.dataset.debug)
+				: form.dataset.debug == 'true'
 		);
+
+		if (Private.debug) {
+			window.WHCDetails = {
+				forms: Private.forms,
+				buttons: Private.buttons,
+				difficulty: Private.difficulty,
+			};
+		}
+
 		window.addEventListener(
 			Private.eventName,
 			({ detail }) => console.log(Private.eventName + detail),
