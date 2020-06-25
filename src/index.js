@@ -92,79 +92,67 @@ import worker from './includes/worker';
         Private.worker = createWorker();
 
 
-        var skipVerification = function () {
-            var prevDiff = parseFloat(localStorage.getItem('WHCPrevDifficulty'));
-
-            var skipVerify = !Private.debug && localStorage.getItem('WHCVerified') !== null;
-            var sameDifficulty = prevDiff === prevDiff && localStorage.getItem('WHCPrevDifficulty') === Private.difficulty;
-
-            return sameDifficulty && skipVerify;
-        };
-
         var beginVerification = function () {
             var difficulty = Private.difficulty;
 
-            if (skipVerification()) {
-                emit('beginVerification: Already verified');
-                enableButton();
-                return;
-            }
-
-            sendRequest('https://wehatecaptchas.com/api.php').then(function (data) {
+            emit("Difficulty Level: " + difficulty);
+            sendRequest("https://wehatecaptchas.com/api.php").then(function (data) {
+                const { question } = data.data;
                 Private.worker.postMessage({
-                    question: data.data.question,
+                    question: question,
                     time: Private.time,
-                    difficulty: difficulty,
+                    difficulty: difficulty
                 });
-                Private.button.disabled = true;
-                emit('beginVerification: Request Sent');
+
+                emit("beginVerification: Request Sent");
             });
         };
 
         var sendRequest = async function (url) {
             var formData = new FormData();
 
-            formData.append('endpoint', 'question')
+            formData.append("endpoint", "question");
 
             let response = await fetch(url, {
-                method: 'POST',
-                body: formData,
+                method: "POST",
+                body: formData
             });
 
             let data = await response.json();
-            emit('sendRequest: Response Received');
+            emit("sendRequest: Response Received");
             return data;
         };
 
         var workerMessageHandler = function ({ data }) {
-            if (data.action === 'captchaSuccess') {
-                const verification = JSON.stringify(data.verification);
+            if (data.action === "captchaSuccess") {
                 Private.form.insertAdjacentHTML(
-                    'beforeend',
-                    `<input type="hidden" name="captcha_verification" value='${JSON.stringify(
+                    "beforeend",
+                    `<input type="hidden" name="captcha_verification" value="${JSON.stringify(
                         data.verification
-                    )}'>`
+                    )}"/>`
                 );
-                enableButton();
-                emit('workerMessageHandler: Captcha Success');
-                localStorage.setItem('WHCVerified', verification);
-                localStorage.setItem('WHCPrevDifficulty', Private.difficulty)
+                enableButton(Private.button);
+
                 return;
-            } else if (data.action === 'message') {
+            } else if (data.action === "message") {
                 var percent = data.message.match(/\d*%/);
                 if (percent === null) return;
                 Private.button.dataset.progress = percent;
-                emit('workerMessageHandler: Progress ' + percent);
+                emit("workerMessageHandler: Progress " + percent);
                 return;
             }
-            emit('workerMessageHandler: ERROR - UNKNOWN');
+            emit("workerMessageHandler: ERROR - UNKNOWN");
         };
 
-        window.addEventListener('load', beginVerification, { once: true, capture: true });
-        Private.worker.addEventListener('message', workerMessageHandler, false);
+        window.addEventListener("load", beginVerification, {
+            once: true,
+            capture: true
+        });
 
-        emit('Constructed');
+        Private.worker.addEventListener("message", workerMessageHandler, false);
+
+        emit("Constructed");
     };
 
-    return new Constructor();
+    forms.forEach((form, i) => new Constructor(form, i));
 })();
