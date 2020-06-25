@@ -1,5 +1,7 @@
 # Documentation
 
+To include in a project, upload or copy `whc.umd.js` to your project, and add the necessary parameters below.
+
 ## Parameters
 
 ### HTMLScriptElement
