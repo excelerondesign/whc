@@ -71,9 +71,8 @@ import worker from './includes/worker';
         var createWorker = function () {
             var employee = null;
             try {
-                var blob = new Blob(
-                    // generates a worker by converting  into a string and then running that function as a worker
-                    ['(' + worker.toString() + ')();'], { type: 'application/javascript' });
+                // generates a worker by converting  into a string and then running that function as a worker
+                var blob = new Blob(['(' + worker.toString() + ')();'], { type: 'application/javascript' });
                 var blobUrl = URL.createObjectURL(blob);
                 employee = new Worker(blobUrl);
             } catch (e1) {
