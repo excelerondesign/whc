@@ -127,6 +127,7 @@ import worker from './includes/worker';
                         data.verification
                     )}'/>`
                 );
+
                 enableButton(Private.button);
 
                 return;
