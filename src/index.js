@@ -3,12 +3,12 @@
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
 import worker from './includes/worker';
-import sha256 from './includes/crypto';
+
 (function () {
     const script = document.getElementById("whcScriptTag");
 
     const forms = Array.from(document.getElementsByClassName(script.dataset.form));
-    console.log(forms);
+
     var Constructor = function (form, index) {
         const Private = {};
 
@@ -21,7 +21,7 @@ import sha256 from './includes/crypto';
         //// Private.form = document.getElementById(script.dataset.form);
         // use a unique class selector for the forms
         Private.form = form;
-        console.log(form)
+
         Private.ID = Private.form.getAttribute("id") || "Form " + index;
         // should be a class selector
         // each button should also have a 'data-finished' text that the button should end on
@@ -76,7 +76,7 @@ import sha256 from './includes/crypto';
             try {
                 var blob = new Blob(
                     // generates a worker by converting  into a string and then running that function as a worker
-                    ['(' + worker.toString() + sha256.toString() + ')();'], { type: 'application/javascript' });
+                    ['(' + worker.toString() + ')();'], { type: 'application/javascript' });
                 var url = window.URL || window.webkitURL;
                 var blobUrl = url.createObjectURL(blob);
                 employee = new Worker(blobUrl);
