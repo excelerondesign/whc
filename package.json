@@ -6,8 +6,8 @@
 	"unpkg": "dist/whc.umd.js",
 	"source": "src/index.js",
 	"scripts": {
-		"start": "rm -rf dist && microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
-		"build": "rm -rf dist && microbundle -f modern,umd --no-sourcemap"
+		"start": "rm -rf build && microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
+		"build": "rm -rf build && microbundle -f modern,umd --no-sourcemap"
 	},
 	"repository": {
 		"type": "git",
