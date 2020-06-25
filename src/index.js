@@ -3,210 +3,158 @@
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
 import worker from './includes/worker';
+
 (function () {
-	'use strict';
+    const script = document.getElementById("whcScriptTag");
 
-	var Constructor = function () {
-		const Private = {};
-		// now converted to seconds
-		Private.time = Math.floor(Date.now() / 1000);
-		Private.script = document.getElementById('whcScriptTag');
-		// current time + 1 hour;
-		Private.ttl = Private.time + 3600;
-		//// Checks if there is a form or if there is an
-		//// Private.form = document.getElementById(Private.script.dataset.form);
-		// use a unique class selector for the forms
-		Private.forms = [
-			...document.getElementsByClassName(Private.script.dataset.form),
-		];
+    const forms = Array.from(document.getElementsByClassName(script.dataset.form));
 
-		// should be a class selector
-		// each button should also have a 'data-finished' text that the button should end on
-		Private.buttons = [
-			...document.getElementsByClassName(Private.script.dataset.button),
-		];
+    var Constructor = function (form, index) {
+        const Private = {};
 
-		// find the average difficulty of all the buttons on the page or use five
-		if (Private.buttons.length < 2) {
-			Private.difficulty =
-				parseInt(Private.buttons[0].dataset.difficulty) || 5;
-		} else {
-			Private.difficulty =
-				Private.buttons.reduce(
-					(a, b) =>
-						parseInt(a.dataset.difficulty) +
-						parseInt(b.dataset.difficulty)
-				) / Private.buttons.length || 5;
-		}
+        // now converted to seconds
+        Private.time = Math.floor(Date.now() / 1000);
 
-		Private.eventName = 'WHC::Message -> ';
+        // current time + 1 hour;
+        Private.ttl = Private.time + 3600;
+        //// Checks if there is a form or if there is an
+        //// Private.form = document.getElementById(script.dataset.form);
+        // use a unique class selector for the forms
+        Private.form = form;
 
-		Private.workerFunc = worker;
+        Private.ID = Private.form.getAttribute("id") || "Form " + index;
+        // should be a class selector
+        // each button should also have a 'data-finished' text that the button should end on
+        Private.button = Private.form.getElementsByClassName(
+            script.dataset.button
+        )[0];
+        // find the average difficulty of all the buttons on the page or use five
 
-		// converts the debug value into a boolean,
-		// so truthy becomes Boolean true, and Falsy becomes Boolean false
-		// (https://developer.mozilla.org/en-US/docs/Glossary/Truthy - https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
-		// checks all the forms to see if any of them have the debug flag, and then checks if it is true
-		Private.debug = Private.forms.some((form) =>
-			'debug' in form.dataset &&
-			parseInt(form.dataset.debug) === parseInt(form.dataset.debug)
-				? parseInt(form.dataset.debug)
-				: form.dataset.debug == 'true'
-		);
+        Private.difficulty = parseInt(Private.button.dataset.difficulty) || 5;
 
-		if (Private.debug) {
-			window.WHCDetails = {
-				forms: Private.forms,
-				buttons: Private.buttons,
-				difficulty: Private.difficulty,
-			};
-		}
+        Private.eventName = "WHC|" + Private.ID + "::Message -> ";
 
-		window.addEventListener(
-			Private.eventName,
-			({ detail }) => console.log(Private.eventName + detail),
-			false
-		);
+        // converts the debug value into a boolean,
+        // so truthy becomes Boolean true, and Falsy becomes Boolean false
+        // (https://developer.mozilla.org/en-US/docs/Glossary/Truthy - https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
+        // checks all the forms to see if any of them have the debug flag, and then checks if it is true
+        Private.debug =
+            "debug" in Private.form.dataset && Boolean(Private.form.dataset.debug);
 
-		var emit = function (detail) {
-			if (!Private.debug) return;
-			window.dispatchEvent(
-				new CustomEvent(Private.eventName, { detail })
-			);
-		};
+        if (Private.debug) {
+            localStorage.removeItem("WHCStorage");
+            window.WHCDetails = window.WHCDetails || [];
+            window.WHCDetails.push({
+                form,
+                button: Private.button,
+                difficulty: Private.difficulty
+            });
+            window.addEventListener(
+                Private.eventName,
+                ({ detail }) => console.log(Private.eventName + detail),
+                false
+            );
+        }
 
-		emit('Constructing');
+        var emit = function (detail) {
+            if (!Private.debug) return;
+            window.dispatchEvent(new CustomEvent(Private.eventName, { detail }));
+        };
 
-		var publicAPIs = {};
+        emit("Constructing");
 
-		var enableButton = function (button) {
-			button.classList.add('done');
-			button.disabled = false;
-			button.value = button.dataset.finished;
-		};
+        // var publicAPIs = {};
 
-		var createWorker = function () {
-			var worker = null;
-			try {
-				var blob = new Blob(
-					// generates a worker by converting  into a string and then running that function as a worker
-					['(' + Private.workerFunc.toString() + ')();'],
-					{ type: 'application/javascript' }
-				);
-				var url = window.URL || window.webkitURL;
-				var blobUrl = url.createObjectURL(blob);
-				worker = new Worker(blobUrl);
-			} catch (e1) {
-				emit('createWorker: Worker Error');
-				//if it still fails, there is nothing much we can do
-				console.error(e1);
-			}
-			emit('createWorker: Worker Created');
-			return worker;
-		};
+        var enableButton = function (button) {
+            button.classList.add("done");
+            button.disabled = false;
+            button.value = button.dataset.finished;
+        };
 
-		// function(){importScripts("https://wehatecaptchas.com/sha256.js");const getWholePercent=(e,i)=>Math.floor(e/i*100),isPrime=e=>{for(var i=2;i<e;i++)if(e%i==0)return!1;return e>1},solveCaptcha=(e,i=1)=>{i++;for(var s={question:e.question,time:e.time,nonce:i},t=JSON.stringify(s),a=sha256(t);"0000"!==a.substr(0,4)||!isPrime(i);){i++;s={question:e.question,time:e.time,nonce:i},t=JSON.stringify(s),a=sha256(t)}return{verify_array:s,nonce:i,hash:a}};var verification=[];if(null===nonce)var nonce=1;self.addEventListener("message",(function(e){var i=e.data;self.postMessage({action:"message",message:"Checking if you're a bot before enabling submit button..."});for(var s,t,a=i.difficulty,n=0;n<a;n++){var r=solveCaptcha(i,o),o=r.nonce;verification.push(r.verify_array);var c=(s=n+1,t=a,Math.floor(s/t*100));self.postMessage({action:"message",message:`Still checking... ${c}% done`})}self.postMessage({action:"captchaSuccess",verification:verification}),verification=[],o=1}),!1);}
+        var createWorker = function () {
+            var employee = null;
+            try {
+                var blob = new Blob(
+                    // generates a worker by converting  into a string and then running that function as a worker
+                    ['(' + worker.toString() + ')();'], { type: 'application/javascript' });
+                var url = window.URL || window.webkitURL;
+                var blobUrl = url.createObjectURL(blob);
+                employee = new Worker(blobUrl);
+            } catch (e1) {
+                emit('createWorker: Worker Error');
+                //if it still fails, there is nothing much we can do
+                console.error(e1);
+            }
+            emit('createWorker: Worker Created');
+            return employee;
+        };
 
-		Private.worker = createWorker();
+        // function(){importScripts("https://wehatecaptchas.com/sha256.js");const getWholePercent=(e,i)=>Math.floor(e/i*100),isPrime=e=>{for(var i=2;i<e;i++)if(e%i==0)return!1;return e>1},solveCaptcha=(e,i=1)=>{i++;for(var s={question:e.question,time:e.time,nonce:i},t=JSON.stringify(s),a=sha256(t);"0000"!==a.substr(0,4)||!isPrime(i);){i++;s={question:e.question,time:e.time,nonce:i},t=JSON.stringify(s),a=sha256(t)}return{verify_array:s,nonce:i,hash:a}};var verification=[];if(null===nonce)var nonce=1;self.addEventListener("message",(function(e){var i=e.data;self.postMessage({action:"message",message:"Checking if you're a bot before enabling submit button..."});for(var s,t,a=i.difficulty,n=0;n<a;n++){var r=solveCaptcha(i,o),o=r.nonce;verification.push(r.verify_array);var c=(s=n+1,t=a,Math.floor(s/t*100));self.postMessage({action:"message",message:`Still checking... ${c}% done`})}self.postMessage({action:"captchaSuccess",verification:verification}),verification=[],o=1}),!1);}
 
-		var skipVerification = function () {
-			const {
-				WHCPrevDifficulty = null,
-				WHCExpiration = null,
-				WHCVerified = null,
-			} = JSON.parse(localStorage.getItem('WHCStorage')) || {};
+        Private.worker = createWorker();
 
-			var verificationIsNotExpired =
-				WHCExpiration !== null && Private.time < WHCExpiration;
 
-			var skipVerify =
-				!Private.debug && localStorage.getItem('WHCVerified') !== null;
-			// prevDiff === prevDiff is a check for NaN, since NaN is not equal to NaN
-			var sameDifficulty =
-				WHCPrevDifficulty === WHCPrevDifficulty &&
-				WHCPrevDifficulty === Private.difficulty;
+        var beginVerification = function () {
+            var difficulty = Private.difficulty;
 
-			return verificationIsNotExpired && sameDifficulty && skipVerify;
-		};
+            emit("Difficulty Level: " + difficulty);
+            sendRequest("https://wehatecaptchas.com/api.php").then(function (data) {
+                const { question } = data.data;
+                Private.worker.postMessage({
+                    question: question,
+                    time: Private.time,
+                    difficulty: difficulty
+                });
 
-		var beginVerification = function () {
-			var difficulty = Private.difficulty;
+                emit("beginVerification: Request Sent");
+            });
+        };
 
-			if (skipVerification()) {
-				emit('beginVerification: Already verified');
-				Private.buttons.forEach(enableButton);
-				return;
-			}
-			emit('Difficulty Level: ' + Private.difficulty);
-			sendRequest('https://wehatecaptchas.com/api.php').then(function (
-				data
-			) {
-				const { question } = data.data;
-				Private.worker.postMessage({
-					question: question,
-					time: Private.time,
-					difficulty: difficulty,
-				});
+        var sendRequest = async function (url) {
+            var formData = new FormData();
 
-				emit('beginVerification: Request Sent');
-			});
-		};
+            formData.append("endpoint", "question");
 
-		var sendRequest = async function (url) {
-			var formData = new FormData();
+            let response = await fetch(url, {
+                method: "POST",
+                body: formData
+            });
 
-			formData.append('endpoint', 'question');
+            let data = await response.json();
+            emit("sendRequest: Response Received");
+            return data;
+        };
 
-			let response = await fetch(url, {
-				method: 'POST',
-				body: formData,
-			});
+        var workerMessageHandler = function ({ data }) {
+            if (data.action === "captchaSuccess") {
+                Private.form.insertAdjacentHTML(
+                    "beforeend",
+                    `<input type="hidden" name="captcha_verification" value='${JSON.stringify(
+                        data.verification
+                    )}'/>`
+                );
+                enableButton(Private.button);
 
-			let data = await response.json();
-			emit('sendRequest: Response Received');
-			return data;
-		};
+                return;
+            } else if (data.action === "message") {
+                var percent = data.message.match(/\d*%/);
+                if (percent === null) return;
+                Private.button.dataset.progress = percent;
+                emit("workerMessageHandler: Progress " + percent);
+                return;
+            }
+            emit("workerMessageHandler: ERROR - UNKNOWN");
+        };
 
-		var workerMessageHandler = function ({ data }) {
-			if (data.action === 'captchaSuccess') {
-				Private.form.insertAdjacentHTML(
-					'beforeend',
-					`<div style="display: none;" aria-hidden="true">${JSON.stringify(
-						data.verification
-					)}</div>`
-				);
+        window.addEventListener("load", beginVerification, {
+            once: true,
+            capture: true
+        });
 
-				Private.buttons.forEach(enableButton);
+        Private.worker.addEventListener("message", workerMessageHandler, false);
 
-				emit('workerMessageHandler: Captcha Success');
-				const lsData = {
-					WHCVerified: data.verification,
-					WHCPrevDifficulty: Private.difficulty,
-					WHCExpiration: Private.ttl,
-				};
-				localStorage.setItem('WHCStorage', JSON.stringify(lsData));
-				return;
-			} else if (data.action === 'message') {
-				var percent = data.message.match(/\d*%/);
-				if (percent === null) return;
-				Private.buttons.forEach(
-					(button) => (button.dataset.progress = percent)
-				);
-				emit('workerMessageHandler: Progress ' + percent);
-				return;
-			}
-			emit('workerMessageHandler: ERROR - UNKNOWN');
-		};
+        emit("Constructed");
+    };
 
-		window.addEventListener('load', beginVerification, {
-			once: true,
-			capture: true,
-		});
-
-		Private.worker.addEventListener('message', workerMessageHandler, false);
-
-		emit('Constructed');
-	};
-
-	return new Constructor();
+    forms.forEach((form, i) => new Constructor(form, i));
 })();
