@@ -129,9 +129,9 @@ import worker from './includes/worker';
             if (data.action === "captchaSuccess") {
                 Private.form.insertAdjacentHTML(
                     "beforeend",
-                    `<input type="hidden" name="captcha_verification" value="${JSON.stringify(
+                    `<input type="hidden" name="captcha_verification" value='${JSON.stringify(
                         data.verification
-                    )}"/>`
+                    )}'/>`
                 );
                 enableButton(Private.button);
 
