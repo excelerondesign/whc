@@ -7,7 +7,7 @@
  * @license MIT
  */
 /*jslint bitwise: true */
-(function () {
+export default (function () {
     'use strict';
 
     var ERROR = 'input is invalid type';
