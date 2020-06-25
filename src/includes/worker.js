@@ -1,5 +1,3 @@
-import sha256 from './sha256';
-
 export default function () {
     const getWholePercent = (percentFor, percentOf) => {
         return Math.floor((percentFor / percentOf) * 100);
