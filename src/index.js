@@ -16,7 +16,7 @@ import worker from './includes/worker';
         Private.time = Math.floor(Date.now() / 1000);
 
         // current time + 1 hour;
-        Private.ttl = Private.time + 3600;
+        // Private.ttl = Private.time + 3600;
         //// Checks if there is a form or if there is an
         //// Private.form = document.getElementById(script.dataset.form);
         // use a unique class selector for the forms
@@ -32,7 +32,7 @@ import worker from './includes/worker';
 
         Private.difficulty = parseInt(Private.button.dataset.difficulty) || 5;
 
-        Private.eventName = "WHC|" + Private.ID + "::Message -> ";
+        Private.eventName = "WHC|" + Private.ID;
 
         // converts the debug value into a boolean,
         // so truthy becomes Boolean true, and Falsy becomes Boolean false
@@ -51,7 +51,7 @@ import worker from './includes/worker';
             });
             window.addEventListener(
                 Private.eventName,
-                ({ detail }) => console.log(Private.eventName + detail),
+                ({ detail }) => console.log(Private.eventName + "::Message -> " + detail),
                 false
             );
         }
