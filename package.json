@@ -2,12 +2,14 @@
 	"name": "whc-plugin",
 	"version": "1.0.0",
 	"description": "",
-	"main": "dist/whc.js",
-	"unpkg": "dist/whc.umd.js",
+	"main": "build/whc.js",
+	"unpkg": "build/whc.umd.js",
 	"source": "src/index.js",
 	"scripts": {
 		"start": "rm -rf build && microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
-		"build": "rm -rf build && microbundle -f modern,umd --no-sourcemap"
+		"build": "rm -rf build && microbundle -f modern,umd --no-sourcemap",
+		"pack:src": "microbundle --compress false -i src/index.js -o dist/ -f modern,umd --no-sourcemap",
+		"pack:dist": "microbundle -i src/index.js -o dist/min -f modern,umd --no-sourcemap"
 	},
 	"repository": {
 		"type": "git",
