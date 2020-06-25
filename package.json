@@ -9,7 +9,8 @@
 		"start": "rm -rf build && microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
 		"build": "rm -rf build && microbundle -f modern,umd --no-sourcemap",
 		"pack:src": "microbundle --compress false -i src/index.js -o dist/ -f modern,umd --no-sourcemap",
-		"pack:dist": "microbundle -i src/index.js -o dist/min -f modern,umd --no-sourcemap"
+		"pack:dist": "microbundle -i src/index.js -o dist/min -f modern,umd --no-sourcemap",
+		"pack": "npm run pack:src && npm run pack:dist"
 	},
 	"repository": {
 		"type": "git",

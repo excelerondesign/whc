@@ -1,16 +1,15 @@
 on:
-  push:
-    branches: master
-    paths: '**.js'
+    push:
+        branches: master
+        paths: '**.js'
 
 jobs:
-  pack:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 10
-      - run: npm install
-      - run: npm run pack:src
-      - run: npm run pack:dist
+    pack:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 10
+            - run: npm install
+            - run: npm run pack
