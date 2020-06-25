@@ -1,6 +1,6 @@
 # Documentation
 
-To include in a project, upload or copy `whc.umd.js` to your project, and add the necessary parameters below.
+To include in a project, upload or copy `dist/whc-plugin.umd.js` or `dist/min/whc-plugin.umd.js` to your project, and add the necessary parameters below.
 
 ## Parameters
 
