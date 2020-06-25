@@ -74,8 +74,7 @@ import worker from './includes/worker';
                 var blob = new Blob(
                     // generates a worker by converting  into a string and then running that function as a worker
                     ['(' + worker.toString() + ')();'], { type: 'application/javascript' });
-                var url = window.URL || window.webkitURL;
-                var blobUrl = url.createObjectURL(blob);
+                var blobUrl = URL.createObjectURL(blob);
                 employee = new Worker(blobUrl);
             } catch (e1) {
                 emit('createWorker: Worker Error');
