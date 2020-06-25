@@ -1,3 +1,14 @@
+# About
+
+WeHateCaptchas is a form verification service created by [Edward Dalton](DaltonWebDev), now maintained by [Cohan Robinson](https://github.com/cohan) designed to "timeout" bots, rather than out think them. Examples here: [HTML](https://gist.github.com/cohan/baf91e94c3a82cdb66f7044520ab2789#file-wehatecaptchas-html), [PHP](https://gist.github.com/cohan/ed5345ec260d1c3a684857c5cf387ccf#file-wehatecaptchas-php)
+
+Here we've altered the Javascript aspect from the example to add some extra benefits.
+
+- Support for multiple forms
+- Advanced debugging (per form)
+  - Logging verification steps
+  - Details object
+
 # Documentation
 
 To include in a project, upload or copy `dist/whc-plugin.umd.js` or `dist/min/whc-plugin.umd.js` to your project, and add the necessary parameters below.
@@ -34,10 +45,9 @@ While you can use `'false'`, it is an anti-pattern and should be avoided in prod
 ### Internal Variables
 
 _Private.time_ The time the verification starts
-_Private.ttl_ Private.time + 1 hour
 _Private.script_ The script element
-_Private.forms_ Array of all forms on the page
-_Private.buttons_ Array of all buttons/inputs
+_Private.form_ Current form
+_Private.button_ Current submit button
 _Private.difficulty_ The difficulty of the verification process, either the default (5), the `data-difficulty` of the only button/input on the page, or an average of all on the page.
 _Private.eventName_ Internal event name for debugging
 _Private.workerFunc_ Inline WebWorker function
