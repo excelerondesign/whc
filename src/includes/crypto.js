@@ -7,7 +7,7 @@
  * @license MIT
  */
 /*jslint bitwise: true */
-export default (function () {
+function sha256() {
     'use strict';
 
     var ERROR = 'input is invalid type';
@@ -515,4 +515,6 @@ export default (function () {
             });
         }
     }
-})();
+};
+
+export default sha256;
