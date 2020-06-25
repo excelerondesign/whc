@@ -89,10 +89,7 @@ import worker from './includes/worker';
             return employee;
         };
 
-        // function(){importScripts("https://wehatecaptchas.com/sha256.js");const getWholePercent=(e,i)=>Math.floor(e/i*100),isPrime=e=>{for(var i=2;i<e;i++)if(e%i==0)return!1;return e>1},solveCaptcha=(e,i=1)=>{i++;for(var s={question:e.question,time:e.time,nonce:i},t=JSON.stringify(s),a=sha256(t);"0000"!==a.substr(0,4)||!isPrime(i);){i++;s={question:e.question,time:e.time,nonce:i},t=JSON.stringify(s),a=sha256(t)}return{verify_array:s,nonce:i,hash:a}};var verification=[];if(null===nonce)var nonce=1;self.addEventListener("message",(function(e){var i=e.data;self.postMessage({action:"message",message:"Checking if you're a bot before enabling submit button..."});for(var s,t,a=i.difficulty,n=0;n<a;n++){var r=solveCaptcha(i,o),o=r.nonce;verification.push(r.verify_array);var c=(s=n+1,t=a,Math.floor(s/t*100));self.postMessage({action:"message",message:`Still checking... ${c}% done`})}self.postMessage({action:"captchaSuccess",verification:verification}),verification=[],o=1}),!1);}
-
         Private.worker = createWorker();
-
 
         var beginVerification = function () {
             var difficulty = Private.difficulty;
