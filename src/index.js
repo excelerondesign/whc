@@ -17,9 +17,7 @@ import worker from './includes/worker';
 
         // current time + 1 hour;
         // Private.ttl = Private.time + 3600;
-        //// Checks if there is a form or if there is an
-        //// Private.form = document.getElementById(script.dataset.form);
-        // use a unique class selector for the forms
+
         Private.form = form;
 
         Private.ID = Private.form.getAttribute("id") || "Form " + index;
@@ -28,7 +26,6 @@ import worker from './includes/worker';
         Private.button = Private.form.getElementsByClassName(
             script.dataset.button
         )[0];
-        // find the average difficulty of all the buttons on the page or use five
 
         Private.difficulty = parseInt(Private.button.dataset.difficulty) || 5;
 
