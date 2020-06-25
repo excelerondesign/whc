@@ -527,7 +527,7 @@ export default function () {
             time: data.time,
             nonce: nonce
         };
-        console.log(JSON.stringify(verifyArray));
+
         var currentHash = sha256(JSON.stringify(verifyArray));
         while (currentHash.substr(0, 4) !== "0000" || !isPrime(nonce)) {
             nonce++;
