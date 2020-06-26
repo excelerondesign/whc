@@ -69,33 +69,32 @@ import worker from './includes/worker';
         };
 
         var createWorker = function () {
-            var employee = null;
             try {
                 // generates a worker by converting  into a string and then running that function as a worker
                 var blob = new Blob(['(' + worker.toString() + ')();'], { type: 'application/javascript' });
                 var blobUrl = URL.createObjectURL(blob);
-                employee = new Worker(blobUrl);
+                var laborer = new Worker(blobUrl);
+                emit('createWorker: Worker Created');
+                return laborer;
             } catch (e1) {
                 emit('createWorker: Worker Error');
                 //if it still fails, there is nothing much we can do
                 console.error(e1);
             }
-            emit('createWorker: Worker Created');
-            return employee;
         };
 
         Private.worker = createWorker();
 
         var beginVerification = function () {
-            var difficulty = Private.difficulty;
+            var { difficulty, time, worker } = Private;
 
             emit("Difficulty Level: " + difficulty);
             sendRequest("https://wehatecaptchas.com/api.php").then(function (data) {
                 const { question } = data.data;
-                Private.worker.postMessage({
-                    question: question,
-                    time: Private.time,
-                    difficulty: difficulty
+                worker.postMessage({
+                    question,
+                    difficulty,
+                    time
                 });
 
                 emit("beginVerification: Request Sent");
