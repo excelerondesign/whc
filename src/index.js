@@ -9,8 +9,9 @@ import worker from './includes/worker';
     const whcDefaults = {
         button: 'whc-button',
         form: 'whc-form',
-        difficulty: 3,
         debug: false,
+        difficulty: 3,
+        finished: 'Submit',
     }
 
     const whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
@@ -39,19 +40,19 @@ import worker from './includes/worker';
 
         Private.form = form;
 
-        Private.ID = Private.form.getAttribute("id") || "Form " + index;
+        Private.ID = form.getAttribute("id") || "Form " + index;
         // should be a class selector
         // each button should also have a 'data-finished' text that the button should end on
-        Private.button = Private.form.getElementsByClassName(whcConfig.button)[0];
+        Private.button = form.getElementsByClassName(whcConfig.button)[0];
 
         Private.difficulty = parse(Private.button.getAttribute('dataset-difficulty')) || whcConfig.difficulty;
 
-        Private.eventName = "WHC|" + Private.ID;
 
         if (whcConfig.debug) {
+            Private.eventName = "WHC|" + Private.ID;
             window.WHCDetails = window.WHCDetails || [];
             window.WHCDetails.push({
-                form,
+                form: Private.form,
                 button: Private.button,
                 difficulty: Private.difficulty
             });
