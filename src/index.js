@@ -5,11 +5,30 @@
 import worker from './includes/worker';
 
 (function () {
-    const script = document.getElementById("whcScriptTag");
 
-    const forms = Array.from(document.getElementsByClassName(script.dataset.form));
+    const whcDefaults = {
+        button: 'whc-button',
+        form: 'whc-form',
+        difficulty: 3,
+        debug: 0,
+    }
+
+    const whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
+
+    const forms = Array.from(document.getElementsByClassName(whcConfig.form));
+
+
+    var parse = function (str) {
+        var num = parseInt(str);
+
+        if (isNaN(num)) return false;
+        if (num !== num) return false;
+
+        return num;
+    }
 
     var Constructor = function (form, index) {
+
         const Private = {};
 
         // now converted to seconds
@@ -23,11 +42,9 @@ import worker from './includes/worker';
         Private.ID = Private.form.getAttribute("id") || "Form " + index;
         // should be a class selector
         // each button should also have a 'data-finished' text that the button should end on
-        Private.button = Private.form.getElementsByClassName(
-            script.dataset.button
-        )[0];
+        Private.button = Private.form.getElementsByClassName(whcConfig.button)[0];
 
-        Private.difficulty = parseInt(Private.button.dataset.difficulty) || 5;
+        Private.difficulty = parse(Private.button.getAttribute('dataset-difficulty')) || whcConfig.difficulty;
 
         Private.eventName = "WHC|" + Private.ID;
 
@@ -35,11 +52,8 @@ import worker from './includes/worker';
         // so truthy becomes Boolean true, and Falsy becomes Boolean false
         // (https://developer.mozilla.org/en-US/docs/Glossary/Truthy - https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
         // checks all the forms to see if any of them have the debug flag, and then checks if it is true
-        Private.debug =
-            "debug" in Private.form.dataset && Boolean(Private.form.dataset.debug);
 
-        if (Private.debug) {
-            localStorage.removeItem("WHCStorage");
+        if (whcConfig.debug) {
             window.WHCDetails = window.WHCDetails || [];
             window.WHCDetails.push({
                 form,
@@ -54,30 +68,30 @@ import worker from './includes/worker';
         }
 
         var emit = function (detail) {
-            if (!Private.debug) return;
+            if (!whcConfig.debug) return;
             window.dispatchEvent(new CustomEvent(Private.eventName, { detail }));
         };
 
         emit("Constructing");
 
-        // var publicAPIs = {};
-
         var enableButton = function (button) {
+            var { finished } = button.dataset;
             button.classList.add("done");
-            button.disabled = false;
-            button.value = button.dataset.finished;
+            button.setAttribute('disabled', false);
+            button.setAttribute('value', finished);
         };
 
         var createWorker = function () {
+            emit('createWorker(): Creating')
             try {
                 // generates a worker by converting  into a string and then running that function as a worker
                 var blob = new Blob(['(' + worker.toString() + ')();'], { type: 'application/javascript' });
                 var blobUrl = URL.createObjectURL(blob);
                 var laborer = new Worker(blobUrl);
-                emit('createWorker: Worker Created');
+                emit('createWorker(): Created');
                 return laborer;
             } catch (e1) {
-                emit('createWorker: Worker Error');
+                emit('createWorker(): Error');
                 //if it still fails, there is nothing much we can do
                 console.error(e1);
             }
@@ -89,31 +103,13 @@ import worker from './includes/worker';
             var { difficulty, time, worker } = Private;
 
             emit("Difficulty Level: " + difficulty);
-            sendRequest("https://wehatecaptchas.com/api.php").then(function (data) {
-                const { question } = data.data;
-                worker.postMessage({
-                    question,
-                    difficulty,
-                    time
-                });
 
-                emit("beginVerification: Request Sent");
-            });
-        };
-
-        var sendRequest = async function (url) {
-            var formData = new FormData();
-
-            formData.append("endpoint", "question");
-
-            let response = await fetch(url, {
-                method: "POST",
-                body: formData
+            worker.postMessage({
+                difficulty,
+                time
             });
 
-            let data = await response.json();
-            emit("sendRequest: Response Received");
-            return data;
+            emit("beginVerification(): Message Sent");
         };
 
         var addVerification = function (form, verification) {
@@ -124,22 +120,28 @@ import worker from './includes/worker';
             form.appendChild(input);
         }
 
+        var updatePercent = function (button, string) {
+            var percent = string.match(/\d*%/);
+            if (percent === null) return;
+
+            button.setAttribute('data-progress', percent);
+
+            emit("Verification Progress: " + percent);
+        }
+
         var workerMessageHandler = function ({ data }) {
             if (data.action === "captchaSuccess") {
 
                 addVerification(Private.form, data.verification);
-
                 enableButton(Private.button);
+                emit("Verification Progress: Complete");
 
                 return;
             } else if (data.action === "message") {
-                var percent = data.message.match(/\d*%/);
-                if (percent === null) return;
-                Private.button.dataset.progress = percent;
-                emit("workerMessageHandler: Progress " + percent);
-                return;
+
+                return updatePercent(Private.button, data.message);
             }
-            emit("workerMessageHandler: ERROR - UNKNOWN");
+            emit("workerMessageHandler(): ERROR - UNKNOWN");
         };
 
         window.addEventListener("load", beginVerification, {

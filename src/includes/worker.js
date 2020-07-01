@@ -508,10 +508,12 @@ export default function () {
             }
         }
     })();
-    const getWholePercent = (percentFor, percentOf) => {
+
+    var getWholePercent = (percentFor, percentOf) => {
         return Math.floor((percentFor / percentOf) * 100);
     };
-    const isPrime = value => {
+
+    var isPrime = value => {
         for (var i = 2; i < value; i++) {
             if (value % i === 0) {
                 return false;
@@ -520,59 +522,89 @@ export default function () {
         return value > 1;
     };
 
-    const solveCaptcha = (data, nonce = 1) => {
+    var solveCaptcha = ({ question, time }, nonce = 1) => {
         nonce++;
         var verifyArray = {
-            question: data.question,
-            time: data.time,
+            question: question,
+            time: time,
             nonce: nonce
         };
 
         var currentHash = sha256(JSON.stringify(verifyArray));
+
         while (currentHash.substr(0, 4) !== "0000" || !isPrime(nonce)) {
             nonce++;
             var verifyArray = {
-                question: data.question,
-                time: data.time,
+                question: question,
+                time: time,
                 nonce: nonce
             };
             var currentHash = sha256(JSON.stringify(verifyArray));
         }
+
         return {
             verify_array: verifyArray,
             nonce: nonce,
             hash: currentHash
         };
     };
-    var verification = [];
+
+    var sendRequest = async function (url) {
+        var formData = new FormData();
+
+        formData.append("endpoint", "question");
+
+        var response = await fetch(url, {
+            method: "POST",
+            body: formData
+        });
+
+        var data = await response.json();
+
+        return data;
+    };
+
+    // var verification = [];
+    /*
     if (nonce === null) {
         var nonce = 1;
     }
+    */
+
     self.addEventListener(
         "message",
-        function (e) {
-            var data = e.data;
+        function ({ data }) {
             self.postMessage({
                 action: "message",
                 message: `Checking if you're a bot before enabling submit button...`
             });
-            var times = data.difficulty;
-            for (var i = 0; i < times; i++) {
-                var response = solveCaptcha(data, nonce);
-                var nonce = response.nonce;
-                verification.push(response.verify_array);
-                var percentDone = getWholePercent(i + 1, times);
+            // var times = data.difficulty;
+            var { difficulty, time } = data;
+            sendRequest("https://wehatecaptchas.com/api.php").then(function (requestResponse) {
+                var { question } = requestResponse.data;
+
+                var verification = [];
+                var nonce = nonce ?? 1;
+
+                for (var i = 0; i < difficulty; i++) {
+                    var response = solveCaptcha({ question, time }, nonce);
+                    var nonce = response.nonce;
+                    verification.push(response.verify_array);
+                    var percentDone = getWholePercent(i + 1, difficulty);
+                    self.postMessage({
+                        action: "message",
+                        message: `Still checking... ${percentDone}% done`
+                    });
+                }
+
                 self.postMessage({
-                    action: "message",
-                    message: `Still checking... ${percentDone}% done`
+                    action: "captchaSuccess",
+                    verification: verification
                 });
-            }
-            self.postMessage({
-                action: "captchaSuccess",
-                verification: verification
+
+                verification = [];
+                nonce = 1;
             });
-            verification = [];
-            nonce = 1;
         },
         false
     );
