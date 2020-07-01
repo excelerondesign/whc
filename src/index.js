@@ -60,8 +60,6 @@ import worker from './includes/worker';
 
         emit("Constructing");
 
-        // var publicAPIs = {};
-
         var enableButton = function (button) {
             button.classList.add("done");
             button.disabled = false;
