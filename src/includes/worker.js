@@ -508,10 +508,12 @@ export default function () {
             }
         }
     })();
-    const getWholePercent = (percentFor, percentOf) => {
+
+    var getWholePercent = (percentFor, percentOf) => {
         return Math.floor((percentFor / percentOf) * 100);
     };
-    const isPrime = value => {
+
+    var isPrime = value => {
         for (var i = 2; i < value; i++) {
             if (value % i === 0) {
                 return false;
@@ -520,7 +522,7 @@ export default function () {
         return value > 1;
     };
 
-    const solveCaptcha = ({ question, time }, nonce = 1) => {
+    var solveCaptcha = ({ question, time }, nonce = 1) => {
         nonce++;
         var verifyArray = {
             question: question,
@@ -529,6 +531,7 @@ export default function () {
         };
 
         var currentHash = sha256(JSON.stringify(verifyArray));
+
         while (currentHash.substr(0, 4) !== "0000" || !isPrime(nonce)) {
             nonce++;
             var verifyArray = {
@@ -538,6 +541,7 @@ export default function () {
             };
             var currentHash = sha256(JSON.stringify(verifyArray));
         }
+
         return {
             verify_array: verifyArray,
             nonce: nonce,
@@ -550,20 +554,23 @@ export default function () {
 
         formData.append("endpoint", "question");
 
-        let response = await fetch(url, {
+        var response = await fetch(url, {
             method: "POST",
             body: formData
         });
 
-        let data = await response.json();
-        // emit("sendRequest: Response Received");
+        var data = await response.json();
+
         return data;
     };
 
-    var verification = [];
+    // var verification = [];
+    /*
     if (nonce === null) {
         var nonce = 1;
     }
+    */
+
     self.addEventListener(
         "message",
         function ({ data }) {
@@ -575,6 +582,9 @@ export default function () {
             var { difficulty, time } = data;
             sendRequest("https://wehatecaptchas.com/api.php").then(function (requestResponse) {
                 var { question } = requestResponse.data;
+
+                var verification = [];
+                var nonce = nonce ?? 1;
 
                 for (var i = 0; i < difficulty; i++) {
                     var response = solveCaptcha({ question, time }, nonce);
