@@ -116,14 +116,18 @@ import worker from './includes/worker';
             return data;
         };
 
+        var addVerification = function (form, verification) {
+            var input = document.createElement('input');
+            input.setAttribute('type', 'hidden');
+            input.setAttribute('name', 'captcha_verification');
+            input.setAttribute('value', JSON.stringify(verification));
+            form.appendChild(input);
+        }
+
         var workerMessageHandler = function ({ data }) {
             if (data.action === "captchaSuccess") {
-                Private.form.insertAdjacentHTML(
-                    "beforeend",
-                    `<input type="hidden" name="captcha_verification" value='${JSON.stringify(
-                        data.verification
-                    )}'/>`
-                );
+
+                addVerification(Private.form, data.verification);
 
                 enableButton(Private.button);
 

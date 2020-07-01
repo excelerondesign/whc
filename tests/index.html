@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Single Form</title>
+		<link
+			rel="stylesheet"
+			href="./main.css"
+			media="print"
+			onload="this.onload=null;this.media='all';"
+		/>
+	</head>
+	<body>
+		<main>
+			<h1>Single Form</h1>
+			<h2>Settings:</h2>
+			<ul class="whc-settings">
+				<li><strong>Difficulty:</strong> 3</li>
+				<li><strong>Button Class:</strong> whc-button</li>
+				<li><strong>Form Class:</strong> whc-form</li>
+				<li><strong>Build Type:</strong> Modern</li>
+			</ul>
+			<form action="" id="singleForm" class="whc-form">
+				<h3>Form One</h3>
+				<input
+					type="submit"
+					value="verifying"
+					disabled
+					data-finished="verified"
+					class="whc-button"
+					data-difficulty="3"
+				/>
+			</form>
+		</main>
+		<script async defer src="../build/whc.modern.js"></script>
+	</body>
+</html>

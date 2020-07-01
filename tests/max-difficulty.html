@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Maximum Difficulty</title>
+		<link
+			rel="stylesheet"
+			href="./main.css"
+			media="print"
+			onload="this.onload=null;this.media='all';"
+		/>
+	</head>
+	<body>
+		<main>
+			<h1>Maximum Difficulty: 4 Forms</h1>
+			<h2>Settings:</h2>
+			<ul class="whc-settings">
+				<li><strong>Difficulty:</strong> 10</li>
+				<li><strong>Button Class:</strong> whc-button</li>
+				<li><strong>Form Class:</strong> whc-form</li>
+				<li><strong>Build Type:</strong> UMD</li>
+			</ul>
+			<form action="" id="formOne" class="whc-form">
+				<h3>Form One</h3>
+				<input
+					type="submit"
+					value="verifying"
+					disabled
+					data-finished="verified"
+					class="whc-button"
+					data-difficulty="10"
+				/>
+			</form>
+			<form action="" id="formTwo" class="whc-form">
+				<h3>Form Two</h3>
+				<input
+					type="submit"
+					value="verifying"
+					disabled
+					data-finished="verified"
+					class="whc-button"
+					data-difficulty="10"
+				/>
+			</form>
+			<form action="" id="formThree" class="whc-form">
+				<h3>Form Three</h3>
+				<input
+					type="submit"
+					value="verifying"
+					disabled
+					data-finished="verified"
+					class="whc-button"
+					data-difficulty="10"
+				/>
+			</form>
+			<form action="" id="formFour" class="whc-form">
+				<h3>Form Four</h3>
+				<input
+					type="submit"
+					value="verifying"
+					disabled
+					data-finished="verified"
+					class="whc-button"
+					data-difficulty="10"
+				/>
+			</form>
+		</main>
+		<script
+			src="../build/whc.umd.js"
+			id="whcScriptTag"
+			data-form="whc-form"
+			data-button="whc-button"
+		></script>
+	</body>
+</html>
