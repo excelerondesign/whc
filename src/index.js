@@ -10,7 +10,7 @@ import worker from './includes/worker';
         button: 'whc-button',
         form: 'whc-form',
         difficulty: 3,
-        debug: 0,
+        debug: false,
     }
 
     const whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
@@ -47,11 +47,6 @@ import worker from './includes/worker';
         Private.difficulty = parse(Private.button.getAttribute('dataset-difficulty')) || whcConfig.difficulty;
 
         Private.eventName = "WHC|" + Private.ID;
-
-        // converts the debug value into a boolean,
-        // so truthy becomes Boolean true, and Falsy becomes Boolean false
-        // (https://developer.mozilla.org/en-US/docs/Glossary/Truthy - https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
-        // checks all the forms to see if any of them have the debug flag, and then checks if it is true
 
         if (whcConfig.debug) {
             window.WHCDetails = window.WHCDetails || [];
