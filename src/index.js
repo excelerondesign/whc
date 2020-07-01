@@ -39,7 +39,6 @@ import worker from './includes/worker';
             "debug" in Private.form.dataset && Boolean(Private.form.dataset.debug);
 
         if (Private.debug) {
-            localStorage.removeItem("WHCStorage");
             window.WHCDetails = window.WHCDetails || [];
             window.WHCDetails.push({
                 form,
