@@ -59,8 +59,6 @@ import worker from './includes/worker';
 
         emit("Constructing");
 
-        // var publicAPIs = {};
-
         var enableButton = function (button) {
             button.classList.add("done");
             button.disabled = false;
@@ -96,22 +94,7 @@ import worker from './includes/worker';
 
             emit("beginVerification: Message Sent");
         };
-        /*
-        var sendRequest = async function (url) {
-            var formData = new FormData();
 
-            formData.append("endpoint", "question");
-
-            let response = await fetch(url, {
-                method: "POST",
-                body: formData
-            });
-
-            let data = await response.json();
-            emit("sendRequest: Response Received");
-            return data;
-        };
-        */
         var addVerification = function (form, verification) {
             var input = document.createElement('input');
             input.setAttribute('type', 'hidden');
