@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Single Form</title>
+		<title>Single Form (UMD)</title>
 		<link
 			rel="stylesheet"
 			href="./main.css"
@@ -13,15 +13,17 @@
 	</head>
 	<body>
 		<main>
-			<h1>Single Form</h1>
+			<h1>Single Form (UMD)</h1>
 			<h2>Settings:</h2>
 			<ul class="whc-settings">
 				<li><strong>Difficulty:</strong> 3</li>
 				<li><strong>Button Class:</strong> whc-button</li>
 				<li><strong>Form Class:</strong> whc-form</li>
-				<li><strong>Build Type:</strong> Modern</li>
+				<li>
+					<strong>Build Type:</strong> Universal Module Definition
+				</li>
 			</ul>
-			<form action="" id="singleForm" class="whc-form">
+			<form action="" id="singleForm" class="whc-form" data-debug="1">
 				<h3>Form One</h3>
 				<input
 					type="submit"
@@ -36,7 +38,7 @@
 		<script
 			async
 			defer
-			src="../build/whc.modern.js"
+			src="../build/whc.umd.js"
 			id="whcScriptTag"
 			data-button="whc-button"
 			data-form="whc-form"
