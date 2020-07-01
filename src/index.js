@@ -88,18 +88,15 @@ import worker from './includes/worker';
             var { difficulty, time, worker } = Private;
 
             emit("Difficulty Level: " + difficulty);
-            sendRequest("https://wehatecaptchas.com/api.php").then(function (data) {
-                const { question } = data.data;
-                worker.postMessage({
-                    question,
-                    difficulty,
-                    time
-                });
 
-                emit("beginVerification: Request Sent");
+            worker.postMessage({
+                difficulty,
+                time
             });
-        };
 
+            emit("beginVerification: Message Sent");
+        };
+        /*
         var sendRequest = async function (url) {
             var formData = new FormData();
 
@@ -114,7 +111,7 @@ import worker from './includes/worker';
             emit("sendRequest: Response Received");
             return data;
         };
-
+        */
         var addVerification = function (form, verification) {
             var input = document.createElement('input');
             input.setAttribute('type', 'hidden');
