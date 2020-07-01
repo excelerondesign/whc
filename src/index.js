@@ -66,15 +66,16 @@ import worker from './includes/worker';
         };
 
         var createWorker = function () {
+            emit('createWorker(): Creating')
             try {
                 // generates a worker by converting  into a string and then running that function as a worker
                 var blob = new Blob(['(' + worker.toString() + ')();'], { type: 'application/javascript' });
                 var blobUrl = URL.createObjectURL(blob);
                 var laborer = new Worker(blobUrl);
-                emit('createWorker: Worker Created');
+                emit('createWorker(): Created');
                 return laborer;
             } catch (e1) {
-                emit('createWorker: Worker Error');
+                emit('createWorker(): Error');
                 //if it still fails, there is nothing much we can do
                 console.error(e1);
             }
@@ -92,7 +93,7 @@ import worker from './includes/worker';
                 time
             });
 
-            emit("beginVerification: Message Sent");
+            emit("beginVerification(): Message Sent");
         };
 
         var addVerification = function (form, verification) {
@@ -103,22 +104,28 @@ import worker from './includes/worker';
             form.appendChild(input);
         }
 
+        var updatePercent = function (button, string) {
+            var percent = string.match(/\d*%/);
+            if (percent === null) return;
+
+            button.setAttribute('data-progress', percent);
+
+            emit("Verification Progress: " + percent);
+        }
+
         var workerMessageHandler = function ({ data }) {
             if (data.action === "captchaSuccess") {
 
                 addVerification(Private.form, data.verification);
-
                 enableButton(Private.button);
+                emit("Verification Progress: Complete");
 
                 return;
             } else if (data.action === "message") {
-                var percent = data.message.match(/\d*%/);
-                if (percent === null) return;
-                Private.button.dataset.progress = percent;
-                emit("workerMessageHandler: Progress " + percent);
-                return;
+
+                return updatePercent(Private.button, data.message);
             }
-            emit("workerMessageHandler: ERROR - UNKNOWN");
+            emit("workerMessageHandler(): ERROR - UNKNOWN");
         };
 
         window.addEventListener("load", beginVerification, {
