@@ -50,8 +50,8 @@ import worker from './includes/worker';
 
         if (whcConfig.debug) {
             Private.eventName = "WHC|" + Private.ID;
-            window.WHCDetails = window.WHCDetails || [];
-            window.WHCDetails.push({
+            window.whcDetails = window.whcDetails || [];
+            window.whcDetails.push({
                 form: Private.form,
                 button: Private.button,
                 difficulty: Private.difficulty
@@ -105,7 +105,7 @@ import worker from './includes/worker';
                 time
             });
 
-            emit("beginVerification(): Message Sent");
+            emit("Verification: Message Sent");
         };
 
         var addVerification = function (form, verification) {
@@ -121,8 +121,6 @@ import worker from './includes/worker';
             if (percent === null) return;
 
             button.setAttribute('data-progress', percent);
-
-            emit("Verification Progress: " + percent);
         }
 
         var workerMessageHandler = function ({ data }) {
@@ -135,9 +133,11 @@ import worker from './includes/worker';
                 return;
             } else if (data.action === "message") {
 
-                return updatePercent(Private.button, data.message);
+                updatePercent(Private.button, data.message)
+                emit("Verification Progress: " + percent);
+                return;
             }
-            emit("workerMessageHandler(): ERROR - UNKNOWN");
+            emit("Message Handler: ERROR - UNKNOWN");
         };
 
         window.addEventListener("load", beginVerification, {
