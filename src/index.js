@@ -7,8 +7,8 @@ import worker from './includes/worker';
 (function () {
 
     const whcDefaults = {
-        button: 'whc-button',
-        form: 'whc-form',
+        button: '.whc-button',
+        form: '.whc-form',
         debug: false,
         difficulty: 3,
         finished: 'Submit',
@@ -16,7 +16,7 @@ import worker from './includes/worker';
 
     const whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
 
-    const forms = Array.from(document.getElementsByClassName(whcConfig.form));
+    const forms = document.querySelectorAll(whcConfig.form);
 
 
     var parse = function (str) {
@@ -43,9 +43,9 @@ import worker from './includes/worker';
         Private.ID = form.getAttribute("id") || "Form " + index;
         // should be a class selector
         // each button should also have a 'data-finished' text that the button should end on
-        Private.button = form.getElementsByClassName(whcConfig.button)[0];
+        Private.button = form.querySelector(whcConfig.button);
 
-        Private.difficulty = parse(Private.button.getAttribute('dataset-difficulty')) || whcConfig.difficulty;
+        Private.difficulty = parse(Private.button.getAttribute('data-difficulty')) || whcConfig.difficulty;
 
 
         if (whcConfig.debug) {
@@ -73,7 +73,7 @@ import worker from './includes/worker';
         var enableButton = function (button) {
             var { finished } = button.dataset;
             button.classList.add("done");
-            button.setAttribute('disabled', false);
+            button.removeAttribute('disabled');
             button.setAttribute('value', finished);
         };
 
