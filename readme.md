@@ -4,56 +4,40 @@ WeHateCaptchas is a form verification service created by [Edward Dalton](DaltonW
 
 Here we've altered the Javascript aspect from the example to add some extra benefits.
 
-- Support for multiple forms
-- Advanced debugging (per form)
-  - Logging verification steps
-  - Details object
+-   Support for multiple forms
+-   Advanced debugging (per form)
+    -   Logging verification steps
+    -   Details object
 
 # Documentation
 
 To include in a project, upload or copy `dist/whc-plugin.umd.js` or `dist/min/whc-plugin.umd.js` to your project, and add the necessary parameters below.
 
-## Parameters
+## Options
 
-### HTMLScriptElement
+-   `form` ( default: `.whc-form` ) Marker class for all forms to be verified on the page
 
-`id` = `whcScriptTag` _required_
+-   `button` ( default: `.whc-button` ) Marker class for button/input, extra `data-*` attributes can be added here for form specific settings
 
-_use getElementsByClassName_
-`data-form` a class name for the forms on the page.
+-   `debug` ( default: `false` ) Boolean to turn on/off extra debugging during the verification process. Can also be set on the form using the `data-debug` attribute.
 
-`data-button` a class name for the submit buttons/inputs on the page.
+-   `difficulty` ( default: `3` ) The number of "questions" to answer before marking a form as verified. Can also be set on the button/input using the `data-difficulty` attribute.
 
----
-
-### HTMLFormElement
-
-`data-debug`: A boolean for getting more information about what is going on behind the scenes. Accepted values are any `Integer`, `'true'` or `'false'`, `''`.
-
-While you can use `'false'`, it is an anti-pattern and should be avoided in production.
-
-### HTMLButtonElement or HTMLInputElement
-
-`data-difficulty`: A number between 1 - 10. Determines the number of "questions" to answer before marking the user as verified.
-
-`data-finished`: The text/value of the element after verified.
+-   `finished` ( default: `Submit`) The button text/input value after verification is done. Can also be set on the button/input using the `data-finished` attribute.
 
 #### Automatic data attributes
 
 `data-progress`: Visual representation of the verification progress
 
-### Internal Variables
+### Debug Additions
 
-_Private.time_ The time the verification starts
-_Private.script_ The script element
-_Private.form_ Current form
-_Private.button_ Current submit button
-_Private.difficulty_ The difficulty of the verification process, either the default (5), the `data-difficulty` of the only button/input on the page, or an average of all on the page.
-_Private.eventName_ Internal event name for debugging
-_Private.workerFunc_ Inline WebWorker function
-_Private.worker_ The WebWorker after it is creater
-_Private.debug_ A function that checks all the forms for a debug value, turns on extra debugging features if true
+When `debug` is set to `true`, there are a few additions that are made.
 
-### Globals
+First, messages are logged to the console for every step along the way. Specifically:
 
-To limit Global variables, if _Private.debug_ is true, it will add `window.WHCDetails` with an object including all the forms, buttons, and the current difficulty.
+-   Constructor: Start and Complete
+-   Creating Worker: Start, Complete, and Error
+-   Verification: Message Sent, Progress xx%, and Progress Complete
+-   Message Handler: Error
+
+Second, it creates `window.whcDetails` an array of all the forms being verified. This can be helpful for getting a bird's eye view.

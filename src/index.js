@@ -7,15 +7,16 @@ import worker from './includes/worker';
 (function () {
 
     const whcDefaults = {
-        button: 'whc-button',
-        form: 'whc-form',
-        difficulty: 3,
+        button: '.whc-button',
+        form: '.whc-form',
         debug: false,
+        difficulty: 3,
+        finished: 'Submit',
     }
 
     const whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
 
-    const forms = Array.from(document.getElementsByClassName(whcConfig.form));
+    const forms = document.querySelectorAll(whcConfig.form);
 
 
     var parse = function (str) {
@@ -39,19 +40,19 @@ import worker from './includes/worker';
 
         Private.form = form;
 
-        Private.ID = Private.form.getAttribute("id") || "Form " + index;
+        Private.ID = form.getAttribute("id") || "Form " + index;
         // should be a class selector
         // each button should also have a 'data-finished' text that the button should end on
-        Private.button = Private.form.getElementsByClassName(whcConfig.button)[0];
+        Private.button = form.querySelector(whcConfig.button);
 
-        Private.difficulty = parse(Private.button.getAttribute('dataset-difficulty')) || whcConfig.difficulty;
+        Private.difficulty = parse(Private.button.getAttribute('data-difficulty')) || whcConfig.difficulty;
 
-        Private.eventName = "WHC|" + Private.ID;
 
         if (whcConfig.debug) {
-            window.WHCDetails = window.WHCDetails || [];
-            window.WHCDetails.push({
-                form,
+            Private.eventName = "WHC|" + Private.ID;
+            window.whcDetails = window.whcDetails || [];
+            window.whcDetails.push({
+                form: Private.form,
                 button: Private.button,
                 difficulty: Private.difficulty
             });
@@ -72,7 +73,7 @@ import worker from './includes/worker';
         var enableButton = function (button) {
             var { finished } = button.dataset;
             button.classList.add("done");
-            button.setAttribute('disabled', false);
+            button.removeAttribute('disabled');
             button.setAttribute('value', finished);
         };
 
@@ -104,7 +105,7 @@ import worker from './includes/worker';
                 time
             });
 
-            emit("beginVerification(): Message Sent");
+            emit("Verification: Message Sent");
         };
 
         var addVerification = function (form, verification) {
@@ -120,8 +121,6 @@ import worker from './includes/worker';
             if (percent === null) return;
 
             button.setAttribute('data-progress', percent);
-
-            emit("Verification Progress: " + percent);
         }
 
         var workerMessageHandler = function ({ data }) {
@@ -134,9 +133,11 @@ import worker from './includes/worker';
                 return;
             } else if (data.action === "message") {
 
-                return updatePercent(Private.button, data.message);
+                updatePercent(Private.button, data.message)
+                emit("Verification Progress: " + percent);
+                return;
             }
-            emit("workerMessageHandler(): ERROR - UNKNOWN");
+            emit("Message Handler: ERROR - UNKNOWN");
         };
 
         window.addEventListener("load", beginVerification, {
