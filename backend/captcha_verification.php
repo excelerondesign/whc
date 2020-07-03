@@ -1,6 +1,6 @@
 <?php
-$captchaVerification = !empty($_POST['captcha_verification']) ? $_POST['captcha_verification'] : false;
-if ($captchaVerification !== false) {
+$captcha_verification = !empty($_POST['captcha_verification']) ? $_POST['captcha_verification'] : false;
+if ($captcha_verification !== false) {
     $data = [
         "endpoint" => "verify",
         "captcha_verification" => $captchaVerification,
