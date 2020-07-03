@@ -121,6 +121,7 @@ import worker from './includes/worker';
             if (percent === null) return;
 
             button.setAttribute('data-progress', percent);
+            emit("Verification Progress: " + percent);
         }
 
         var workerMessageHandler = function ({ data }) {
@@ -134,7 +135,6 @@ import worker from './includes/worker';
             } else if (data.action === "message") {
 
                 updatePercent(Private.button, data.message)
-                emit("Verification Progress: " + percent);
                 return;
             }
             emit("Message Handler: ERROR - UNKNOWN");
