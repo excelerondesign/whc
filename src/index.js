@@ -2,23 +2,58 @@
  * WeHateCaptchas Self-Instantiating-Plugin
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
+
+/**
+ * @typedef {Object} whcOptions
+ * @property {string} button - Valid querySelector string
+ * @property {string} form - Valid className string
+ * @property {boolean} debug - Boolean to control debug messaging
+ * @property {number} difficulty - Number of "questions" to answer
+ * @property {string} finished - Final value after all questions are solved
+ */
+
+/**
+ * @typedef {Object} Verification
+ * @property {number} nonce
+ * @property {string} hash
+ * @property {string} question
+ */
+
+/**
+ * @typedef {Object} WorkerResponse
+ * @property {string} action
+ * @property {string} message
+ * @property {Verification[]} verification
+ */
+
 import worker from './includes/worker';
 
 (function () {
 
-    const whcDefaults = {
-        button: '.whc-button',
+    /**
+     * @type {whcOptions} whcDefaults
+     */
+    var whcDefaults = {
+        button: '[type="submit"]',
         form: '.whc-form',
         debug: false,
         difficulty: 3,
         finished: 'Submit',
     }
 
-    const whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
+    /**
+     * @type {whcOptions} window.whcConfig
+     */
+    var whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
 
-    const forms = document.querySelectorAll(whcConfig.form);
+    /**
+     * @type {NodeListOf<HTMLFormElement>} forms
+     */
+    var forms = document.querySelectorAll(whcConfig.form);
 
-
+    /**
+     * @param {string} str 
+     */
     var parse = function (str) {
         var num = parseInt(str);
 
@@ -28,28 +63,45 @@ import worker from './includes/worker';
         return num;
     }
 
+    /**
+     * 
+     * @param {HTMLFormElement} form 
+     * @param {number} index 
+     */
     var Constructor = function (form, index) {
+        var Private = {};
 
-        const Private = {};
-
-        // now converted to seconds
+        /**
+         * @type {number} Now converted to seconds
+         */
         Private.time = Math.floor(Date.now() / 1000);
 
-        // current time + 1 hour;
-        // Private.ttl = Private.time + 3600;
-
+        /**
+         * @type {HTMLFormElement}
+         */
         Private.form = form;
 
+        /**
+         * @type {string}
+         */
         Private.ID = form.getAttribute("id") || "Form " + index;
-        // should be a class selector
-        // each button should also have a 'data-finished' text that the button should end on
+
+        /**
+         * @type {HTMLButtonElement}
+         */
         Private.button = form.querySelector(whcConfig.button);
 
+        /**
+         * @type {number}
+         */
         Private.difficulty = parse(Private.button.getAttribute('data-difficulty')) || whcConfig.difficulty;
 
+        /**
+         * @type {string}
+         */
+        Private.eventName = "WHC|" + Private.ID;
 
         if (whcConfig.debug) {
-            Private.eventName = "WHC|" + Private.ID;
             window.whcDetails = window.whcDetails || [];
             window.whcDetails.push({
                 form: Private.form,
@@ -63,6 +115,9 @@ import worker from './includes/worker';
             );
         }
 
+        /**
+         * @param {string} detail 
+         */
         var emit = function (detail) {
             if (!whcConfig.debug) return;
             window.dispatchEvent(new CustomEvent(Private.eventName, { detail }));
@@ -70,6 +125,9 @@ import worker from './includes/worker';
 
         emit("Constructing");
 
+        /**
+         * @param {HTMLButtonElement} button 
+         */
         var enableButton = function (button) {
             var { finished } = button.dataset;
             button.classList.add("done");
@@ -89,7 +147,7 @@ import worker from './includes/worker';
             } catch (e1) {
                 emit('createWorker(): Error');
                 //if it still fails, there is nothing much we can do
-                console.error(e1);
+                throw new Error('Uknown Error: ' + e1);
             }
         };
 
@@ -108,6 +166,11 @@ import worker from './includes/worker';
             emit("Verification: Message Sent");
         };
 
+        /**
+         * 
+         * @param {HTMLFormElement} form 
+         * @param {Verification} verification 
+         */
         var addVerification = function (form, verification) {
             var input = document.createElement('input');
             input.setAttribute('type', 'hidden');
@@ -116,6 +179,11 @@ import worker from './includes/worker';
             form.appendChild(input);
         }
 
+        /**
+         * 
+         * @param {HTMLButtonElement} button 
+         * @param {string} string 
+         */
         var updatePercent = function (button, string) {
             var percent = string.match(/\d*%/);
             if (percent === null) return;
@@ -124,6 +192,12 @@ import worker from './includes/worker';
             emit("Verification Progress: " + percent);
         }
 
+
+        /**
+         * 
+         * @param {Object} param
+         * @param {WorkerResponse} param.data
+         */
         var workerMessageHandler = function ({ data }) {
             if (data.action === "captchaSuccess") {
 
