@@ -2,20 +2,49 @@
 
 These are some of the basic guidelines you should follow while developing this plugin. While none of us are in grade school any more, these are made to make all of our lives easier even if they seem like a hassle at first.
 
+[Dependencies](#dependencies)
+
+[Coding Practices](#practices)
+
 [Comments, JSDoc, Types](#types)
+
+## Dependencies
+
+Short answer: Don't.
+
+Long answer: Please don't.
+
+Our goals are:
+
+- 0 dependencies
+- under 4kb minified/gzipped
+
+## Practices
+
+[Microbundle](https://github.com/developit/microbundle) does most (see also: all) of the heavy lifting for us.
+
+That does not mean that you should use the latest and greatest. If you add or rewrite a part of the code, make sure to test both bundles. While Microbundle will run code through Babel, some of the polyfills may not transfer to the WebWorker properly.
+
+It is always better to lean towards explicit functions and variables over code golfing.
+
+```js
+var avoid = object && object.property;
+
+var better = object ? object.property : null;
+
+var best =
+  object !== undefined && object.property !== undefined
+    ? object.property
+    : null;
+```
 
 ## Types
 
 This project takes advantage of [JSDoc](https://jsdoc.app/index.html) to comment and record functions, parameters, and classes. Editors that support JSDoc automatically read/interpret comments and turn it into TypeScript like documentation, which gives everyone access to safer code without the steep learning curve and config fatigue that Typescript has.
 
-#### When do I need to add an `@typedef`?
+### When do I need to add an `@typedef`?
 
 Probably not at all. At the time of writing (5/4/2020), there are 4.
-
-- WorkerResponse
-- Verification
-- whcOptions
-- EncodedMessage
 
 These `@typedef` are used because they represent large objects or objects that return complex variables.
 
@@ -29,7 +58,7 @@ WorkerResponse.verification = Verifcation[] // Array -> Verification{ nonce: num
 
 If you are running into a large object/complex variable, it may be a sign that the code needs to be reevaluated.
 
-#### When do I need to add an `@param`?
+### When do I need to add an `@param`?
 
 Lean towards always adding `@param` notes. We don't always write our functions as explicitly as we should. Sometimes a `numberToHexString(num)` gets written as `toHexStr(n)`. For a veteran of a project, thats not a big deal. Not very accessible for someone just coming in. Adding a param note can circumvent this.
 
@@ -48,7 +77,7 @@ function toHexStr(n) {
 }
 ```
 
-#### When do I need to add an `@returns`?
+### When do I need to add an `@returns`?
 
 Most editors that can interpret JSDoc can figure out what most functions returns. Most. Here's an example.
 
@@ -61,9 +90,7 @@ function setButtonPercent(button, string) {
 }
 ```
 
-With explicit function and parameter names, it is easy to see what these should be. An editor interpreting/using JSDoc would say the parameters are of type "any" and returns "void" as it does not use a `return` statement. The function below though uses `this`, and is losing some context about what the functions `encodeMessage` and `computeHash` return.
-
-Adding those comments helps clear up that confusion.
+With no `return` statement, the editor can tell that the function returns `void`.
 
 ```js
 /**
@@ -79,5 +106,3 @@ obscureClass.hashMessage(msg) {
 ```
 
 Now when `hashMessage` is called, the editor will tell us to pass in a string/number and to expect a string in response.
-
-####
