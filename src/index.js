@@ -156,8 +156,7 @@ import worker from './includes/worker';
 			worker.terminate();
 			var workerIndex = window.whcWorkers.indexOf(worker);
 			window.whcWorkers.splice(workerIndex, 1);
-			console.log(window.whcWorkers);
-		}
+		};
 
 		Private.worker = createWorker();
 
