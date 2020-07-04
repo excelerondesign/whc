@@ -143,6 +143,7 @@ import worker from './includes/worker';
                 var blobUrl = URL.createObjectURL(blob);
                 var laborer = new Worker(blobUrl);
                 emit('createWorker(): Created');
+
                 return laborer;
             } catch (e1) {
                 emit('createWorker(): Error');
