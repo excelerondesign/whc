@@ -215,6 +215,7 @@ export default function () {
 		 * @param {EncodedMessage} encodedMessage
 		 * @param {number[]} H
 		 * @param {number[]} K
+		 * @return {string[]}
 		 */
 		this.computeHash = function ({ M, N }, H, K) {
 			var W = new Array(64);
@@ -268,7 +269,7 @@ export default function () {
 			return hashMap;
 		};
 		/**
-		 * @param {(string|number)} msg
+		 * @param {string|number} msg
 		 * @returns {string}
 		 */
 		this.hash = function (msg) {
