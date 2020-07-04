@@ -31,203 +31,209 @@
 import worker from './includes/worker';
 
 (function () {
+	/**
+	 * @type {whcOptions} whcDefaults
+	 */
+	var whcDefaults = {
+		button: '[type="submit"]',
+		form: '.whc-form',
+		debug: false,
+		difficulty: 3,
+		finished: 'Submit',
+	};
 
-    /**
-     * @type {whcOptions} whcDefaults
-     */
-    var whcDefaults = {
-        button: '[type="submit"]',
-        form: '.whc-form',
-        debug: false,
-        difficulty: 3,
-        finished: 'Submit',
-    }
+	/**
+	 * @type {whcOptions} window.whcConfig
+	 */
+	var whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
 
-    /**
-     * @type {whcOptions} window.whcConfig
-     */
-    var whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
+	/**
+	 * @type {NodeListOf<HTMLFormElement>} forms
+	 */
+	var forms = document.querySelectorAll(whcConfig.form);
 
-    /**
-     * @type {NodeListOf<HTMLFormElement>} forms
-     */
-    var forms = document.querySelectorAll(whcConfig.form);
+	/**
+	 * @param {string} str
+	 */
+	var parse = function (str) {
+		var num = parseInt(str);
 
-    /**
-     * @param {string} str 
-     */
-    var parse = function (str) {
-        var num = parseInt(str);
+		if (isNaN(num)) return false;
+		if (num !== num) return false;
 
-        if (isNaN(num)) return false;
-        if (num !== num) return false;
+		return num;
+	};
 
-        return num;
-    }
+	/**
+	 *
+	 * @param {HTMLFormElement} form
+	 * @param {number} index
+	 */
+	var Constructor = function (form, index) {
+		var Private = {};
 
-    /**
-     * 
-     * @param {HTMLFormElement} form 
-     * @param {number} index 
-     */
-    var Constructor = function (form, index) {
-        var Private = {};
+		/**
+		 * @type {number} Now converted to seconds
+		 */
+		Private.time = Math.floor(Date.now() / 1000);
 
-        /**
-         * @type {number} Now converted to seconds
-         */
-        Private.time = Math.floor(Date.now() / 1000);
+		/**
+		 * @type {HTMLFormElement}
+		 */
+		Private.form = form;
 
-        /**
-         * @type {HTMLFormElement}
-         */
-        Private.form = form;
+		/**
+		 * @type {string}
+		 */
+		Private.ID = form.getAttribute('id') || 'Form ' + index;
 
-        /**
-         * @type {string}
-         */
-        Private.ID = form.getAttribute("id") || "Form " + index;
+		/**
+		 * @type {HTMLButtonElement}
+		 */
+		Private.button = form.querySelector(whcConfig.button);
 
-        /**
-         * @type {HTMLButtonElement}
-         */
-        Private.button = form.querySelector(whcConfig.button);
+		/**
+		 * @type {number}
+		 */
+		Private.difficulty =
+			parse(Private.button.getAttribute('data-difficulty')) ||
+			whcConfig.difficulty;
 
-        /**
-         * @type {number}
-         */
-        Private.difficulty = parse(Private.button.getAttribute('data-difficulty')) || whcConfig.difficulty;
+		/**
+		 * @type {string}
+		 */
+		Private.eventName = 'WHC|' + Private.ID;
 
-        /**
-         * @type {string}
-         */
-        Private.eventName = "WHC|" + Private.ID;
+		Private.debug =
+			'debug' in form.dataset
+				? Boolean(form.dataset.debug)
+				: whcConfig.debug;
 
-        Private.debug = 'debug' in form.dataset ? Boolean(form.dataset.debug) : whcConfig.debug;
+		if (Private.debug) {
+			window.whcDetails = window.whcDetails || [];
+			window.whcDetails.push({
+				form: Private.form,
+				button: Private.button,
+				difficulty: Private.difficulty,
+			});
+			window.addEventListener(
+				Private.eventName,
+				({ detail }) =>
+					console.log(Private.eventName + '::Message -> ' + detail),
+				false
+			);
+		}
 
-        if (Private.debug) {
-            window.whcDetails = window.whcDetails || [];
-            window.whcDetails.push({
-                form: Private.form,
-                button: Private.button,
-                difficulty: Private.difficulty
-            });
-            window.addEventListener(
-                Private.eventName,
-                ({ detail }) => console.log(Private.eventName + "::Message -> " + detail),
-                false
-            );
-        }
+		/**
+		 * @param {string} detail
+		 */
+		var emit = function (detail) {
+			if (!whcConfig.debug) return;
+			window.dispatchEvent(
+				new CustomEvent(Private.eventName, { detail })
+			);
+		};
 
-        /**
-         * @param {string} detail 
-         */
-        var emit = function (detail) {
-            if (!whcConfig.debug) return;
-            window.dispatchEvent(new CustomEvent(Private.eventName, { detail }));
-        };
+		emit('Constructing');
+		console.log(emit);
+		/**
+		 * @param {HTMLButtonElement} button
+		 */
+		var enableButton = function (button) {
+			var { finished } = button.dataset;
+			button.classList.add('done');
+			button.removeAttribute('disabled');
+			button.setAttribute('value', finished);
+		};
 
-        emit("Constructing");
+		var createWorker = function () {
+			emit('createWorker(): Creating');
+			try {
+				// generates a worker by converting  into a string and then running that function as a worker
+				var blob = new Blob(['(' + worker.toString() + ')();'], {
+					type: 'application/javascript',
+				});
+				var blobUrl = URL.createObjectURL(blob);
+				var laborer = new Worker(blobUrl);
+				emit('createWorker(): Created');
 
-        /**
-         * @param {HTMLButtonElement} button 
-         */
-        var enableButton = function (button) {
-            var { finished } = button.dataset;
-            button.classList.add("done");
-            button.removeAttribute('disabled');
-            button.setAttribute('value', finished);
-        };
+				return laborer;
+			} catch (e1) {
+				emit('createWorker(): Error');
+				//if it still fails, there is nothing much we can do
+				throw new Error('Uknown Error: ' + e1);
+			}
+		};
 
-        var createWorker = function () {
-            emit('createWorker(): Creating')
-            try {
-                // generates a worker by converting  into a string and then running that function as a worker
-                var blob = new Blob(['(' + worker.toString() + ')();'], { type: 'application/javascript' });
-                var blobUrl = URL.createObjectURL(blob);
-                var laborer = new Worker(blobUrl);
-                emit('createWorker(): Created');
+		Private.worker = createWorker();
 
-                return laborer;
-            } catch (e1) {
-                emit('createWorker(): Error');
-                //if it still fails, there is nothing much we can do
-                throw new Error('Uknown Error: ' + e1);
-            }
-        };
+		var beginVerification = function () {
+			var { difficulty, time, worker } = Private;
 
-        Private.worker = createWorker();
+			emit('Difficulty Level: ' + difficulty);
 
-        var beginVerification = function () {
-            var { difficulty, time, worker } = Private;
+			worker.postMessage({
+				difficulty,
+				time,
+			});
 
-            emit("Difficulty Level: " + difficulty);
+			emit('Verification: Message Sent');
+		};
 
-            worker.postMessage({
-                difficulty,
-                time
-            });
+		/**
+		 *
+		 * @param {HTMLFormElement} form
+		 * @param {Verification} verification
+		 */
+		var addVerification = function (form, verification) {
+			var input = document.createElement('input');
+			input.setAttribute('type', 'hidden');
+			input.setAttribute('name', 'captcha_verification');
+			input.setAttribute('value', JSON.stringify(verification));
+			form.appendChild(input);
+		};
 
-            emit("Verification: Message Sent");
-        };
+		/**
+		 *
+		 * @param {HTMLButtonElement} button
+		 * @param {string} string
+		 */
+		var updatePercent = function (button, string) {
+			var percent = string.match(/\d*%/);
+			if (percent === null) return;
 
-        /**
-         * 
-         * @param {HTMLFormElement} form 
-         * @param {Verification} verification 
-         */
-        var addVerification = function (form, verification) {
-            var input = document.createElement('input');
-            input.setAttribute('type', 'hidden');
-            input.setAttribute('name', 'captcha_verification');
-            input.setAttribute('value', JSON.stringify(verification));
-            form.appendChild(input);
-        }
+			button.setAttribute('data-progress', percent);
+			emit('Verification Progress: ' + percent);
+		};
 
-        /**
-         * 
-         * @param {HTMLButtonElement} button 
-         * @param {string} string 
-         */
-        var updatePercent = function (button, string) {
-            var percent = string.match(/\d*%/);
-            if (percent === null) return;
+		/**
+		 *
+		 * @param {Object} param
+		 * @param {WorkerResponse} param.data
+		 */
+		var workerMessageHandler = function ({ data }) {
+			if (data.action === 'captchaSuccess') {
+				addVerification(Private.form, data.verification);
+				enableButton(Private.button);
+				emit('Verification Progress: Complete');
 
-            button.setAttribute('data-progress', percent);
-            emit("Verification Progress: " + percent);
-        }
+				return;
+			} else if (data.action === 'message') {
+				updatePercent(Private.button, data.message);
+				return;
+			}
+			emit('Message Handler: ERROR - UNKNOWN');
+		};
 
+		window.addEventListener('load', beginVerification, {
+			once: true,
+			capture: true,
+		});
 
-        /**
-         * 
-         * @param {Object} param
-         * @param {WorkerResponse} param.data
-         */
-        var workerMessageHandler = function ({ data }) {
-            if (data.action === "captchaSuccess") {
+		Private.worker.addEventListener('message', workerMessageHandler, false);
 
-                addVerification(Private.form, data.verification);
-                enableButton(Private.button);
-                emit("Verification Progress: Complete");
+		emit('Constructed');
+	};
 
-                return;
-            } else if (data.action === "message") {
-
-                updatePercent(Private.button, data.message)
-                return;
-            }
-            emit("Message Handler: ERROR - UNKNOWN");
-        };
-
-        window.addEventListener("load", beginVerification, {
-            once: true,
-            capture: true
-        });
-
-        Private.worker.addEventListener("message", workerMessageHandler, false);
-
-        emit("Constructed");
-    };
-
-    forms.forEach((form, i) => new Constructor(form, i));
+	forms.forEach((form, i) => new Constructor(form, i));
 })();
