@@ -29,7 +29,6 @@
  */
 
 import worker from './includes/worker'
-
 ;(function () {
 	/**
 	 * @type {whcOptions} whcDefaults
@@ -110,7 +109,8 @@ import worker from './includes/worker'
 				: whcConfig.debug
 
 		if (Private.debug) {
-			;(window.whcDetails || []).push({
+			window.whcDetails || []
+			window.whcDetails.push({
 				form: Private.form,
 				button: Private.button,
 				difficulty: Private.difficulty,
