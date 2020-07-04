@@ -10,6 +10,11 @@
 			media="print"
 			onload="this.onload=null;this.media='all';"
 		/>
+		<script>
+			window.whcConfig = window.whcConfig || {};
+			window.whcConfig.events = false;
+			console.log(whcConfig);
+		</script>
 	</head>
 	<body>
 		<nav>
@@ -47,7 +52,7 @@
 				<li><strong>Form Class:</strong> whc-form</li>
 				<li><strong>Build Type:</strong> Modern</li>
 			</ul>
-			<form action="" id="singleForm" class="whc-form" data-debug="true">
+			<form action="" id="singleForm" class="whc-form">
 				<h3>Form One</h3>
 				<input
 					type="submit"
@@ -67,5 +72,26 @@
 			data-form="whc-form"
 			data-button="whc-button"
 		></script>
+		<script>
+			console.log(window.whcConfig);
+			document
+				.querySelector('form')
+				.addEventListener('WHC::Progress', console.log);
+
+			document
+				.querySelector('form')
+				.addEventListener('WHC::Verification', console.log);
+
+			document
+				.querySelector('form')
+				.addEventListener('WHC::Error', console.log);
+
+			document
+				.querySelector('form')
+				.addEventListener('WHC::Error', ({ detail }) => {
+					if (detail.ID === 'singleForm') console.log('singleForm');
+					console.log('not singleForm');
+				});
+		</script>
 	</body>
 </html>
