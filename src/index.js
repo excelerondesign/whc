@@ -120,15 +120,6 @@ import worker from './includes/worker';
 
 		Private.events = isDebugging(form) || whcConfig.events;
 
-		if (Private.events) {
-			window.whcDetails = window.whcDetails || [];
-			window.whcDetails.push({
-				form: Private.form,
-				button: Private.button,
-				difficulty: Private.difficulty,
-			});
-		}
-
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
