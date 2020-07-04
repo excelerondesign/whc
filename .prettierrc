@@ -8,7 +8,8 @@
         "arrowParens": "avoid",
         "singleQuote": true,
         "tabWidth": 4,
-        "useTabs": true
+        "useTabs": true,
+        "semicolons": true
       }
     },
     {
