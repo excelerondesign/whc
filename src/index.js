@@ -7,9 +7,10 @@
  * @typedef {Object} whcOptions
  * @prop {string} button - Valid querySelector string
  * @prop {string} form - Valid className string
- * @prop {boolean} debug - Boolean to control debug messaging
+ //// @prop {boolean} debug - Boolean to control debug messaging
  * @prop {number} difficulty - Number of "questions" to answer
  * @prop {string} finished - Final value after all questions are solved
+ * @prop {boolean} events - Should emit custom events?
  */
 
 /**
@@ -28,7 +29,9 @@
  * @prop {Verification[]} verification
  */
 
+import emit from './includes/emit';
 import worker from './includes/worker';
+
 (function () {
 	/**
 	 * @type {whcOptions} whcDefaults
@@ -36,15 +39,20 @@ import worker from './includes/worker';
 	var whcDefaults = {
 		button: '[type="submit"]',
 		form: '.whc-form',
-		debug: false,
+		//// debug: false,
 		difficulty: 3,
 		finished: 'Submit',
+		events: true,
 	};
 
 	/**
-	 * @type {whcOptions} window.whcConfig
+	 * @type {whcOptions}
 	 */
-	var whcConfig = Object.assign(whcDefaults, window.whcConfig ?? {});
+	var windowWhcConfig = window.whcConfig || {};
+	/**
+	 * @type {whcOptions}
+	 */
+	var whcConfig = Object.assign(whcDefaults, windowWhcConfig);
 
 	/**
 	 * @type {NodeListOf<HTMLFormElement>} forms
@@ -116,8 +124,6 @@ import worker from './includes/worker';
 		Private.eventName = 'WHC|' + Private.ID;
 
 		Private.debug = isDebugging(form);
-
-		console.log(Private.debug);
 
 		if (Private.debug) {
 			window.whcDetails = window.whcDetails || [];
