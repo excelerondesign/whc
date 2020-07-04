@@ -103,7 +103,9 @@ import worker from './includes/worker';
          */
         Private.eventName = "WHC|" + Private.ID;
 
-        if (whcConfig.debug) {
+        Private.debug = 'debug' in form.dataset ? Boolean(form.dataset.debug) : whcConfig.debug;
+
+        if (Private.debug) {
             window.whcDetails = window.whcDetails || [];
             window.whcDetails.push({
                 form: Private.form,
