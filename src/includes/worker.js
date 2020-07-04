@@ -99,13 +99,12 @@ export default function () {
 	/**
 	 * Contains all the hashing functions for sha256 algorithm
 	 */
-	function sha256() { }
-	sha256.prototype = Object.assign({}, utilities.prototype, {
+	function sha256() {
 		/**
 		 * @param {string} msg 
 		 * @returns {EncodedMessage}
 		 */
-		encodeMessage(msg) {
+		this.encodeMessage = function (msg) {
 			msg += String.fromCharCode(0x80);  // add trailing '1' bit (+ 0's padding) to string [§5.1.1]
 
 			// convert string msg into 512-bit/16-integer blocks arrays of ints [§5.2.1]
@@ -131,13 +130,13 @@ export default function () {
 				M,
 				N
 			}
-		},
+		}
 		/**
 		 * @param {EncodedMessage} encodedMessage
 		 * @param {number[]} H 
 		 * @param {number[]} K 
 		 */
-		computeHash({ M, N }, H, K) {
+		this.computeHash = function ({ M, N }, H, K) {
 			var W = new Array(64);
 			var a, b, c, d, e, f, g, h;
 			for (var i = 0; i < N; i++) {
@@ -174,18 +173,21 @@ export default function () {
 			}
 			const hashMap = H.map(hash => this.toHexString(hash));
 			return hashMap;
-		},
+		}
 		/**
 		 * @param {(string|number)} msg
 		 * @returns {string}
 		 */
-		hash(msg) {
+		this.hash = function (msg) {
 			const encodedMessage = this.encodeMessage(msg);
 			const intermediateHash = this.computeHash(encodedMessage, this.H, this.K);
 			const hashedString = intermediateHash.join('');
 			return hashedString;
 		}
-	});
+		return this;
+	}
+
+	sha256.prototype = Object.assign({}, utilities.prototype);
 
 	var sha = new sha256();
 
