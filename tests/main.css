@@ -77,6 +77,24 @@ select {
 	}
 }
 
+nav > ul {
+	text-align: center;
+}
+
+nav > ul > li {
+	display: inline-block;
+	margin-right: 0.25rem;
+	margin-left: 0.25rem;
+}
+
+nav > ul > li:first-child {
+	margin-left: 0;
+}
+
+nav > ul > li:last-child {
+	margin-right: 0;
+}
+
 h1,
 h2,
 h3,
