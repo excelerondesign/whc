@@ -5,27 +5,27 @@
 
 /**
  * @typedef {Object} whcOptions
- * @property {string} button - Valid querySelector string
- * @property {string} form - Valid className string
- * @property {boolean} debug - Boolean to control debug messaging
- * @property {number} difficulty - Number of "questions" to answer
- * @property {string} finished - Final value after all questions are solved
+ * @prop {string} button - Valid querySelector string
+ * @prop {string} form - Valid className string
+ * @prop {boolean} debug - Boolean to control debug messaging
+ * @prop {number} difficulty - Number of "questions" to answer
+ * @prop {string} finished - Final value after all questions are solved
  */
 
 /**
  * @typedef {Object} Verification
- * @property {number} nonce
- * @property {string} hash
- * @property {string} question
+ * @prop {number} nonce
+ * @prop {number} time
+ * @prop {string} question
  */
 
 /**
  * @typedef {Object} WorkerResponse
- * @property {string} action
- * @property {string} message
- * @property {number} difficulty
- * @property {number} time
- * @property {Verification[]} verification
+ * @prop {string} action
+ * @prop {string} message
+ * @prop {number} difficulty
+ * @prop {number} time
+ * @prop {Verification[]} verification
  */
 
 import worker from './includes/worker';
@@ -64,7 +64,7 @@ import worker from './includes/worker';
 	};
 
 	/**
-	 *
+	 * @class
 	 * @param {HTMLFormElement} form
 	 * @param {number} index
 	 */
@@ -109,7 +109,7 @@ import worker from './includes/worker';
 				: whcConfig.debug;
 
 		if (Private.debug) {
-			window.whcDetails || [];
+			window.whcDetails = window.whcDetails || [];
 			window.whcDetails.push({
 				form: Private.form,
 				button: Private.button,
@@ -180,7 +180,6 @@ import worker from './includes/worker';
 		};
 
 		/**
-		 *
 		 * @param {HTMLFormElement} form
 		 * @param {Verification} verification
 		 */
@@ -193,7 +192,6 @@ import worker from './includes/worker';
 		};
 
 		/**
-		 *
 		 * @param {HTMLButtonElement} button
 		 * @param {string} string
 		 */
@@ -206,7 +204,6 @@ import worker from './includes/worker';
 		};
 
 		/**
-		 *
 		 * @param {Object} param
 		 * @param {WorkerResponse} param.data
 		 */
