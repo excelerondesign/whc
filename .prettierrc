@@ -1,5 +1,4 @@
 {
-  "semi": false,
   "overrides": [
     {
       "files": ["*.js", "*.json"],
@@ -9,7 +8,7 @@
         "singleQuote": true,
         "tabWidth": 4,
         "useTabs": true,
-        "semicolons": true
+        "semi": true
       }
     },
     {
