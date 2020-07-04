@@ -77,6 +77,32 @@ select {
 	}
 }
 
+nav > ul {
+	text-align: center;
+}
+
+nav > ul > li {
+	display: inline-block;
+	margin-right: 0.25rem;
+	margin-left: 0.25rem;
+}
+
+nav > ul > li:first-child {
+	margin-left: 0;
+}
+
+nav > ul > li:last-child {
+	margin-right: 0;
+}
+nav > ul > li > a {
+	color: #0d6efd;
+}
+nav > ul > li > a:visited {
+	color: #0d6efd;
+	text-decoration-style: dashed;
+	text-decoration-line: underline;
+}
+
 h1,
 h2,
 h3,
