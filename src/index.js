@@ -33,14 +33,19 @@ import emit from './includes/emit';
 import worker from './includes/worker';
 
 (function () {
+	/**
+	 * A weird bug in firefox leads to web workers with no "Active reference" to be garbage collected
+	 * So we create a global array to push workers into so that they don't get collected
+	 * once the workers complete their job, they are splice from the array
+	 * and terminated
+	 */
 	window.whcWorkers = [];
 	/**
-	 * @type {whcOptions} whcDefaults
+	 * @type {whcOptions}
 	 */
 	var whcDefaults = {
 		button: '[type="submit"]',
 		form: '.whc-form',
-		//// debug: false,
 		difficulty: 3,
 		finished: 'Submit',
 		events: true,
@@ -50,13 +55,14 @@ import worker from './includes/worker';
 	 * @type {whcOptions}
 	 */
 	var windowWhcConfig = window.whcConfig || {};
+
 	/**
 	 * @type {whcOptions}
 	 */
 	var whcConfig = Object.assign(whcDefaults, windowWhcConfig);
-	console.log(whcConfig);
+
 	/**
-	 * @type {NodeListOf<HTMLFormElement>} forms
+	 * @type {NodeListOf<HTMLFormElement>}
 	 */
 	var forms = document.querySelectorAll(whcConfig.form);
 
@@ -73,8 +79,9 @@ import worker from './includes/worker';
 	};
 
 	/**
-	 * @param {HTMLFormElement} data
-	 * @retuns {boolean}
+	 * @param {HTMLFormElement} form
+	 * @param {string} form.dataset.debug
+	 * @returns {boolean}
 	 */
 	var isDebugging = form => {
 		if (!'debug' in form.dataset) return whcConfig.debug;
@@ -145,6 +152,13 @@ import worker from './includes/worker';
 			}
 		};
 
+		var removeWorker = function (worker) {
+			worker.terminate();
+			var workerIndex = window.whcWorkers.indexOf(worker);
+			window.whcWorkers.splice(workerIndex, 1);
+			console.log(window.whcWorkers);
+		}
+
 		Private.worker = createWorker();
 
 		var beginVerification = function () {
@@ -197,6 +211,8 @@ import worker from './includes/worker';
 			if (data.action === 'captchaSuccess') {
 				addVerification(Private.form, data.verification);
 				enableButton(Private.button);
+				removeWorker(Private.worker);
+
 				return;
 			}
 			if (data.action === 'message') {
