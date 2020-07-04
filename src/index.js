@@ -23,6 +23,8 @@
  * @typedef {Object} WorkerResponse
  * @property {string} action
  * @property {string} message
+ * @property {number} difficulty
+ * @property {number} time
  * @property {Verification[]} verification
  */
 
