@@ -1,0 +1,23 @@
+{
+  "semi": false,
+  "overrides": [
+    {
+      "files": ["*.js", "*.json"],
+      "options": {
+        "bracketSpacing": true,
+        "arrowParens": "avoid",
+        "singleQuote": true,
+        "tabWidth": 4,
+        "useTabs": true
+      }
+    },
+    {
+      "files": "*.html",
+      "options": {
+        "tabWidth": 4,
+        "singleQuote": true,
+        "useTabs": true
+      }
+    }
+  ]
+}
