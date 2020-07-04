@@ -33,6 +33,7 @@ import emit from './includes/emit';
 import worker from './includes/worker';
 
 (function () {
+	window.whcWorkers = [];
 	/**
 	 * @type {whcOptions} whcDefaults
 	 */
@@ -53,7 +54,7 @@ import worker from './includes/worker';
 	 * @type {whcOptions}
 	 */
 	var whcConfig = Object.assign(whcDefaults, windowWhcConfig);
-
+	console.log(whcConfig);
 	/**
 	 * @type {NodeListOf<HTMLFormElement>} forms
 	 */
@@ -72,15 +73,14 @@ import worker from './includes/worker';
 	};
 
 	/**
-	 * @param {DomStringMap} data
+	 * @param {HTMLFormElement} data
 	 * @retuns {boolean}
 	 */
 	var isDebugging = form => {
-		const { debug } = form.dataset;
-		if (debug && debug === 'true') {
-			return true;
-		}
-		return whcConfig.debug;
+		if (!'debug' in form.dataset) return whcConfig.debug;
+		var { debug } = form.dataset;
+		if (debug !== 'true') return false;
+		return true;
 	};
 
 	/**
@@ -118,39 +118,16 @@ import worker from './includes/worker';
 			parse(Private.button.getAttribute('data-difficulty')) ||
 			whcConfig.difficulty;
 
-		/**
-		 * @type {string}
-		 */
-		Private.eventName = 'WHC|' + Private.ID;
+		Private.events = isDebugging(form) || whcConfig.events;
 
-		Private.debug = isDebugging(form);
-
-		if (Private.debug) {
+		if (Private.events) {
 			window.whcDetails = window.whcDetails || [];
 			window.whcDetails.push({
 				form: Private.form,
 				button: Private.button,
 				difficulty: Private.difficulty,
 			});
-			window.addEventListener(
-				Private.eventName,
-				({ detail }) =>
-					console.log(Private.eventName + '::Message -> ' + detail),
-				false
-			);
 		}
-
-		/**
-		 * @param {string} detail
-		 */
-		var emit = function (detail) {
-			if (!Private.debug) return;
-			window.dispatchEvent(
-				new CustomEvent(Private.eventName, { detail })
-			);
-		};
-
-		emit('Constructing');
 
 		/**
 		 * @param {HTMLButtonElement} button
@@ -163,7 +140,6 @@ import worker from './includes/worker';
 		};
 
 		var createWorker = function () {
-			emit('createWorker(): Creating');
 			try {
 				// generates a worker by converting  into a string and then running that function as a worker
 				var blob = new Blob(['(' + worker.toString() + ')();'], {
@@ -171,12 +147,9 @@ import worker from './includes/worker';
 				});
 				var blobUrl = URL.createObjectURL(blob);
 				var laborer = new Worker(blobUrl);
-				emit('createWorker(): Created');
-
+				window.whcWorkers.push(laborer);
 				return laborer;
 			} catch (e1) {
-				emit('createWorker(): Error');
-				//if it still fails, there is nothing much we can do
 				throw new Error('Uknown Error: ' + e1);
 			}
 		};
@@ -185,15 +158,10 @@ import worker from './includes/worker';
 
 		var beginVerification = function () {
 			var { difficulty, time, worker } = Private;
-
-			emit('Difficulty Level: ' + difficulty);
-
 			worker.postMessage({
 				difficulty,
 				time,
 			});
-
-			emit('Verification: Message Sent');
 		};
 
 		/**
@@ -206,6 +174,12 @@ import worker from './includes/worker';
 			input.setAttribute('name', 'captcha_verification');
 			input.setAttribute('value', JSON.stringify(verification));
 			form.appendChild(input);
+			if (Private.events) {
+				emit(Private.form, 'WHC::Verification', {
+					form: Private.form,
+					verification: verification,
+				});
+			}
 		};
 
 		/**
@@ -213,11 +187,15 @@ import worker from './includes/worker';
 		 * @param {string} string
 		 */
 		var updatePercent = function (button, string) {
-			var percent = string.match(/\d*%/);
+			var percent = string.match(/\d{2,3}/);
 			if (percent === null) return;
 
-			button.setAttribute('data-progress', percent);
-			emit('Verification Progress: ' + percent);
+			button.setAttribute('data-progress', percent + '%');
+			if (Private.events)
+				emit(Private.form, 'WHC::Progress', {
+					progress: percent + '%',
+					complete: percent[0] === '100',
+				});
 		};
 
 		/**
@@ -228,14 +206,12 @@ import worker from './includes/worker';
 			if (data.action === 'captchaSuccess') {
 				addVerification(Private.form, data.verification);
 				enableButton(Private.button);
-				emit('Verification Progress: Complete');
-
 				return;
-			} else if (data.action === 'message') {
+			}
+			if (data.action === 'message') {
 				updatePercent(Private.button, data.message);
 				return;
 			}
-			emit('Message Handler: ERROR - UNKNOWN');
 		};
 
 		window.addEventListener('load', beginVerification, {
@@ -245,7 +221,13 @@ import worker from './includes/worker';
 
 		Private.worker.addEventListener('message', workerMessageHandler, false);
 
-		emit('Constructed');
+		if (Private.events)
+			emit(Private.form, 'WHC::Initialize', {
+				form: Private.form,
+				ID: Private.ID,
+				button: Private.button,
+				difficulty: Private.difficulty,
+			});
 	};
 
 	forms.forEach((form, i) => new Constructor(form, i));
