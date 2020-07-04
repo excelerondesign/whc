@@ -1,7 +1,7 @@
-export default function (element, eventType, details = {}) {
-	var event = new CustomEvent('WHC::' + eventType, {
+export default function (element, eventType, detail = {}) {
+	var event = new CustomEvent(eventType, {
 		bubbles: true,
-		details,
+		detail,
 	});
 
 	element.dispatchEvent(event);
