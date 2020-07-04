@@ -2,11 +2,9 @@
 
 These are some of the basic guidelines you should follow while developing this plugin. While none of us are in grade school any more, these are made to make all of our lives easier even if they seem like a hassle at first.
 
-[Types](/#types)
+[Comments, JSDoc, Types](#types)
 
 ## Types
-
----
 
 This project takes advantage of [JSDoc](https://jsdoc.app/index.html) to comment and record functions, parameters, and classes. Editors that support JSDoc automatically read/interpret comments and turn it into TypeScript like documentation, which gives everyone access to safer code without the steep learning curve and config fatigue that Typescript has.
 
@@ -80,6 +78,6 @@ obscureClass.hashMessage(msg) {
 };
 ```
 
-Now when `hashMessage` is called, it will tell us to pass in a string/number and to expect a string in response.
+Now when `hashMessage` is called, the editor will tell us to pass in a string/number and to expect a string in response.
 
 ####
