@@ -1,15 +1,42 @@
+/**
+ * @typedef {Object} WorkerResponse
+ * @prop {string} action
+ * @prop {string} message
+ * @prop {number} difficulty
+ * @prop {number} time
+ * @prop {Verification[]} verification
+ */
+/**
+ * @typedef {Object} Verification
+ * @prop {number} nonce
+ * @prop {string} hash
+ * @prop {string} question
+ */
+/**
+ * @typedef {Object} RequestResponse
+ * @prop {Object} data
+ * @prop {string} data.question
+ */
+/**
+ * @typedef {Object} EncodedMessage
+ * @prop {number[][]} M
+ * @prop {number} N
+ */
 export default function () {
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
 	/*  SHA-256 implementation in JavaScript | (c) Chris Veness 2002-2010 | www.movable-type.co.uk    */
-	/*   - see http://csrc.nist.gov/groups/ST/toolkit/secure_hashing.html                             */
+	/*   - see http://csrc.nist.gov/groups/ST/toolkit/secure_sha256.html                             */
 	/*         http://csrc.nist.gov/groups/ST/toolkit/examples.html                                   */
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
 
 	// 0xffffffff is an unsigned int, a constant which is not present in javascrript
+
+
 	function utilities() { }
 	utilities.prototype = {
+
 		// constants [§4.2.2]
-		/** @constant {number[]} K */
+		/** @const {number[]} K */
 		K: [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
 			0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
 			0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
@@ -20,8 +47,12 @@ export default function () {
 			0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
 
 		// initial hash value [§5.3.1]
-		/** @constant {number[]} H */
+		/** @const {number[]} H */
 		H: [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19],
+
+		/** 
+		 * @param {number} n
+		 */
 		toHexString: function (n) {
 			var s = "", v;
 			for (var i = 7; i >= 0; i--) {
@@ -30,17 +61,23 @@ export default function () {
 			}
 			return s;
 		},
-
 		/**
 		 * @param {number} n 
 		 * @param {number} x 
 		 */
 		ROTR: function (n, x) { return (x >>> n) | (x << (32 - n)); },
-		/** @param {number} x */
+
+		/**
+		 * @param {number} x
+		 */
 		Sigma0: function (x) { return this.ROTR(2, x) ^ this.ROTR(13, x) ^ this.ROTR(22, x); },
-		/** @param {number} x */
+		/**
+		 * @param {number} x
+		 */
 		Sigma1: function (x) { return this.ROTR(6, x) ^ this.ROTR(11, x) ^ this.ROTR(25, x); },
-		/** @param {number} x */
+		/**
+		 * @param {number} x
+		 * */
 		sigma0: function (x) { return this.ROTR(7, x) ^ this.ROTR(18, x) ^ (x >>> 3); },
 		/** @param {number} x */
 		sigma1: function (x) { return this.ROTR(17, x) ^ this.ROTR(19, x) ^ (x >>> 10); },
@@ -59,16 +96,16 @@ export default function () {
 		 */
 		Maj: function (x, y, z) { return (x & y) ^ (x & z) ^ (y & z); },
 	}
-
-	function hashing() { }
-
-	hashing.prototype = {
+	/**
+	 * Contains all the hashing functions for sha256 algorithm
+	 */
+	function sha256() { }
+	sha256.prototype = Object.assign({}, utilities.prototype, {
 		/**
-		 * @private
 		 * @param {string} msg 
 		 * @returns {EncodedMessage}
 		 */
-		encodeMessage: function (msg) {
+		encodeMessage(msg) {
 			msg += String.fromCharCode(0x80);  // add trailing '1' bit (+ 0's padding) to string [§5.1.1]
 
 			// convert string msg into 512-bit/16-integer blocks arrays of ints [§5.2.1]
@@ -96,12 +133,11 @@ export default function () {
 			}
 		},
 		/**
-		 * @private
 		 * @param {EncodedMessage} encodedMessage
 		 * @param {number[]} H 
 		 * @param {number[]} K 
 		 */
-		computeHash: function ({ M, N }, H, K) {
+		computeHash({ M, N }, H, K) {
 			var W = new Array(64);
 			var a, b, c, d, e, f, g, h;
 			for (var i = 0; i < N; i++) {
@@ -140,28 +176,28 @@ export default function () {
 			return hashMap;
 		},
 		/**
-		 * @public
-		 * @param {(string|number)}
+		 * @param {(string|number)} msg
 		 * @returns {string}
 		 */
-		hash: function (msg) {
+		hash(msg) {
 			const encodedMessage = this.encodeMessage(msg);
 			const intermediateHash = this.computeHash(encodedMessage, this.H, this.K);
 			const hashedString = intermediateHash.join('');
 			return hashedString;
 		}
-	}
-	function sha256() { }
-	sha256.prototype = Object.assign(hashing.prototype, utilities.prototype);
-	// sha256.prototype = sha256ProtoObject;
+	});
 
 	var sha = new sha256();
-	console.log(sha);
 
+	/**
+	 * @param {number} percentFor
+	 * @param {number} percentOf
+	 */
 	var getWholePercent = (percentFor, percentOf) => {
 		return Math.floor((percentFor / percentOf) * 100);
 	};
 
+	/** @param {number} value */
 	var isPrime = value => {
 		for (var i = 2; i < value; i++) {
 			if (value % i === 0) {
@@ -171,6 +207,13 @@ export default function () {
 		return value > 1;
 	};
 
+	/**
+	 * 
+	 * @param {Object} object
+	 * @param {string} object.question
+	 * @param {number} object.time
+	 * @param {number} nonce 
+	 */
 	var solveCaptcha = ({ question, time }, nonce = 1) => {
 		nonce++;
 		var verifyArray = {
@@ -213,46 +256,46 @@ export default function () {
 		return data;
 	};
 
-	// var verification = [];
-	/*
-	if (nonce === null) {
-		var nonce = 1;
-	}
-	*/
 	self.addEventListener(
 		"message",
+		/**
+		 * @param {Object} param 
+		 * @param {WorkerResponse} param.data 
+		 */
 		function ({ data }) {
 			self.postMessage({
 				action: "message",
-				message: `Checking if you're a bot before enabling submit button...`
+				message: "Checking if you're a bot before enabling submit button..."
 			});
-			// var times = data.difficulty;
+
 			var { difficulty, time } = data;
-			sendRequest("https://wehatecaptchas.com/api.php").then(function (requestResponse) {
-				var { question } = requestResponse.data;
+			sendRequest("https://wehatecaptchas.com/api.php").then(
+				/** @param {RequestResponse} requestResponse */
+				function (requestResponse) {
+					var { question } = requestResponse.data;
 
-				var verification = [];
-				var nonce = nonce ?? 1;
+					var verification = [];
+					var nonce = nonce ?? 1;
 
-				for (var i = 0; i < difficulty; i++) {
-					var response = solveCaptcha({ question, time }, nonce);
-					var nonce = response.nonce;
-					verification.push(response.verify_array);
-					var percentDone = getWholePercent(i + 1, difficulty);
+					for (var i = 0; i < difficulty; i++) {
+						var response = solveCaptcha({ question, time }, nonce);
+						var nonce = response.nonce;
+						verification.push(response.verify_array);
+						var percentDone = getWholePercent(i + 1, difficulty);
+						self.postMessage({
+							action: "message",
+							message: "Still checking... " + percentDone + "% done",
+						});
+					}
+
 					self.postMessage({
-						action: "message",
-						message: `Still checking... ${percentDone}% done`
+						action: "captchaSuccess",
+						verification: verification
 					});
-				}
 
-				self.postMessage({
-					action: "captchaSuccess",
-					verification: verification
+					verification = [];
+					nonce = 1;
 				});
-
-				verification = [];
-				nonce = 1;
-			});
 		},
 		false
 	);
