@@ -94,6 +94,14 @@ nav > ul > li:first-child {
 nav > ul > li:last-child {
 	margin-right: 0;
 }
+nav > ul > li > a {
+	color: #0d6efd;
+}
+nav > ul > li > a:visited {
+	color: #0d6efd;
+	text-decoration-style: dashed;
+	text-decoration-line: underline;
+}
 
 h1,
 h2,
