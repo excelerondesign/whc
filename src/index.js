@@ -125,8 +125,6 @@ import worker from './includes/worker';
 			parse(Private.button.getAttribute('data-difficulty')) ||
 			whcConfig.difficulty;
 
-		Private.events = isDebugging(form) || whcConfig.events;
-
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
@@ -178,7 +176,7 @@ import worker from './includes/worker';
 			input.setAttribute('name', 'captcha_verification');
 			input.setAttribute('value', JSON.stringify(verification));
 			form.appendChild(input);
-			if (Private.events) {
+			if (whcConfig.events) {
 				emit(Private.form, 'WHC::Verification', {
 					form: Private.form,
 					verification: verification,
@@ -195,7 +193,7 @@ import worker from './includes/worker';
 			if (percent === null) return;
 
 			button.setAttribute('data-progress', percent + '%');
-			if (Private.events)
+			if (whcConfig.events)
 				emit(Private.form, 'WHC::Progress', {
 					progress: percent + '%',
 					complete: percent[0] === '100',
@@ -227,7 +225,7 @@ import worker from './includes/worker';
 
 		Private.worker.addEventListener('message', workerMessageHandler, false);
 
-		if (Private.events)
+		if (whcConfig.events)
 			emit(Private.form, 'WHC::Initialize', {
 				form: Private.form,
 				ID: Private.ID,
