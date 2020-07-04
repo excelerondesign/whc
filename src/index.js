@@ -64,6 +64,18 @@ import worker from './includes/worker';
 	};
 
 	/**
+	 * @param {DomStringMap} data
+	 * @retuns {boolean}
+	 */
+	var isDebugging = form => {
+		const { debug } = form.dataset;
+		if (debug && debug === 'true') {
+			return true;
+		}
+		return whcConfig.debug;
+	};
+
+	/**
 	 * @class
 	 * @param {HTMLFormElement} form
 	 * @param {number} index
@@ -103,10 +115,9 @@ import worker from './includes/worker';
 		 */
 		Private.eventName = 'WHC|' + Private.ID;
 
-		Private.debug =
-			'debug' in form.dataset
-				? Boolean(form.dataset.debug)
-				: whcConfig.debug;
+		Private.debug = isDebugging(form);
+
+		console.log(Private.debug);
 
 		if (Private.debug) {
 			window.whcDetails = window.whcDetails || [];
@@ -127,14 +138,14 @@ import worker from './includes/worker';
 		 * @param {string} detail
 		 */
 		var emit = function (detail) {
-			if (!whcConfig.debug) return;
+			if (!Private.debug) return;
 			window.dispatchEvent(
 				new CustomEvent(Private.eventName, { detail })
 			);
 		};
 
 		emit('Constructing');
-		console.log(emit);
+
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
