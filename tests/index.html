@@ -12,8 +12,7 @@
 		/>
 		<script>
 			window.whcConfig = window.whcConfig || {};
-			window.whcConfig.events = false;
-			console.log(whcConfig);
+			window.whcConfig.events = true;
 		</script>
 	</head>
 	<body>
@@ -73,7 +72,6 @@
 			data-button="whc-button"
 		></script>
 		<script>
-			console.log(window.whcConfig);
 			document
 				.querySelector('form')
 				.addEventListener('WHC::Progress', console.log);
@@ -81,17 +79,6 @@
 			document
 				.querySelector('form')
 				.addEventListener('WHC::Verification', console.log);
-
-			document
-				.querySelector('form')
-				.addEventListener('WHC::Error', console.log);
-
-			document
-				.querySelector('form')
-				.addEventListener('WHC::Error', ({ detail }) => {
-					if (detail.ID === 'singleForm') console.log('singleForm');
-					console.log('not singleForm');
-				});
 		</script>
 	</body>
 </html>
