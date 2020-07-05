@@ -31,14 +31,14 @@
 					<a href="./multiple-forms.umd.html">Multiple Forms (UMD)</a>
 				</li>
 				<li>
-					<a href="./max-difficulty.html"
-						>Maximum Difficulty (Modern)</a
-					>
+					<a href="./max-difficulty.html">
+						Maximum Difficulty (Modern)
+					</a>
 				</li>
 				<li>
-					<a href="./max-difficulty.umd.html"
-						>Maximum Difficulty (UMD)</a
-					>
+					<a href="./max-difficulty.umd.html">
+						Maximum Difficulty (UMD)
+					</a>
 				</li>
 			</ul>
 		</nav>
@@ -74,11 +74,15 @@
 		<script>
 			document
 				.querySelector('form')
-				.addEventListener('WHC::Progress', console.log);
+				.addEventListener('WHC:Start', console.log);
 
 			document
 				.querySelector('form')
-				.addEventListener('WHC::Verification', console.log);
+				.addEventListener('WHC:Update', console.log);
+
+			document
+				.querySelector('form')
+				.addEventListener('WHC:Complete', console.log);
 		</script>
 	</body>
 </html>

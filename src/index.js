@@ -152,7 +152,7 @@ import worker from './includes/worker';
 		};
 
 		var beginVerification = function () {
-			var { difficulty, time } = Private;
+			var { difficulty, time, form } = Private;
 			var laborer = createWorker(worker);
 			workerArr.push(laborer);
 			laborer.addEventListener('message', workerMessageHandler, false);
@@ -160,39 +160,52 @@ import worker from './includes/worker';
 				difficulty,
 				time,
 			});
+			if (whcConfig.events)
+				emit(form, 'WHC:Start', {
+					form,
+					time,
+					difficulty,
+					complete: false,
+					emoji: '🚗💨',
+				});
 		};
 
 		/**
 		 * @param {HTMLFormElement} form
 		 * @param {Verification} verification
 		 */
-		var addVerification = function (form, verification) {
+		var appendVerification = function (form, verification) {
 			var input = document.createElement('input');
 			input.setAttribute('type', 'hidden');
 			input.setAttribute('name', 'captcha_verification');
 			input.setAttribute('value', JSON.stringify(verification));
 			form.appendChild(input);
-			if (whcConfig.events) {
-				emit(form, 'WHC::Verification', {
+			if (whcConfig.events)
+				emit(form, 'WHC:Complete', {
 					form,
+					time: Date.now(),
 					verification: verification,
+					complete: true,
+					emoji: '✅',
 				});
-			}
 		};
 
 		/**
 		 * @param {HTMLButtonElement} button
 		 * @param {string} string
 		 */
-		var updatePercent = function (button, string) {
+		var updatePercent = function (form, button, string) {
 			var percent = string.match(/\d{2,3}/);
 			if (percent === null) return;
 
 			button.setAttribute('data-progress', percent + '%');
 			if (whcConfig.events)
-				emit(Private.form, 'WHC::Progress', {
+				emit(form, 'WHC:Update', {
+					form,
+					time: Date.now(),
 					progress: percent + '%',
 					complete: percent[0] === '100',
+					emoji: '🔔',
 				});
 		};
 
@@ -206,14 +219,14 @@ import worker from './includes/worker';
 			var { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
-				addVerification(form, verification);
+				appendVerification(form, verification);
 				enableButton(button);
 				removeWorker(workerArr, this);
 
 				return;
 			}
 			if (action === 'message') {
-				updatePercent(button, message);
+				updatePercent(form, button, message);
 				return;
 			}
 		};
@@ -222,14 +235,6 @@ import worker from './includes/worker';
 			once: true,
 			capture: true,
 		});
-
-		if (whcConfig.events)
-			emit(Private.form, 'WHC::Initialize', {
-				form: Private.form,
-				ID: Private.ID,
-				button: Private.button,
-				difficulty: Private.difficulty,
-			});
 	};
 
 	forms.forEach((form, i) => new Constructor(form, i));
