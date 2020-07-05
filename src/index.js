@@ -165,6 +165,7 @@ import worker from './includes/worker';
 					form,
 					time,
 					difficulty,
+					complete: false,
 					emoji: '🚗💨',
 				});
 		};
@@ -184,6 +185,7 @@ import worker from './includes/worker';
 					form,
 					time: Date.now(),
 					verification: verification,
+					complete: true,
 					emoji: '✅',
 				});
 		};
