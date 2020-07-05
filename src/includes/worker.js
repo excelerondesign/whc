@@ -18,11 +18,9 @@
  * @prop {number} N
  */
 export default function () {
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
 	/*  SHA-256 implementation in JavaScript | (c) Chris Veness 2002-2010 | www.movable-type.co.uk    */
 	/*   - see http://csrc.nist.gov/groups/ST/toolkit/secure_sha256.html                             */
 	/*         http://csrc.nist.gov/groups/ST/toolkit/examples.html                                   */
-	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
 
 	// 0xffffffff is an unsigned int, a constant which is not present in javascrript
 
