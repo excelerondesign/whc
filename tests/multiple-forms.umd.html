@@ -10,6 +10,10 @@
 			media="print"
 			onload="this.onload=null;this.media='all';"
 		/>
+		<script>
+			window.whcConfig = window.whcConfig || {};
+			window.whcConfig.events = true;
+		</script>
 	</head>
 	<body>
 		<nav>
@@ -166,5 +170,13 @@
 			data-form="whc-form"
 			data-button="whc-button"
 		></script>
+		<script>
+			document
+				.querySelector('form')
+				.addEventListener('WHC::Progress', function ({ detail }) {
+					console.log(detail.progress);
+					console.log(detail.complete);
+				});
+		</script>
 	</body>
 </html>
