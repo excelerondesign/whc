@@ -7,7 +7,6 @@
  * @typedef {Object} whcOptions
  * @prop {string} button - Valid querySelector string
  * @prop {string} form - Valid className string
- //// @prop {boolean} debug - Boolean to control debug messaging
  * @prop {number} difficulty - Number of "questions" to answer
  * @prop {string} finished - Final value after all questions are solved
  * @prop {boolean} events - Should emit custom events?
@@ -76,18 +75,6 @@ import worker from './includes/worker';
 		if (num !== num) return false;
 
 		return num;
-	};
-
-	/**
-	 * @param {HTMLFormElement} form
-	 * @param {string} form.dataset.debug
-	 * @returns {boolean}
-	 */
-	var isDebugging = form => {
-		if (!'debug' in form.dataset) return whcConfig.debug;
-		var { debug } = form.dataset;
-		if (debug !== 'true') return false;
-		return true;
 	};
 
 	/**
