@@ -40,6 +40,7 @@ import worker from './includes/worker';
 	 */
 	var workerArr = [];
 	window.whcWorkers = workerArr;
+
 	/**
 	 * @type {whcOptions}
 	 */
@@ -196,20 +197,23 @@ import worker from './includes/worker';
 		};
 
 		/**
+		 * @this {Worker}
 		 * @param {Object} param
 		 * @param {WorkerResponse} param.data
 		 */
 		var workerMessageHandler = function ({ data }) {
-			var { form, button, worker } = Private;
-			if (data.action === 'captchaSuccess') {
-				addVerification(form, data.verification);
+			var { form, button } = Private;
+			var { action, message, verification } = data;
+
+			if (action === 'captchaSuccess') {
+				addVerification(form, verification);
 				enableButton(button);
-				removeWorker(workerArr, worker);
+				removeWorker(workerArr, this);
 
 				return;
 			}
-			if (data.action === 'message') {
-				updatePercent(button, data.message);
+			if (action === 'message') {
+				updatePercent(button, message);
 				return;
 			}
 		};
