@@ -111,7 +111,7 @@ export default function () {
 		/**
 		 * @param {number} n
 		 */
-		toHexString: function (n) {
+		_toHexString: function (n) {
 			var s = '',
 				v;
 			for (var i = 7; i >= 0; i--) {
@@ -124,31 +124,31 @@ export default function () {
 		 * @param {number} n
 		 * @param {number} x
 		 */
-		ROTR: function (n, x) {
+		_ROTR: function (n, x) {
 			return (x >>> n) | (x << (32 - n));
 		},
 
 		/**
 		 * @param {number} x
 		 */
-		Sigma0: function (x) {
-			return this.ROTR(2, x) ^ this.ROTR(13, x) ^ this.ROTR(22, x);
+		_Sigma0: function (x) {
+			return this._ROTR(2, x) ^ this._ROTR(13, x) ^ this._ROTR(22, x);
 		},
 		/**
 		 * @param {number} x
 		 */
-		Sigma1: function (x) {
-			return this.ROTR(6, x) ^ this.ROTR(11, x) ^ this.ROTR(25, x);
+		_Sigma1: function (x) {
+			return this._ROTR(6, x) ^ this._ROTR(11, x) ^ this._ROTR(25, x);
 		},
 		/**
 		 * @param {number} x
 		 * */
-		sigma0: function (x) {
-			return this.ROTR(7, x) ^ this.ROTR(18, x) ^ (x >>> 3);
+		_sigma0: function (x) {
+			return this._ROTR(7, x) ^ this._ROTR(18, x) ^ (x >>> 3);
 		},
 		/** @param {number} x */
-		sigma1: function (x) {
-			return this.ROTR(17, x) ^ this.ROTR(19, x) ^ (x >>> 10);
+		_sigma1: function (x) {
+			return this._ROTR(17, x) ^ this._ROTR(19, x) ^ (x >>> 10);
 		},
 
 		/**
@@ -156,7 +156,7 @@ export default function () {
 		 * @param {number} y
 		 * @param {number} z
 		 */
-		Ch: function (x, y, z) {
+		_Ch: function (x, y, z) {
 			return (x & y) ^ (~x & z);
 		},
 
@@ -165,7 +165,7 @@ export default function () {
 		 * @param {number} y
 		 * @param {number} z
 		 */
-		Maj: function (x, y, z) {
+		_Maj: function (x, y, z) {
 			return (x & y) ^ (x & z) ^ (y & z);
 		},
 	};
@@ -177,7 +177,7 @@ export default function () {
 		 * @param {string} msg
 		 * @returns {EncodedMessage}
 		 */
-		this.encodeMessage = function (msg) {
+		this._encodeMessage = function (msg) {
 			msg += String.fromCharCode(0x80); // add trailing '1' bit (+ 0's padding) to string [§5.1.1]
 
 			// convert string msg into 512-bit/16-integer blocks arrays of ints [§5.2.1]
@@ -215,7 +215,7 @@ export default function () {
 		 * @param {number[]} K
 		 * @return {string[]}
 		 */
-		this.computeHash = function ({ M, N }, H, K) {
+		this._computeHash = function ({ M, N }, H, K) {
 			var W = new Array(64);
 			var a, b, c, d, e, f, g, h;
 			for (var i = 0; i < N; i++) {
@@ -223,9 +223,9 @@ export default function () {
 				for (var t = 0; t < 16; t++) W[t] = M[i][t];
 				for (var t = 16; t < 64; t++)
 					W[t] =
-						(this.sigma1(W[t - 2]) +
+						(this._sigma1(W[t - 2]) +
 							W[t - 7] +
-							this.sigma0(W[t - 15]) +
+							this._sigma0(W[t - 15]) +
 							W[t - 16]) &
 						0xffffffff;
 
@@ -242,8 +242,8 @@ export default function () {
 				// 3 - main loop (note 'addition modulo 2^32')
 				for (var t = 0; t < 64; t++) {
 					var T1 =
-						h + this.Sigma1(e) + this.Ch(e, f, g) + K[t] + W[t];
-					var T2 = this.Sigma0(a) + this.Maj(a, b, c);
+						h + this._Sigma1(e) + this._Ch(e, f, g) + K[t] + W[t];
+					var T2 = this._Sigma0(a) + this._Maj(a, b, c);
 					h = g;
 					g = f;
 					f = e;
@@ -263,7 +263,7 @@ export default function () {
 				H[6] = (H[6] + g) & 0xffffffff;
 				H[7] = (H[7] + h) & 0xffffffff;
 			}
-			const hashMap = H.map(hash => this.toHexString(hash));
+			const hashMap = H.map(hash => this._toHexString(hash));
 			return hashMap;
 		};
 		/**
@@ -271,8 +271,8 @@ export default function () {
 		 * @returns {string}
 		 */
 		this.hash = function (msg) {
-			const encodedMessage = this.encodeMessage(msg);
-			const intermediateHash = this.computeHash(
+			const encodedMessage = this._encodeMessage(msg);
+			const intermediateHash = this._computeHash(
 				encodedMessage,
 				this.H,
 				this.K
@@ -342,12 +342,12 @@ export default function () {
 	 * @param {string} url
 	 * @returns {string}
 	 */
-	var sendRequest = async function (url) {
+	var sendRequest = async function () {
 		var formData = new FormData();
 
 		formData.append('endpoint', 'question');
 
-		var response = await fetch(url, {
+		var response = await fetch('https://wehatecaptchas.com/api.php', {
 			method: 'POST',
 			body: formData,
 		});
@@ -371,7 +371,7 @@ export default function () {
 			});
 
 			var { difficulty, time } = data;
-			sendRequest('https://wehatecaptchas.com/api.php').then(
+			sendRequest().then(
 				/** @param {string} question */
 				function (question) {
 					var verification = [];
