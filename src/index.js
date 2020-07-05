@@ -10,6 +10,7 @@
  * @prop {number} difficulty - Number of "questions" to answer
  * @prop {string} finished - Final value after all questions are solved
  * @prop {boolean} events - Should emit custom events?
+ * @prop {boolean} performance - Should track performance?
  */
 
 /**
@@ -109,18 +110,22 @@ import p, { pComplete } from './includes/performance';
 		 */
 		Private.button = form.querySelector(whcConfig.button);
 
+		Private.finished =
+			Private.button.dataset.finished || whcConfig.finished;
+
 		/**
 		 * @type {number}
 		 */
 		Private.difficulty =
 			parse(Private.button.getAttribute('data-difficulty')) ||
 			whcConfig.difficulty;
-
+		var whcStart = 'whc:Start#' + index;
+		var whcUpdate = 'whc:Update#' + index;
+		var whcComplete = 'whc:Complete#' + index;
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
-		var enableButton = function (button) {
-			var { finished } = button.dataset;
+		var enableButton = function (button, finished) {
 			button.classList.add('done');
 			button.removeAttribute('disabled');
 			button.setAttribute('value', finished);
@@ -139,7 +144,7 @@ import p, { pComplete } from './includes/performance';
 				var laborer = new Worker(blobUrl);
 				return laborer;
 			} catch (e1) {
-				throw new Error('Uknown Error: ' + e1);
+				throw new Error('Unknown Error: ' + e1);
 			}
 		};
 
@@ -169,7 +174,7 @@ import p, { pComplete } from './includes/performance';
 					complete: false,
 					emoji: '🚗💨',
 				});
-			if (whcConfig.performance) p('whc:Start#' + index, 'mark');
+			if (whcConfig.performance) p(whcStart, 'mark');
 		};
 
 		/**
@@ -187,10 +192,9 @@ import p, { pComplete } from './includes/performance';
 					verification: verification,
 					complete: true,
 					emoji: '✅',
-					performance: pComplete(),
+					performance: pComplete(index),
 				});
-			if (whcConfig.performance)
-				p('whc:Complete#' + index, 'measure', 'whc:Start');
+			if (whcConfig.performance) p(whcComplete, 'measure', whcStart);
 		};
 
 		/**
@@ -199,17 +203,11 @@ import p, { pComplete } from './includes/performance';
 		 */
 		var updatePercent = function (form, button, string) {
 			var percent = string.match(/\d{2,3}/);
-			if (percent === null)
-				return (
-					(whcConfig.performance &&
-						p(
-							'whc:Update#' + index,
-							'measure',
-							'whc:Start#' + index
-						)) ||
-					p('whc:Update#' + index, 'mark')
-				);
-
+			if (percent === null) {
+				if (whcConfig.performance)
+					p(whcUpdate, 'measure', whcStart) || p(whcUpdate, 'mark');
+				return;
+			}
 			button.setAttribute('data-progress', percent + '%');
 			if (whcConfig.events)
 				emit(form, 'whc:Update', {
@@ -217,8 +215,7 @@ import p, { pComplete } from './includes/performance';
 					complete: percent[0] === '100',
 					emoji: '🔔',
 				});
-			if (whcConfig.performance)
-				p('whc:Update#' + index, 'measure', 'whc:Update#' + index);
+			if (whcConfig.performance) p(whcUpdate, 'measure', whcUpdate);
 		};
 
 		/**
@@ -227,12 +224,12 @@ import p, { pComplete } from './includes/performance';
 		 * @param {WorkerResponse} param.data
 		 */
 		var workerMessageHandler = function ({ data }) {
-			var { form, button } = Private;
+			var { form, button, finished } = Private;
 			var { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
 				appendVerification(form, verification);
-				enableButton(button);
+				enableButton(button, finished);
 				removeWorker(workerArr, this);
 				return;
 			}
