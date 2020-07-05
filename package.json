@@ -5,6 +5,9 @@
 	"main": "build/whc.js",
 	"unpkg": "build/whc.umd.js",
 	"source": "src/index.js",
+	"mangle": {
+		"regex": "^_"
+	},
 	"scripts": {
 		"bundle:start": "microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
 		"bundle:build": "microbundle -f modern,umd --no-sourcemap",
