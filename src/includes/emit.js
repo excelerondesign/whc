@@ -17,15 +17,19 @@
  */
 
 /**
- * @param {HTMLElement} element
+ * @param {HTMLFormElement} form
  * @param {string} eventType
  * @param {WHCEventDetail} detail
  */
-export default function (element, eventType, detail) {
+export default function (form, eventType, detail) {
+	var defaultDetail = {
+		form,
+		time: Date.now(),
+	};
 	var event = new CustomEvent(eventType, {
 		bubbles: true,
-		detail: detail || {},
+		detail: Object.assign(defaultDetail, detail || {}),
 	});
 
-	element.dispatchEvent(event);
+	form.dispatchEvent(event);
 }

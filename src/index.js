@@ -162,7 +162,6 @@ import worker from './includes/worker';
 			});
 			if (whcConfig.events)
 				emit(form, 'WHC:Start', {
-					form,
 					time,
 					difficulty,
 					complete: false,
@@ -182,8 +181,6 @@ import worker from './includes/worker';
 			form.appendChild(input);
 			if (whcConfig.events)
 				emit(form, 'WHC:Complete', {
-					form,
-					time: Date.now(),
 					verification: verification,
 					complete: true,
 					emoji: '✅',
@@ -201,8 +198,6 @@ import worker from './includes/worker';
 			button.setAttribute('data-progress', percent + '%');
 			if (whcConfig.events)
 				emit(form, 'WHC:Update', {
-					form,
-					time: Date.now(),
 					progress: percent + '%',
 					complete: percent[0] === '100',
 					emoji: '🔔',
@@ -222,7 +217,6 @@ import worker from './includes/worker';
 				appendVerification(form, verification);
 				enableButton(button);
 				removeWorker(workerArr, this);
-
 				return;
 			}
 			if (action === 'message') {
