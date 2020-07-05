@@ -152,7 +152,7 @@ import worker from './includes/worker';
 		};
 
 		var beginVerification = function () {
-			var { difficulty, time } = Private;
+			var { difficulty, time, form } = Private;
 			var laborer = createWorker(worker);
 			workerArr.push(laborer);
 			laborer.addEventListener('message', workerMessageHandler, false);
@@ -160,26 +160,32 @@ import worker from './includes/worker';
 				difficulty,
 				time,
 			});
+			if (whcConfig.events)
+				emit(form, 'WHC:Start', {
+					form,
+					time,
+					difficulty,
+					emoji: '🚗💨',
+				});
 		};
 
 		/**
 		 * @param {HTMLFormElement} form
 		 * @param {Verification} verification
 		 */
-		var addVerification = function (form, verification) {
+		var appendVerification = function (form, verification) {
 			var input = document.createElement('input');
 			input.setAttribute('type', 'hidden');
 			input.setAttribute('name', 'captcha_verification');
 			input.setAttribute('value', JSON.stringify(verification));
 			form.appendChild(input);
-			if (whcConfig.events) {
+			if (whcConfig.events)
 				emit(form, 'WHC:Complete', {
 					form,
 					time: Date.now(),
 					verification: verification,
 					emoji: '✅',
 				});
-			}
 		};
 
 		/**
@@ -211,7 +217,7 @@ import worker from './includes/worker';
 			var { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
-				addVerification(form, verification);
+				appendVerification(form, verification);
 				enableButton(button);
 				removeWorker(workerArr, this);
 
@@ -227,14 +233,6 @@ import worker from './includes/worker';
 			once: true,
 			capture: true,
 		});
-
-		if (whcConfig.events)
-			emit(Private.form, 'WHC:Start', {
-				form: Private.form,
-				time: Date.now(),
-				difficulty: Private.difficulty,
-				emoji: '🚗💨',
-			});
 	};
 
 	forms.forEach((form, i) => new Constructor(form, i));
