@@ -1,4 +1,11 @@
 /**
+ * @typedef {Object} Verification
+ * @prop {number} nonce
+ * @prop {number} time
+ * @prop {string} question
+ */
+
+/**
  * @typedef {Object} WHCEventDetail
  * @prop {HTMLFormElement} form
  * @prop {number} time
