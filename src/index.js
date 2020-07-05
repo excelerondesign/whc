@@ -30,6 +30,7 @@
 
 import emit from './includes/emit';
 import worker from './includes/worker';
+import p, { pComplete } from './includes/performance';
 
 (function () {
 	/**
@@ -50,6 +51,7 @@ import worker from './includes/worker';
 		difficulty: 3,
 		finished: 'Submit',
 		events: true,
+		performance: false,
 	};
 
 	/**
@@ -161,12 +163,13 @@ import worker from './includes/worker';
 				time,
 			});
 			if (whcConfig.events)
-				emit(form, 'WHC:Start', {
+				emit(form, 'whc:Start', {
 					time,
 					difficulty,
 					complete: false,
 					emoji: '🚗💨',
 				});
+			if (whcConfig.performance) p('whc:Start#' + index, 'mark');
 		};
 
 		/**
@@ -180,11 +183,14 @@ import worker from './includes/worker';
 			input.setAttribute('value', JSON.stringify(verification));
 			form.appendChild(input);
 			if (whcConfig.events)
-				emit(form, 'WHC:Complete', {
+				emit(form, 'whc:Complete', {
 					verification: verification,
 					complete: true,
 					emoji: '✅',
+					performance: pComplete(),
 				});
+			if (whcConfig.performance)
+				p('whc:Complete#' + index, 'measure', 'whc:Start');
 		};
 
 		/**
@@ -193,15 +199,26 @@ import worker from './includes/worker';
 		 */
 		var updatePercent = function (form, button, string) {
 			var percent = string.match(/\d{2,3}/);
-			if (percent === null) return;
+			if (percent === null)
+				return (
+					(whcConfig.performance &&
+						p(
+							'whc:Update#' + index,
+							'measure',
+							'whc:Start#' + index
+						)) ||
+					p('whc:Update#' + index, 'mark')
+				);
 
 			button.setAttribute('data-progress', percent + '%');
 			if (whcConfig.events)
-				emit(form, 'WHC:Update', {
+				emit(form, 'whc:Update', {
 					progress: percent + '%',
 					complete: percent[0] === '100',
 					emoji: '🔔',
 				});
+			if (whcConfig.performance)
+				p('whc:Update#' + index, 'measure', 'whc:Update#' + index);
 		};
 
 		/**
