@@ -1,23 +1,9 @@
 {
-  "overrides": [
-    {
-      "files": ["*.js", "*.json"],
-      "options": {
-        "bracketSpacing": true,
-        "arrowParens": "avoid",
-        "singleQuote": true,
-        "tabWidth": 4,
-        "useTabs": true,
-        "semi": true
-      }
-    },
-    {
-      "files": "*.html",
-      "options": {
-        "tabWidth": 4,
-        "singleQuote": true,
-        "useTabs": true
-      }
-    }
-  ]
+	"bracketSpacing": true,
+	"singleQuote": true,
+	"tabWidth": 4,
+	"useTabs": true,
+	"semi": true,
+	"arrowParens": "avoid",
+	"jsxBracketSameLine": true
 }
