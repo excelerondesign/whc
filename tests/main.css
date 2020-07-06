@@ -2,13 +2,13 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 /* Remove default padding */
 ul[class],
 ol[class] {
-  padding: 0;
+	padding: 0;
 }
 
 /* Remove default margin */
@@ -26,37 +26,37 @@ figcaption,
 blockquote,
 dl,
 dd {
-  margin: 0;
+	margin: 0;
 }
 
 /* Set core body defaults */
 body {
-  min-height: 100vh;
-  scroll-behavior: smooth;
-  text-rendering: optimizeSpeed;
-  line-height: 1.5;
+	min-height: 100vh;
+	scroll-behavior: smooth;
+	text-rendering: optimizeSpeed;
+	line-height: 1.5;
 }
 
 /* Remove list styles on ul, ol elements with a class attribute */
 ul[class],
 ol[class] {
-  list-style: none;
+	list-style: none;
 }
 
 /* A elements that don't have a class get default styles */
 a:not([class]) {
-  text-decoration-skip-ink: auto;
+	text-decoration-skip-ink: auto;
 }
 
 /* Make images easier to work with */
 img {
-  max-width: 100%;
-  display: block;
+	max-width: 100%;
+	display: block;
 }
 
 /* Natural flow and rhythm in articles by default */
 article > * + * {
-  margin-top: 1em;
+	margin-top: 1em;
 }
 
 /* Inherit fonts for inputs and buttons */
@@ -64,65 +64,65 @@ input,
 button,
 textarea,
 select {
-  font: inherit;
+	font: inherit;
 }
 
 /* Remove all animations and transitions for people that prefer not to see them */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+	* {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
 }
 
 nav > ul {
-  text-align: center;
+	text-align: center;
 }
 
 nav > ul > li {
-  display: inline-block;
-  margin-right: 0.25rem;
-  margin-left: 0.25rem;
+	display: inline-block;
+	margin-right: 0.25rem;
+	margin-left: 0.25rem;
 }
 
 nav > ul > li:first-child {
-  margin-left: 0;
+	margin-left: 0;
 }
 
 nav > ul > li:last-child {
-  margin-right: 0;
+	margin-right: 0;
 }
 nav > ul > li > a {
-  color: #0d6efd;
+	color: #0d6efd;
 }
 nav > ul > li > a:visited {
-  color: #0d6efd;
-  text-decoration-style: dashed;
-  text-decoration-line: underline;
+	color: #0d6efd;
+	text-decoration-style: dashed;
+	text-decoration-line: underline;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  margin-bottom: 0.25em;
+	margin-bottom: 0.25em;
 }
 
 main {
-  max-width: 922px;
-  margin: 0 auto;
-  padding: 1rem;
+	max-width: 922px;
+	margin: 0 auto;
+	padding: 1rem;
 }
 
 form {
-  margin: 2rem;
-  padding: 1rem;
-  background: #f8f8f8;
-  transition: background-color 0.3s ease-in-out;
+	margin: 2rem;
+	padding: 1rem;
+	background: #f8f8f8;
+	transition: background-color 0.3s ease-in-out;
 }
 
 form.complete {
-  background-color: rgba(72, 180, 97, 0.5);
+	background-color: rgba(72, 180, 97, 0.5);
 }
