@@ -13,7 +13,8 @@
  * @prop {boolean} perf - Should track performance?
  */
 
-import emit from './includes/emit';
+// import emit from './includes/emit';
+import emitter from './includes/emit';
 import worker from './includes/worker';
 
 (function (w) {
@@ -24,7 +25,6 @@ import worker from './includes/worker';
 	 * and terminated
 	 */
 	w.whcWorkers = [];
-
 	/**
 	 * @type {whcOptions}
 	 */
@@ -39,10 +39,17 @@ import worker from './includes/worker';
 		},
 		w.whcConfig || {}
 	);
-
+	console.log(emitter);
 	/** @type {NodeListOf<HTMLFormElement>} */
 	const forms = document.querySelectorAll(whcConfig.form);
 
+	whcConfig.events &&
+		emitter.on('*', obj =>
+			window.dispatchEvent(
+				new CustomEvent(obj.eventName, { detail: obj })
+			)
+		);
+	emitter.on('*', console.log);
 	const getDataset = (target, str) => {
 		if (!str in target.dataset) return false;
 		var value = target.dataset[str];
@@ -54,9 +61,9 @@ import worker from './includes/worker';
 
 	/**
 	 * @param {HTMLFormElement} form
-	 * @param {number} index
+	 * @param {number} i
 	 */
-	var Constructor = function (form, index) {
+	var Constructor = function (form, i) {
 		/**
 		 * @type {HTMLButtonElement}
 		 */
@@ -69,9 +76,18 @@ import worker from './includes/worker';
 			getDataset(button, 'difficulty') || whcConfig.difficulty;
 
 		const finished = getDataset(button, 'finished') || whcConfig.finished;
-		const whcStart = 'whc:Start#' + index;
-		const whcUpdate = 'whc:Update#' + index;
-		const whcComplete = 'whc:Complete#' + index;
+
+		const eventDefault = {
+			eventName: 'whc:Update#' + i,
+			form,
+			time: +new Date(),
+			difficulty,
+			verification: [],
+			perf: [],
+			progress: '0%',
+			done: false,
+		};
+
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
@@ -91,8 +107,7 @@ import worker from './includes/worker';
 					type: 'application/javascript',
 				});
 				const blobUrl = URL.createObjectURL(blob);
-				const laborer = new Worker(blobUrl);
-				return laborer;
+				return new Worker(blobUrl);
 			} catch (e) {
 				throw new Error('Unknown Error: ' + e);
 			}
@@ -112,11 +127,20 @@ import worker from './includes/worker';
 			const time = Date.now();
 			whcWorkers.push(createWorker(worker));
 
-			whcWorkers[index].addEventListener('message', workerHandler);
-			whcWorkers[index].postMessage({
+			whcWorkers[i].addEventListener('message', workerHandler);
+			whcWorkers[i].postMessage({
 				difficulty,
 				time,
 			});
+			emitter.run('whc:Start#' + i, {
+				...eventDefault,
+				...{
+					eventName: 'whc:Start#' + i,
+					time: +new Date(),
+					emoji: '🚗💨',
+				},
+			});
+			/*
 			if (events)
 				emit(
 					{ form, index },
@@ -130,6 +154,7 @@ import worker from './includes/worker';
 					perf,
 					{ name: whcStart, method: 'mark' }
 				);
+			*/
 		}
 
 		/**
@@ -143,6 +168,17 @@ import worker from './includes/worker';
 			input.setAttribute('name', 'captcha_verification');
 			input.setAttribute('value', JSON.stringify(verification));
 			form.appendChild(input);
+			emitter.run('whc:Complete#' + i, {
+				...eventDefault,
+				...{
+					eventName: 'whc:Complete#' + i,
+					verification,
+					done: true,
+					emoji: '✅',
+					progress: '100%',
+				},
+			});
+			/*
 			if (events)
 				emit(
 					{ form, index },
@@ -156,6 +192,7 @@ import worker from './includes/worker';
 					perf,
 					{ name: whcComplete, method: 'measure', start: whcStart }
 				);
+			*/
 		}
 
 		/**
@@ -163,12 +200,22 @@ import worker from './includes/worker';
 		 * @param {HTMLButtonElement} button
 		 * @param {string} string
 		 */
-		function updatePercent(form, button, string) {
+		function updatePercent(button, string) {
 			const { events, perf } = whcConfig;
 			const percent = string.match(/\d{2,3}/);
 			if (!percent) return;
 
 			button.setAttribute('data-progress', percent + '%');
+			emitter.run('whc:Update#' + i, {
+				...eventDefault,
+				...{
+					time: +new Date(),
+					progress: percent + '%',
+					done: +percent[0] === 100,
+					emoji: '🔔',
+				},
+			});
+			/*
 			if (events)
 				emit(
 					{ form, index },
@@ -181,6 +228,7 @@ import worker from './includes/worker';
 					perf,
 					{ name: whcUpdate, method: 'mark' }
 				);
+			*/
 		}
 
 		/**
@@ -198,7 +246,7 @@ import worker from './includes/worker';
 				return;
 			}
 			if (action === 'message') {
-				updatePercent(form, button, message);
+				updatePercent(button, message);
 				return;
 			}
 		}
