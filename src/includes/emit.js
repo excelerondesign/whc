@@ -1,8 +1,10 @@
-import p from './performance';
+import p, { pComplete } from './performance';
 
 /**
  * @typedef {Object} WHCEventDetail
- * @prop {HTMLFormElement} form
+ * @prop {Object} param0
+ * @prop {HTMLFormElement} param0.form
+ * @prop {number} param0.index
  * @prop {number} time
  * @prop {boolean} complete
  * @prop {number} [progress]
@@ -17,13 +19,18 @@ import p from './performance';
  * @param {WHCEventDetail} detail
  * @param {import('./performance.js').Perf[]} objects
  */
-export default function (form, eventType, detail, perf, ...objects) {
+export default function ({ form, index }, eventType, detail, perf, ...objects) {
+	if (perf && objects !== null) {
+		objects.forEach(p); // if performance objects are passed, run the perf function
+	}
+
 	var defaultDetail = {
 		form,
 		time: Date.now(),
 		done: false,
 		verification: [],
 		progress: 0,
+		perf: eventType === 'whc:Complete' ? pComplete(index) : [],
 	};
 
 	var event = new CustomEvent(eventType, {
@@ -32,8 +39,4 @@ export default function (form, eventType, detail, perf, ...objects) {
 	});
 
 	form.dispatchEvent(event);
-
-	if (perf && objects !== null) {
-		objects.forEach(p); // if performance objects are passed, run the perf function
-	}
 }
