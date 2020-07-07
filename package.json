@@ -2,15 +2,17 @@
 	"name": "whc",
 	"version": "1.0.0",
 	"description": "",
-	"main": "build/whc.js",
-	"unpkg": "build/whc.umd.js",
+	"main": "build/whc.umd.js",
+	"module": "build/whc.modern.js",
 	"source": "src/index.js",
 	"scripts": {
 		"start": "rm -rf build && microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
 		"build": "rm -rf build && microbundle -f modern,umd --no-sourcemap",
-		"pack:src": "microbundle --compress false -i src/index.js -o dist/ -f modern,umd --no-sourcemap",
-		"pack:dist": "microbundle -i src/index.js -o dist/min -f modern,umd --no-sourcemap",
-		"pack": "npm run pack:src && npm run pack:dist"
+		"pack:src": "microbundle --compress false -f umd,modern --no-sourcemap",
+		"pack:dist": "npm-run-all pack:dist:modern pack:dist:umd",
+		"pack:dist:umd": "microbundle -i src/index.js -o dist/min/whc.umd.min.js -f umd --no-sourcemap",
+		"pack:dist:modern": "microbundle -i src/index.js -o dist/min/whc.modern.min.js -f modern --no-sourcemap",
+		"pack": "npm-run-all pack:src pack:dist:umd pack:dist:modern"
 	},
 	"repository": {
 		"type": "git",
@@ -24,6 +26,7 @@
 	},
 	"homepage": "https://github.com/excelerondesign/whc#readme",
 	"devDependencies": {
-		"microbundle": "^0.12.1"
+		"microbundle": "^0.12.1",
+		"npm-run-all": "^4.1.5"
 	}
 }
