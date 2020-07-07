@@ -311,7 +311,7 @@ export default function () {
 	 * @param {number} object.time
 	 * @param {number} nonce
 	 */
-	var solveCaptcha = ({ question, time }, nonce = 1) => {
+	function solveCaptcha({ question, time }, nonce = 1) {
 		nonce++;
 		var verifyArray = {
 			question: question,
@@ -336,13 +336,13 @@ export default function () {
 			nonce: nonce,
 			hash: currentHash,
 		};
-	};
+	}
 
 	/**
 	 * @param {string} url
 	 * @returns {string}
 	 */
-	var sendRequest = async function () {
+	async function sendRequest() {
 		var formData = new FormData();
 
 		formData.append('endpoint', 'question');
@@ -355,7 +355,7 @@ export default function () {
 		var data = await response.json();
 
 		return data.data.question;
-	};
+	}
 
 	self.addEventListener(
 		'message',
