@@ -46,7 +46,7 @@ import worker from './includes/worker';
 	const getDataset = (target, str) => {
 		if (!str in target.dataset) return false;
 		var value = target.dataset[str];
-		var num = parseInt(value);
+		var num = +value; // coerces value into a number
 
 		if (isNaN(num) || num !== num) return value;
 		return num;
@@ -93,8 +93,8 @@ import worker from './includes/worker';
 				const blobUrl = URL.createObjectURL(blob);
 				const laborer = new Worker(blobUrl);
 				return laborer;
-			} catch (e1) {
-				throw new Error('Unknown Error: ' + e1);
+			} catch (e) {
+				throw new Error('Unknown Error: ' + e);
 			}
 		}
 
@@ -175,7 +175,7 @@ import worker from './includes/worker';
 					'whc:Update',
 					{
 						progress: percent + '%',
-						done: percent[0] === '100',
+						done: +percent[0] === 100,
 						emoji: '🔔',
 					},
 					perf,

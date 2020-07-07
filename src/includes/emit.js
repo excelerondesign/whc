@@ -24,18 +24,19 @@ export default function ({ form, index }, eventType, detail, perf, ...objects) {
 		objects.forEach(p); // if performance objects are passed, run the perf function
 	}
 
-	var defaultDetail = {
-		form,
-		time: Date.now(),
-		done: false,
-		verification: [],
-		progress: 0,
-		perf: eventType === 'whc:Complete' ? pComplete(index) : [],
-	};
-
 	var event = new CustomEvent(eventType, {
 		bubbles: true,
-		detail: Object.assign(defaultDetail, detail || {}),
+		detail: Object.assign(
+			{
+				form,
+				time: +new Date(), // coerces date into a number
+				done: false,
+				verification: [],
+				progress: 0,
+				perf: eventType === 'whc:Complete' ? pComplete(index) : [],
+			},
+			detail || {}
+		),
 	});
 
 	form.dispatchEvent(event);
