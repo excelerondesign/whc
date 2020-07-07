@@ -31,15 +31,14 @@
 import emit from './includes/emit';
 import worker from './includes/worker';
 
-(function () {
+(function (w) {
 	/**
 	 * A weird bug in firefox leads to web workers with no "Active reference" to be garbage collected
 	 * So we create a global array to push workers into so that they don't get collected
 	 * once the workers complete their job, they are splice from the array
 	 * and terminated
 	 */
-	var workerArr = [];
-	window.whcWorkers = workerArr;
+	w.whcWorkers = [];
 
 	/**
 	 * @type {whcOptions}
@@ -55,7 +54,7 @@ import worker from './includes/worker';
 	/**
 	 * @type {whcOptions}
 	 */
-	var windowWhcConfig = window.whcConfig || {};
+	var windowWhcConfig = w.whcConfig || {};
 
 	/**
 	 * @type {whcOptions}
@@ -85,33 +84,26 @@ import worker from './includes/worker';
 	 * @param {number} index
 	 */
 	var Constructor = function (form, index) {
-		const Private = {};
-
 		/**
 		 * @type {number} Now converted to seconds
 		 */
-		Private.time = Math.floor(Date.now() / 1000);
+		const time = Math.floor(Date.now() / 1000);
 
 		/**
 		 * @type {HTMLFormElement}
 		 */
-		Private.form = form;
-
-		/**
-		 * @type {string}
-		 */
-		Private.ID = form.getAttribute('id') || 'Form ' + index;
+		const form = form;
 
 		/**
 		 * @type {HTMLButtonElement}
 		 */
-		Private.button = form.querySelector(whcConfig.button);
+		const button = form.querySelector(whcConfig.button);
 
 		/**
 		 * @type {number}
 		 */
-		Private.difficulty =
-			parse(Private.button.getAttribute('data-difficulty')) ||
+		const difficulty =
+			parse(button.getAttribute('data-difficulty')) ||
 			whcConfig.difficulty;
 
 		/**
@@ -125,12 +117,12 @@ import worker from './includes/worker';
 		}
 
 		/**
-		 * @param {Function} func
+		 * @param {Function} fn
 		 */
-		function createWorker(func) {
+		function createWorker(fn) {
 			try {
 				// generates a worker by converting  into a string and then running that function as a worker
-				var blob = new Blob(['(' + func.toString() + ')();'], {
+				var blob = new Blob(['(' + fn.toString() + ')();'], {
 					type: 'application/javascript',
 				});
 				var blobUrl = URL.createObjectURL(blob);
@@ -152,14 +144,15 @@ import worker from './includes/worker';
 		}
 
 		function verify() {
-			var { difficulty, time, form } = Private;
 			var laborer = createWorker(worker);
-			workerArr.push(laborer);
+			w.whcWorkers.push(laborer);
+
 			laborer.addEventListener('message', workerHandler);
 			laborer.postMessage({
 				difficulty,
 				time,
 			});
+
 			if (whcConfig.events)
 				emit(form, 'WHC:Start', {
 					form,
@@ -215,7 +208,6 @@ import worker from './includes/worker';
 		 * @param {WorkerResponse} param.data
 		 */
 		function workerHandler({ data }) {
-			var { form, button } = Private;
 			var { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
@@ -231,11 +223,11 @@ import worker from './includes/worker';
 			}
 		}
 
-		window.addEventListener('load', verify, {
+		w.addEventListener('load', verify, {
 			once: true,
 			capture: true,
 		});
 	};
 
 	forms.forEach((form, i) => new Constructor(form, i));
-})();
+})(window);
