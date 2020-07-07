@@ -29,21 +29,22 @@ import { pComplete } from './includes/performance';
 	/**
 	 * @type {whcOptions}
 	 */
-	var whcConfig = Object.assign(
+	const whcConfig = Object.assign(
 		{
 			button: '[type="submit"]',
 			form: '.whc-form',
 			difficulty: 3,
 			finished: 'Submit',
 			events: true,
+			perf: false,
 		},
 		w.whcConfig || {}
 	);
 
 	/** @type {NodeListOf<HTMLFormElement>} */
-	var forms = document.querySelectorAll(whcConfig.form);
+	const forms = document.querySelectorAll(whcConfig.form);
 
-	var getDataset = (target, str) => {
+	const getDataset = (target, str) => {
 		if (!str in target.dataset) return false;
 		var value = target.dataset[str];
 		var num = parseInt(value);
@@ -87,11 +88,11 @@ import { pComplete } from './includes/performance';
 		function createWorker(fn) {
 			try {
 				// generates a worker by converting  into a string and then running that function as a worker
-				var blob = new Blob(['(' + fn.toString() + ')();'], {
+				const blob = new Blob(['(' + fn.toString() + ')();'], {
 					type: 'application/javascript',
 				});
-				var blobUrl = URL.createObjectURL(blob);
-				var laborer = new Worker(blobUrl);
+				const blobUrl = URL.createObjectURL(blob);
+				const laborer = new Worker(blobUrl);
 				return laborer;
 			} catch (e1) {
 				throw new Error('Unknown Error: ' + e1);
@@ -100,22 +101,20 @@ import { pComplete } from './includes/performance';
 
 		/**
 		 * @param {Worker[]} workerArr
-		 * @param {Worker} worker
+		 * @param {Worker} w
 		 */
-		function removeWorker(workerArr, worker) {
-			worker.terminate();
-			var workerIndex = workerArr.indexOf(worker);
-			workerArr.splice(workerIndex, 1);
+		function removeWorker(workerArr, w) {
+			w.terminate();
+			workerArr.splice(workerArr.indexOf(w), 1);
 		}
 
 		function verify() {
-			var { events, perf } = whcConfig;
+			const { events, perf } = whcConfig;
 			const time = Date.now();
-			var laborer = createWorker(worker);
-			whcWorkers.push(laborer);
+			whcWorkers.push(createWorker(worker));
 
-			laborer.addEventListener('message', workerHandler);
-			laborer.postMessage({
+			whcWorkers[index].addEventListener('message', workerHandler);
+			whcWorkers[index].postMessage({
 				difficulty,
 				time,
 			});
@@ -139,8 +138,8 @@ import { pComplete } from './includes/performance';
 		 * @param {import('./includes/worker.js').Verification} verification
 		 */
 		function appendVerification(form, verification) {
-			var { events, perf } = whcConfig;
-			var input = document.createElement('input');
+			const { events, perf } = whcConfig;
+			const input = document.createElement('input');
 			input.setAttribute('type', 'hidden');
 			input.setAttribute('name', 'captcha_verification');
 			input.setAttribute('value', JSON.stringify(verification));
@@ -150,7 +149,7 @@ import { pComplete } from './includes/performance';
 					form,
 					'whc:Complete',
 					{
-						verification: verification,
+						verification,
 						done: true,
 						emoji: '✅',
 						perf: pComplete(index),
@@ -167,8 +166,8 @@ import { pComplete } from './includes/performance';
 		 * @param {string} string
 		 */
 		function updatePercent(form, button, string) {
-			var { events, perf } = whcConfig;
-			var percent = string.match(/\d{2,3}/);
+			const { events, perf } = whcConfig;
+			const percent = string.match(/\d{2,3}/);
 			if (!percent) return;
 
 			button.setAttribute('data-progress', percent + '%');
@@ -182,7 +181,7 @@ import { pComplete } from './includes/performance';
 						emoji: '🔔',
 					},
 					perf,
-					{ name: whcUpdate, method: 'measure', start: whcUpdate }
+					{ name: whcUpdate, method: 'mark' }
 				);
 		}
 
@@ -192,7 +191,7 @@ import { pComplete } from './includes/performance';
 		 * @param {import('./includes/worker.js').WorkerResponse} param.data
 		 */
 		function workerHandler({ data }) {
-			var { action, message, verification } = data;
+			const { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
 				appendVerification(form, verification);
