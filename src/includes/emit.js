@@ -19,7 +19,9 @@ import p, { pComplete } from './performance';
  * @param {WHCEventDetail} detail
  * @param {import('./performance.js').Perf[]} objects
  */
-export default function ({ form, index }, eventType, detail, perf, ...objects) {
+
+/*
+ export default function ({ form, index }, eventType, detail, perf, ...objects) {
 	if (perf && objects !== null) {
 		objects.forEach(p); // if performance objects are passed, run the perf function
 	}
@@ -41,3 +43,28 @@ export default function ({ form, index }, eventType, detail, perf, ...objects) {
 
 	form.dispatchEvent(event);
 }
+*/
+
+export default new (function () {
+	const all = new Map();
+	return {
+		on(e, fn) {
+			const handlers = all.get(e);
+			const added = handlers && handlers.push(fn);
+			if (!added) {
+				all.set(e, [fn]);
+			}
+		},
+		// https://github.com/developit/mitt/blob/master/src/index.ts#L56
+		off(e, fn) {
+			const handlers = all.get(e);
+			if (handlers) {
+				handlers.splice(handlers.indexOf(fn) >>> 0, 1);
+			}
+		},
+		run(e, obj) {
+			(all.get(e) || []).forEach(fn => fn(obj));
+			(all.get('*') || []).forEach(fn => fn(obj));
+		},
+	};
+})();
