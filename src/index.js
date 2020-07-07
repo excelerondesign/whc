@@ -85,7 +85,7 @@ import worker from './includes/worker';
 	 * @param {number} index
 	 */
 	var Constructor = function (form, index) {
-		var Private = {};
+		const Private = {};
 
 		/**
 		 * @type {number} Now converted to seconds
@@ -151,11 +151,11 @@ import worker from './includes/worker';
 			workerArr.splice(workerIndex, 1);
 		}
 
-		function beginVerification() {
+		function verify() {
 			var { difficulty, time, form } = Private;
 			var laborer = createWorker(worker);
 			workerArr.push(laborer);
-			laborer.addEventListener('message', workerMessageHandler, false);
+			laborer.addEventListener('message', workerHandler);
 			laborer.postMessage({
 				difficulty,
 				time,
@@ -214,7 +214,7 @@ import worker from './includes/worker';
 		 * @param {Object} param
 		 * @param {WorkerResponse} param.data
 		 */
-		function workerMessageHandler({ data }) {
+		function workerHandler({ data }) {
 			var { form, button } = Private;
 			var { action, message, verification } = data;
 
@@ -231,7 +231,7 @@ import worker from './includes/worker';
 			}
 		}
 
-		window.addEventListener('load', beginVerification, {
+		window.addEventListener('load', verify, {
 			once: true,
 			capture: true,
 		});
