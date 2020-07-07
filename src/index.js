@@ -189,7 +189,7 @@ import worker from './includes/worker';
 		 */
 		function updatePercent(form, button, string) {
 			var percent = string.match(/\d{2,3}/);
-			if (percent === null) return;
+			if (!percent) return;
 
 			button.setAttribute('data-progress', percent + '%');
 			if (whcConfig.events)
