@@ -78,6 +78,15 @@ import worker from './includes/worker';
 		return num;
 	};
 
+	var getDataset = (target, str) => {
+		if (!str in target.dataset) return false;
+		var value = target.dataset[str];
+		var num = parseInt(value);
+
+		if (isNaN(num) || num !== num) return value;
+		return num;
+	};
+
 	/**
 	 * @class
 	 * @param {HTMLFormElement} form
@@ -90,11 +99,6 @@ import worker from './includes/worker';
 		const time = Math.floor(Date.now() / 1000);
 
 		/**
-		 * @type {HTMLFormElement}
-		 */
-		const form = form;
-
-		/**
 		 * @type {HTMLButtonElement}
 		 */
 		const button = form.querySelector(whcConfig.button);
@@ -103,14 +107,14 @@ import worker from './includes/worker';
 		 * @type {number}
 		 */
 		const difficulty =
-			parse(button.getAttribute('data-difficulty')) ||
-			whcConfig.difficulty;
+			getDataset(button, 'difficulty') || whcConfig.difficulty;
+		console.log(whcConfig);
+		const finished = getDataset(button, 'finished') || whcConfig.finished;
 
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
 		function enableButton(button) {
-			var { finished } = button.dataset;
 			button.classList.add('done');
 			button.removeAttribute('disabled');
 			button.setAttribute('value', finished);
