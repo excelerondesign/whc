@@ -43,16 +43,6 @@ import { pComplete } from './includes/performance';
 	/** @type {NodeListOf<HTMLFormElement>} */
 	var forms = document.querySelectorAll(whcConfig.form);
 
-	/** @param {string} str */
-	var parse = function (str) {
-		var num = parseInt(str);
-
-		if (isNaN(num)) return false;
-		if (num !== num) return false;
-
-		return num;
-	};
-
 	var getDataset = (target, str) => {
 		if (!str in target.dataset) return false;
 		var value = target.dataset[str];
@@ -67,11 +57,6 @@ import { pComplete } from './includes/performance';
 	 * @param {number} index
 	 */
 	var Constructor = function (form, index) {
-		/**
-		 * @type {number} Now converted to seconds
-		 */
-		const time = Math.floor(Date.now() / 1000);
-
 		/**
 		 * @type {HTMLButtonElement}
 		 */
@@ -124,8 +109,10 @@ import { pComplete } from './includes/performance';
 		}
 
 		function verify() {
+			var { events, perf } = whcConfig;
+			const time = Date.now();
 			var laborer = createWorker(worker);
-			w.whcWorkers.push(laborer);
+			whcWorkers.push(laborer);
 
 			laborer.addEventListener('message', workerHandler);
 			laborer.postMessage({
@@ -152,6 +139,7 @@ import { pComplete } from './includes/performance';
 		 * @param {import('./includes/worker.js').Verification} verification
 		 */
 		function appendVerification(form, verification) {
+			var { events, perf } = whcConfig;
 			var input = document.createElement('input');
 			input.setAttribute('type', 'hidden');
 			input.setAttribute('name', 'captcha_verification');
@@ -166,6 +154,7 @@ import { pComplete } from './includes/performance';
 						done: true,
 						emoji: '✅',
 						perf: pComplete(index),
+						progress: '100%',
 					},
 					perf,
 					{ name: whcComplete, method: 'measure', start: whcStart }
@@ -178,6 +167,7 @@ import { pComplete } from './includes/performance';
 		 * @param {string} string
 		 */
 		function updatePercent(form, button, string) {
+			var { events, perf } = whcConfig;
 			var percent = string.match(/\d{2,3}/);
 			if (!percent) return;
 
@@ -207,7 +197,7 @@ import { pComplete } from './includes/performance';
 			if (action === 'captchaSuccess') {
 				appendVerification(form, verification);
 				enableButton(button, finished);
-				removeWorker(workerArr, this);
+				removeWorker(whcWorkers, this);
 				return;
 			}
 			if (action === 'message') {
