@@ -61,7 +61,7 @@ import { pComplete } from './includes/performance';
 	 * @param {number} index
 	 */
 	var Constructor = function (form, index) {
-		var Private = {};
+		const Private = {};
 
 		/** @type {number} Now converted to seconds */
 		Private.time = Math.floor(Date.now() / 1000);
@@ -86,15 +86,20 @@ import { pComplete } from './includes/performance';
 		var whcUpdate = 'whc:Update#' + index;
 		var whcComplete = 'whc:Complete#' + index;
 
-		/** @param {HTMLButtonElement} button */
-		var enableButton = function (button, finished) {
+		/**
+		 * @param {HTMLButtonElement} button
+		 */
+		function enableButton(button) {
+			var { finished } = button.dataset;
 			button.classList.add('done');
 			button.removeAttribute('disabled');
 			button.setAttribute('value', finished);
-		};
+		}
 
-		/** @param {Function} func */
-		var createWorker = function (func) {
+		/**
+		 * @param {Function} func
+		 */
+		function createWorker(func) {
 			try {
 				// generates a worker by converting  into a string and then running that function as a worker
 				var blob = new Blob(['(' + func.toString() + ')();'], {
@@ -106,24 +111,23 @@ import { pComplete } from './includes/performance';
 			} catch (e1) {
 				throw new Error('Unknown Error: ' + e1);
 			}
-		};
+		}
 
 		/**
 		 * @param {Worker[]} workerArr
 		 * @param {Worker} worker
 		 */
-		var removeWorker = function (workerArr, worker) {
+		function removeWorker(workerArr, worker) {
 			worker.terminate();
 			var workerIndex = workerArr.indexOf(worker);
 			workerArr.splice(workerIndex, 1);
-		};
+		}
 
-		var beginVerification = function () {
-			var { events, perf } = whcConfig;
+		function verify() {
 			var { difficulty, time, form } = Private;
 			var laborer = createWorker(worker);
 			workerArr.push(laborer);
-			laborer.addEventListener('message', workerMessageHandler, false);
+			laborer.addEventListener('message', workerHandler);
 			laborer.postMessage({
 				difficulty,
 				time,
@@ -147,8 +151,7 @@ import { pComplete } from './includes/performance';
 		 * @param {HTMLFormElement} form
 		 * @param {import('./includes/worker.js').Verification} verification
 		 */
-		var appendVerification = function (form, verification) {
-			var { events, perf } = whcConfig;
+		function appendVerification(form, verification) {
 			var input = document.createElement('input');
 			input.setAttribute('type', 'hidden');
 			input.setAttribute('name', 'captcha_verification');
@@ -174,8 +177,7 @@ import { pComplete } from './includes/performance';
 		 * @param {HTMLButtonElement} button
 		 * @param {string} string
 		 */
-		var updatePercent = function (form, button, string) {
-			var { events, perf } = whcConfig;
+		function updatePercent(form, button, string) {
 			var percent = string.match(/\d{2,3}/);
 			if (percent === null) {
 				if (events)
@@ -211,8 +213,8 @@ import { pComplete } from './includes/performance';
 		 * @param {Object} param
 		 * @param {import('./includes/worker.js').WorkerResponse} param.data
 		 */
-		var workerMessageHandler = function ({ data }) {
-			var { form, button, finished } = Private;
+		function workerHandler({ data }) {
+			var { form, button } = Private;
 			var { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
@@ -225,9 +227,9 @@ import { pComplete } from './includes/performance';
 				updatePercent(form, button, message);
 				return;
 			}
-		};
+		}
 
-		window.addEventListener('load', beginVerification, {
+		window.addEventListener('load', verify, {
 			once: true,
 			capture: true,
 		});
