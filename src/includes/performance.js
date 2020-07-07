@@ -1,10 +1,11 @@
 /**
- *
- * @param {string} name - Performance mark/measure name
- * @param {string} method - 'mark'/'measure'
- * @param {string} [start] - Name of the performance mark to measure based on
+ * @typedef {Object} Perf
+ * @prop {string} name
+ * @prop {string} method
+ * @prop {string} [start]
  */
-export default function p(name, method, start) {
+/** @param {Perf} param0 */
+export default function p({ name, method, start }) {
 	performance[method](name, start);
 }
 
