@@ -10,28 +10,12 @@
  * @prop {number} difficulty - Number of "questions" to answer
  * @prop {string} finished - Final value after all questions are solved
  * @prop {boolean} events - Should emit custom events?
- * @prop {boolean} performance - Should track performance?
- */
-
-/**
- * @typedef {Object} Verification
- * @prop {number} nonce
- * @prop {number} time
- * @prop {string} question
- */
-
-/**
- * @typedef {Object} WorkerResponse
- * @prop {string} action
- * @prop {string} message
- * @prop {number} difficulty
- * @prop {number} time
- * @prop {Verification[]} verification
+ * @prop {boolean} perf - Should track performance?
  */
 
 import emit from './includes/emit';
 import worker from './includes/worker';
-import p, { pComplete } from './includes/performance';
+import { pComplete } from './includes/performance';
 
 (function () {
 	/**
@@ -43,36 +27,26 @@ import p, { pComplete } from './includes/performance';
 	var workerArr = [];
 	window.whcWorkers = workerArr;
 
-	/**
-	 * @type {whcOptions}
-	 */
+	/** @type {whcOptions} */
 	var whcDefaults = {
 		button: '[type="submit"]',
 		form: '.whc-form',
 		difficulty: 3,
 		finished: 'Submit',
 		events: true,
-		performance: false,
+		perf: false,
 	};
 
-	/**
-	 * @type {whcOptions}
-	 */
+	/** @type {whcOptions} */
 	var windowWhcConfig = window.whcConfig || {};
 
-	/**
-	 * @type {whcOptions}
-	 */
+	/** @type {whcOptions} */
 	var whcConfig = Object.assign(whcDefaults, windowWhcConfig);
 
-	/**
-	 * @type {NodeListOf<HTMLFormElement>}
-	 */
+	/** @type {NodeListOf<HTMLFormElement>} */
 	var forms = document.querySelectorAll(whcConfig.form);
 
-	/**
-	 * @param {string} str
-	 */
+	/** @param {string} str */
 	var parse = function (str) {
 		var num = parseInt(str);
 
@@ -83,57 +57,43 @@ import p, { pComplete } from './includes/performance';
 	};
 
 	/**
-	 * @class
 	 * @param {HTMLFormElement} form
 	 * @param {number} index
 	 */
 	var Constructor = function (form, index) {
 		var Private = {};
 
-		/**
-		 * @type {number} Now converted to seconds
-		 */
+		/** @type {number} Now converted to seconds */
 		Private.time = Math.floor(Date.now() / 1000);
 
-		/**
-		 * @type {HTMLFormElement}
-		 */
+		/** @type {HTMLFormElement} */
 		Private.form = form;
 
-		/**
-		 * @type {string}
-		 */
+		/** @type {string} */
 		Private.ID = form.getAttribute('id') || 'Form ' + index;
 
-		/**
-		 * @type {HTMLButtonElement}
-		 */
+		/** @type {HTMLButtonElement} */
 		Private.button = form.querySelector(whcConfig.button);
 
 		Private.finished =
 			Private.button.dataset.finished || whcConfig.finished;
 
-		/**
-		 * @type {number}
-		 */
+		/** @type {number} */
 		Private.difficulty =
 			parse(Private.button.getAttribute('data-difficulty')) ||
 			whcConfig.difficulty;
 		var whcStart = 'whc:Start#' + index;
 		var whcUpdate = 'whc:Update#' + index;
 		var whcComplete = 'whc:Complete#' + index;
-		/**
-		 * @param {HTMLButtonElement} button
-		 */
+
+		/** @param {HTMLButtonElement} button */
 		var enableButton = function (button, finished) {
 			button.classList.add('done');
 			button.removeAttribute('disabled');
 			button.setAttribute('value', finished);
 		};
 
-		/**
-		 * @param {Function} func
-		 */
+		/** @param {Function} func */
 		var createWorker = function (func) {
 			try {
 				// generates a worker by converting  into a string and then running that function as a worker
@@ -159,6 +119,7 @@ import p, { pComplete } from './includes/performance';
 		};
 
 		var beginVerification = function () {
+			var { events, perf } = whcConfig;
 			var { difficulty, time, form } = Private;
 			var laborer = createWorker(worker);
 			workerArr.push(laborer);
@@ -167,61 +128,88 @@ import p, { pComplete } from './includes/performance';
 				difficulty,
 				time,
 			});
-			if (whcConfig.events)
-				emit(form, 'whc:Start', {
-					time,
-					difficulty,
-					complete: false,
-					emoji: '🚗💨',
-				});
-			if (whcConfig.performance) p(whcStart, 'mark');
+			if (events)
+				emit(
+					form,
+					'whc:Start',
+					{
+						time,
+						difficulty,
+						complete: false,
+						emoji: '🚗💨',
+					},
+					perf,
+					{ name: whcStart, method: 'mark' }
+				);
 		};
 
 		/**
 		 * @param {HTMLFormElement} form
-		 * @param {Verification} verification
+		 * @param {import('./includes/worker.js').Verification} verification
 		 */
 		var appendVerification = function (form, verification) {
+			var { events, perf } = whcConfig;
 			var input = document.createElement('input');
 			input.setAttribute('type', 'hidden');
 			input.setAttribute('name', 'captcha_verification');
 			input.setAttribute('value', JSON.stringify(verification));
 			form.appendChild(input);
-			if (whcConfig.events)
-				emit(form, 'whc:Complete', {
-					verification: verification,
-					complete: true,
-					emoji: '✅',
-					performance: pComplete(index),
-				});
-			if (whcConfig.performance) p(whcComplete, 'measure', whcStart);
+			if (events)
+				emit(
+					form,
+					'whc:Complete',
+					{
+						verification: verification,
+						done: true,
+						emoji: '✅',
+						perf: pComplete(index),
+					},
+					perf,
+					{ name: whcComplete, method: 'measure', start: whcStart }
+				);
 		};
 
 		/**
+		 * @param {HTMLFormElement} form
 		 * @param {HTMLButtonElement} button
 		 * @param {string} string
 		 */
 		var updatePercent = function (form, button, string) {
+			var { events, perf } = whcConfig;
 			var percent = string.match(/\d{2,3}/);
 			if (percent === null) {
-				if (whcConfig.performance)
-					p(whcUpdate, 'measure', whcStart) || p(whcUpdate, 'mark');
+				if (events)
+					emit(
+						form,
+						'whc:Update',
+						{
+							emoji: '⏱',
+						},
+						perf,
+						{ name: whcUpdate, method: 'measure', start: whcStart },
+						{ name: whcUpdate, method: 'mark' }
+					);
 				return;
 			}
 			button.setAttribute('data-progress', percent + '%');
-			if (whcConfig.events)
-				emit(form, 'whc:Update', {
-					progress: percent + '%',
-					complete: percent[0] === '100',
-					emoji: '🔔',
-				});
-			if (whcConfig.performance) p(whcUpdate, 'measure', whcUpdate);
+			if (events)
+				emit(
+					form,
+					'whc:Update',
+					{
+						progress: percent + '%',
+						done: percent[0] === '100',
+						emoji: '🔔',
+					},
+					perf,
+					{ name: whcUpdate, method: 'measure', start: whcUpdate }
+				);
 		};
 
 		/**
 		 * @this {Worker}
 		 * @param {Object} param
-		 * @param {WorkerResponse} param.data
+		 * @param {import('./includes/worker.js').WorkerResponse} param.data
 		 */
 		var workerMessageHandler = function ({ data }) {
 			var { form, button, finished } = Private;
