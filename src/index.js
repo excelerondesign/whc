@@ -84,9 +84,9 @@ import { pComplete } from './includes/performance';
 			getDataset(button, 'difficulty') || whcConfig.difficulty;
 
 		const finished = getDataset(button, 'finished') || whcConfig.finished;
-		var whcStart = 'whc:Start#' + index;
-		var whcUpdate = 'whc:Update#' + index;
-		var whcComplete = 'whc:Complete#' + index;
+		const whcStart = 'whc:Start#' + index;
+		const whcUpdate = 'whc:Update#' + index;
+		const whcComplete = 'whc:Complete#' + index;
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
