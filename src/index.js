@@ -82,9 +82,9 @@ import { pComplete } from './includes/performance';
 		 */
 		const difficulty =
 			getDataset(button, 'difficulty') || whcConfig.difficulty;
-    
+
 		const finished = getDataset(button, 'finished') || whcConfig.finished;
-    var whcStart = 'whc:Start#' + index;
+		var whcStart = 'whc:Start#' + index;
 		var whcUpdate = 'whc:Update#' + index;
 		var whcComplete = 'whc:Complete#' + index;
 		/**
@@ -145,7 +145,7 @@ import { pComplete } from './includes/performance';
 					perf,
 					{ name: whcStart, method: 'mark' }
 				);
-		};
+		}
 
 		/**
 		 * @param {HTMLFormElement} form
@@ -170,7 +170,7 @@ import { pComplete } from './includes/performance';
 					perf,
 					{ name: whcComplete, method: 'measure', start: whcStart }
 				);
-		};
+		}
 
 		/**
 		 * @param {HTMLFormElement} form
@@ -194,7 +194,7 @@ import { pComplete } from './includes/performance';
 					perf,
 					{ name: whcUpdate, method: 'measure', start: whcUpdate }
 				);
-		};
+		}
 
 		/**
 		 * @this {Worker}
