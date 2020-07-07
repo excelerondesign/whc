@@ -43,23 +43,16 @@ import worker from './includes/worker';
 	/**
 	 * @type {whcOptions}
 	 */
-	var whcDefaults = {
-		button: '[type="submit"]',
-		form: '.whc-form',
-		difficulty: 3,
-		finished: 'Submit',
-		events: true,
-	};
-
-	/**
-	 * @type {whcOptions}
-	 */
-	var windowWhcConfig = w.whcConfig || {};
-
-	/**
-	 * @type {whcOptions}
-	 */
-	var whcConfig = Object.assign(whcDefaults, windowWhcConfig);
+	var whcConfig = Object.assign(
+		{
+			button: '[type="submit"]',
+			form: '.whc-form',
+			difficulty: 3,
+			finished: 'Submit',
+			events: true,
+		},
+		w.whcConfig || {}
+	);
 
 	/**
 	 * @type {NodeListOf<HTMLFormElement>}
