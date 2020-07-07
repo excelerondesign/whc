@@ -85,7 +85,7 @@ import worker from './includes/worker';
 	 * @param {number} index
 	 */
 	var Constructor = function (form, index) {
-		var Private = {};
+		const Private = {};
 
 		/**
 		 * @type {number} Now converted to seconds
@@ -117,17 +117,17 @@ import worker from './includes/worker';
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
-		var enableButton = function (button) {
+		function enableButton(button) {
 			var { finished } = button.dataset;
 			button.classList.add('done');
 			button.removeAttribute('disabled');
 			button.setAttribute('value', finished);
-		};
+		}
 
 		/**
 		 * @param {Function} func
 		 */
-		var createWorker = function (func) {
+		function createWorker(func) {
 			try {
 				// generates a worker by converting  into a string and then running that function as a worker
 				var blob = new Blob(['(' + func.toString() + ')();'], {
@@ -139,23 +139,23 @@ import worker from './includes/worker';
 			} catch (e1) {
 				throw new Error('Uknown Error: ' + e1);
 			}
-		};
+		}
 
 		/**
 		 * @param {Worker[]} workerArr
 		 * @param {Worker} worker
 		 */
-		var removeWorker = function (workerArr, worker) {
+		function removeWorker(workerArr, worker) {
 			worker.terminate();
 			var workerIndex = workerArr.indexOf(worker);
 			workerArr.splice(workerIndex, 1);
-		};
+		}
 
-		var beginVerification = function () {
+		function verify() {
 			var { difficulty, time, form } = Private;
 			var laborer = createWorker(worker);
 			workerArr.push(laborer);
-			laborer.addEventListener('message', workerMessageHandler, false);
+			laborer.addEventListener('message', workerHandler);
 			laborer.postMessage({
 				difficulty,
 				time,
@@ -168,13 +168,13 @@ import worker from './includes/worker';
 					complete: false,
 					emoji: '🚗💨',
 				});
-		};
+		}
 
 		/**
 		 * @param {HTMLFormElement} form
 		 * @param {Verification} verification
 		 */
-		var appendVerification = function (form, verification) {
+		function appendVerification(form, verification) {
 			var input = document.createElement('input');
 			input.setAttribute('type', 'hidden');
 			input.setAttribute('name', 'captcha_verification');
@@ -188,13 +188,13 @@ import worker from './includes/worker';
 					complete: true,
 					emoji: '✅',
 				});
-		};
+		}
 
 		/**
 		 * @param {HTMLButtonElement} button
 		 * @param {string} string
 		 */
-		var updatePercent = function (form, button, string) {
+		function updatePercent(form, button, string) {
 			var percent = string.match(/\d{2,3}/);
 			if (percent === null) return;
 
@@ -207,14 +207,14 @@ import worker from './includes/worker';
 					complete: percent[0] === '100',
 					emoji: '🔔',
 				});
-		};
+		}
 
 		/**
 		 * @this {Worker}
 		 * @param {Object} param
 		 * @param {WorkerResponse} param.data
 		 */
-		var workerMessageHandler = function ({ data }) {
+		function workerHandler({ data }) {
 			var { form, button } = Private;
 			var { action, message, verification } = data;
 
@@ -229,9 +229,9 @@ import worker from './includes/worker';
 				updatePercent(form, button, message);
 				return;
 			}
-		};
+		}
 
-		window.addEventListener('load', beginVerification, {
+		window.addEventListener('load', verify, {
 			once: true,
 			capture: true,
 		});
