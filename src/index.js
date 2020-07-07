@@ -15,7 +15,6 @@
 
 import emit from './includes/emit';
 import worker from './includes/worker';
-import { pComplete } from './includes/performance';
 
 (function (w) {
 	/**
@@ -120,7 +119,7 @@ import { pComplete } from './includes/performance';
 			});
 			if (events)
 				emit(
-					form,
+					{ form, index },
 					'whc:Start',
 					{
 						time,
@@ -146,13 +145,12 @@ import { pComplete } from './includes/performance';
 			form.appendChild(input);
 			if (events)
 				emit(
-					form,
+					{ form, index },
 					'whc:Complete',
 					{
 						verification,
 						done: true,
 						emoji: '✅',
-						perf: pComplete(index),
 						progress: '100%',
 					},
 					perf,
@@ -173,7 +171,7 @@ import { pComplete } from './includes/performance';
 			button.setAttribute('data-progress', percent + '%');
 			if (events)
 				emit(
-					form,
+					{ form, index },
 					'whc:Update',
 					{
 						progress: percent + '%',
