@@ -1,9 +1,4 @@
-/**
- * @typedef {Object} Verification
- * @prop {number} nonce
- * @prop {number} time
- * @prop {string} question
- */
+import p from './performance';
 
 /**
  * @typedef {Object} WHCEventDetail
@@ -12,20 +7,33 @@
  * @prop {boolean} complete
  * @prop {number} [progress]
  * @prop {string} [error]
- * @prop {Verification[]} [verification]
+ * @prop {import('./worker.js').Verification[]} [verification]
  * @prop {string} emoji
  */
 
 /**
- * @param {HTMLElement} element
+ * @param {HTMLFormElement} form
  * @param {string} eventType
  * @param {WHCEventDetail} detail
+ * @param {import('./performance.js').Perf[]} objects
  */
-export default function (element, eventType, detail) {
+export default function (form, eventType, detail, perf, ...objects) {
+	var defaultDetail = {
+		form,
+		time: Date.now(),
+		done: false,
+		verification: [],
+		progress: 0,
+	};
+
 	var event = new CustomEvent(eventType, {
 		bubbles: true,
-		detail: detail || {},
+		detail: Object.assign(defaultDetail, detail || {}),
 	});
 
-	element.dispatchEvent(event);
+	form.dispatchEvent(event);
+
+	if (perf && objects !== null) {
+		objects.forEach(p); // if performance objects are passed, run the perf function
+	}
 }

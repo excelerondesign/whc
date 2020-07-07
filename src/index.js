@@ -10,26 +10,12 @@
  * @prop {number} difficulty - Number of "questions" to answer
  * @prop {string} finished - Final value after all questions are solved
  * @prop {boolean} events - Should emit custom events?
- */
-
-/**
- * @typedef {Object} Verification
- * @prop {number} nonce
- * @prop {number} time
- * @prop {string} question
- */
-
-/**
- * @typedef {Object} WorkerResponse
- * @prop {string} action
- * @prop {string} message
- * @prop {number} difficulty
- * @prop {number} time
- * @prop {Verification[]} verification
+ * @prop {boolean} perf - Should track performance?
  */
 
 import emit from './includes/emit';
 import worker from './includes/worker';
+import { pComplete } from './includes/performance';
 
 (function (w) {
 	/**
@@ -54,14 +40,10 @@ import worker from './includes/worker';
 		w.whcConfig || {}
 	);
 
-	/**
-	 * @type {NodeListOf<HTMLFormElement>}
-	 */
+	/** @type {NodeListOf<HTMLFormElement>} */
 	var forms = document.querySelectorAll(whcConfig.form);
 
-	/**
-	 * @param {string} str
-	 */
+	/** @param {string} str */
 	var parse = function (str) {
 		var num = parseInt(str);
 
@@ -81,7 +63,6 @@ import worker from './includes/worker';
 	};
 
 	/**
-	 * @class
 	 * @param {HTMLFormElement} form
 	 * @param {number} index
 	 */
@@ -101,9 +82,11 @@ import worker from './includes/worker';
 		 */
 		const difficulty =
 			getDataset(button, 'difficulty') || whcConfig.difficulty;
-		console.log(whcConfig);
+    
 		const finished = getDataset(button, 'finished') || whcConfig.finished;
-
+    var whcStart = 'whc:Start#' + index;
+		var whcUpdate = 'whc:Update#' + index;
+		var whcComplete = 'whc:Complete#' + index;
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
@@ -126,7 +109,7 @@ import worker from './includes/worker';
 				var laborer = new Worker(blobUrl);
 				return laborer;
 			} catch (e1) {
-				throw new Error('Uknown Error: ' + e1);
+				throw new Error('Unknown Error: ' + e1);
 			}
 		}
 
@@ -149,20 +132,24 @@ import worker from './includes/worker';
 				difficulty,
 				time,
 			});
-
-			if (whcConfig.events)
-				emit(form, 'WHC:Start', {
+			if (events)
+				emit(
 					form,
-					time,
-					difficulty,
-					complete: false,
-					emoji: '🚗💨',
-				});
-		}
+					'whc:Start',
+					{
+						time,
+						difficulty,
+						complete: false,
+						emoji: '🚗💨',
+					},
+					perf,
+					{ name: whcStart, method: 'mark' }
+				);
+		};
 
 		/**
 		 * @param {HTMLFormElement} form
-		 * @param {Verification} verification
+		 * @param {import('./includes/worker.js').Verification} verification
 		 */
 		function appendVerification(form, verification) {
 			var input = document.createElement('input');
@@ -170,17 +157,23 @@ import worker from './includes/worker';
 			input.setAttribute('name', 'captcha_verification');
 			input.setAttribute('value', JSON.stringify(verification));
 			form.appendChild(input);
-			if (whcConfig.events)
-				emit(form, 'WHC:Complete', {
+			if (events)
+				emit(
 					form,
-					time: Date.now(),
-					verification: verification,
-					complete: true,
-					emoji: '✅',
-				});
-		}
+					'whc:Complete',
+					{
+						verification: verification,
+						done: true,
+						emoji: '✅',
+						perf: pComplete(index),
+					},
+					perf,
+					{ name: whcComplete, method: 'measure', start: whcStart }
+				);
+		};
 
 		/**
+		 * @param {HTMLFormElement} form
 		 * @param {HTMLButtonElement} button
 		 * @param {string} string
 		 */
@@ -189,29 +182,32 @@ import worker from './includes/worker';
 			if (!percent) return;
 
 			button.setAttribute('data-progress', percent + '%');
-			if (whcConfig.events)
-				emit(form, 'WHC:Update', {
+			if (events)
+				emit(
 					form,
-					time: Date.now(),
-					progress: percent + '%',
-					complete: percent[0] === '100',
-					emoji: '🔔',
-				});
-		}
+					'whc:Update',
+					{
+						progress: percent + '%',
+						done: percent[0] === '100',
+						emoji: '🔔',
+					},
+					perf,
+					{ name: whcUpdate, method: 'measure', start: whcUpdate }
+				);
+		};
 
 		/**
 		 * @this {Worker}
 		 * @param {Object} param
-		 * @param {WorkerResponse} param.data
+		 * @param {import('./includes/worker.js').WorkerResponse} param.data
 		 */
 		function workerHandler({ data }) {
 			var { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
 				appendVerification(form, verification);
-				enableButton(button);
+				enableButton(button, finished);
 				removeWorker(workerArr, this);
-
 				return;
 			}
 			if (action === 'message') {
