@@ -17,31 +17,28 @@ import emit from './includes/emit';
 import worker from './includes/worker';
 import { pComplete } from './includes/performance';
 
-(function () {
+(function (w) {
 	/**
 	 * A weird bug in firefox leads to web workers with no "Active reference" to be garbage collected
 	 * So we create a global array to push workers into so that they don't get collected
 	 * once the workers complete their job, they are splice from the array
 	 * and terminated
 	 */
-	var workerArr = [];
-	window.whcWorkers = workerArr;
+	w.whcWorkers = [];
 
-	/** @type {whcOptions} */
-	var whcDefaults = {
-		button: '[type="submit"]',
-		form: '.whc-form',
-		difficulty: 3,
-		finished: 'Submit',
-		events: true,
-		perf: false,
-	};
-
-	/** @type {whcOptions} */
-	var windowWhcConfig = window.whcConfig || {};
-
-	/** @type {whcOptions} */
-	var whcConfig = Object.assign(whcDefaults, windowWhcConfig);
+	/**
+	 * @type {whcOptions}
+	 */
+	var whcConfig = Object.assign(
+		{
+			button: '[type="submit"]',
+			form: '.whc-form',
+			difficulty: 3,
+			finished: 'Submit',
+			events: true,
+		},
+		w.whcConfig || {}
+	);
 
 	/** @type {NodeListOf<HTMLFormElement>} */
 	var forms = document.querySelectorAll(whcConfig.form);
@@ -56,53 +53,56 @@ import { pComplete } from './includes/performance';
 		return num;
 	};
 
+	var getDataset = (target, str) => {
+		if (!str in target.dataset) return false;
+		var value = target.dataset[str];
+		var num = parseInt(value);
+
+		if (isNaN(num) || num !== num) return value;
+		return num;
+	};
+
 	/**
 	 * @param {HTMLFormElement} form
 	 * @param {number} index
 	 */
 	var Constructor = function (form, index) {
-		const Private = {};
+		/**
+		 * @type {number} Now converted to seconds
+		 */
+		const time = Math.floor(Date.now() / 1000);
 
-		/** @type {number} Now converted to seconds */
-		Private.time = Math.floor(Date.now() / 1000);
+		/**
+		 * @type {HTMLButtonElement}
+		 */
+		const button = form.querySelector(whcConfig.button);
 
-		/** @type {HTMLFormElement} */
-		Private.form = form;
-
-		/** @type {string} */
-		Private.ID = form.getAttribute('id') || 'Form ' + index;
-
-		/** @type {HTMLButtonElement} */
-		Private.button = form.querySelector(whcConfig.button);
-
-		Private.finished =
-			Private.button.dataset.finished || whcConfig.finished;
-
-		/** @type {number} */
-		Private.difficulty =
-			parse(Private.button.getAttribute('data-difficulty')) ||
-			whcConfig.difficulty;
-		var whcStart = 'whc:Start#' + index;
+		/**
+		 * @type {number}
+		 */
+		const difficulty =
+			getDataset(button, 'difficulty') || whcConfig.difficulty;
+    
+		const finished = getDataset(button, 'finished') || whcConfig.finished;
+    var whcStart = 'whc:Start#' + index;
 		var whcUpdate = 'whc:Update#' + index;
 		var whcComplete = 'whc:Complete#' + index;
-
 		/**
 		 * @param {HTMLButtonElement} button
 		 */
 		function enableButton(button) {
-			var { finished } = button.dataset;
 			button.classList.add('done');
 			button.removeAttribute('disabled');
 			button.setAttribute('value', finished);
 		}
 
 		/**
-		 * @param {Function} func
+		 * @param {Function} fn
 		 */
-		function createWorker(func) {
+		function createWorker(fn) {
 			try {
 				// generates a worker by converting  into a string and then running that function as a worker
-				var blob = new Blob(['(' + func.toString() + ')();'], {
+				var blob = new Blob(['(' + fn.toString() + ')();'], {
 					type: 'application/javascript',
 				});
 				var blobUrl = URL.createObjectURL(blob);
@@ -124,9 +124,9 @@ import { pComplete } from './includes/performance';
 		}
 
 		function verify() {
-			var { difficulty, time, form } = Private;
 			var laborer = createWorker(worker);
-			workerArr.push(laborer);
+			w.whcWorkers.push(laborer);
+
 			laborer.addEventListener('message', workerHandler);
 			laborer.postMessage({
 				difficulty,
@@ -179,20 +179,8 @@ import { pComplete } from './includes/performance';
 		 */
 		function updatePercent(form, button, string) {
 			var percent = string.match(/\d{2,3}/);
-			if (percent === null) {
-				if (events)
-					emit(
-						form,
-						'whc:Update',
-						{
-							emoji: '⏱',
-						},
-						perf,
-						{ name: whcUpdate, method: 'measure', start: whcStart },
-						{ name: whcUpdate, method: 'mark' }
-					);
-				return;
-			}
+			if (!percent) return;
+
 			button.setAttribute('data-progress', percent + '%');
 			if (events)
 				emit(
@@ -214,7 +202,6 @@ import { pComplete } from './includes/performance';
 		 * @param {import('./includes/worker.js').WorkerResponse} param.data
 		 */
 		function workerHandler({ data }) {
-			var { form, button } = Private;
 			var { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
@@ -229,11 +216,11 @@ import { pComplete } from './includes/performance';
 			}
 		}
 
-		window.addEventListener('load', verify, {
+		w.addEventListener('load', verify, {
 			once: true,
 			capture: true,
 		});
 	};
 
 	forms.forEach((form, i) => new Constructor(form, i));
-})();
+})(window);
