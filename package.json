@@ -24,7 +24,17 @@
 		"url": "git+https://github.com/excelerondesign/whc.git"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Frankie (https://github.com/frankie-tech)",
+	"contributors": [
+		{
+			"name": "Frankie",
+			"profile": "https://github.com/frankie-tech"
+		},
+		{
+			"name": "Ryan Babka",
+			"profile": "https://github.com/4rch1m3d35"
+		}
+	],
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/excelerondesign/whc/issues"
