@@ -30,7 +30,7 @@ export default new (function () {
 		 */
 		run(e, obj) {
 			(all.get(e) || []).forEach(fn => fn(obj));
-			(all.get('*') || []).forEach(fn => fn(obj));
+			(all.get('*') || []).forEach(fn => fn(e, obj));
 		},
 	};
 })();

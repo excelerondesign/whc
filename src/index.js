@@ -45,9 +45,9 @@ import worker from './includes/worker';
 	w.whcWorkers.length = forms.length;
 
 	whcConfig.events &&
-		emitter.on('*', detail =>
+		emitter.on('*', (type, detail) =>
 			detail.form.dispatchEvent(
-				new CustomEvent(detail.eventName, { capture: true, detail })
+				new CustomEvent(type, { capture: true, detail })
 			)
 		);
 	// emitter.on('*', console.log);
