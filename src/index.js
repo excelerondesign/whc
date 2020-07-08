@@ -60,6 +60,13 @@ import worker from './includes/worker';
 		return isNaN(num) || num !== num ? value : num;
 	};
 
+	const merge = (obj1, obj2) => {
+		return {
+			...obj1,
+			...obj2,
+		};
+	};
+
 	/**
 	 * @param {HTMLFormElement} form
 	 * @param {number} i
@@ -124,14 +131,14 @@ import worker from './includes/worker';
 				difficulty,
 				time,
 			});
-			emitter.run('whc:Start#' + i, {
-				...eventDefault,
-				...{
+			emitter.run(
+				'whc:Start#' + i,
+				merge(eventDefault, {
 					eventName: 'whc:Start#' + i,
 					time,
 					emoji: '🚗💨',
-				},
-			});
+				})
+			);
 		}
 
 		/**
@@ -157,16 +164,16 @@ import worker from './includes/worker';
 			if (!percent) return;
 
 			button.setAttribute('data-progress', percent + '%');
-			emitter.run('whc:Progress#' + i, {
-				...eventDefault,
-				...{
+			emitter.run(
+				'whc:Progress#' + i,
+				merge(eventDefault, {
 					eventName: 'whc:Progress#' + i,
 					time: +new Date(),
 					progress: percent[0] + '%',
 					done: +percent[0] === 100,
 					emoji: '🔔',
-				},
-			});
+				})
+			);
 		}
 
 		emitter.on('whc:Update#' + i, updatePercent);
@@ -183,32 +190,29 @@ import worker from './includes/worker';
 			const { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
-				emitter.run('whc:Complete#' + i, {
-					...eventDefault,
-					...{
+				return emitter.run(
+					'whc:Complete#' + i,
+					merge(eventDefault, {
 						eventName: 'whc:Complete#' + i,
 						verification,
 						done: true,
 						emoji: '✅',
 						progress: '100%',
-					},
-				});
-				return;
+					})
+				);
 			}
 			if (action === 'message') {
-				emitter.run('whc:Update#' + i, {
-					...eventDefault,
-					...{
+				return emitter.run(
+					'whc:Update#' + i,
+					merge(eventDefault, {
 						eventName: 'whc:Completed#' + i,
 						time: +new Date(),
 						message,
 						button,
 						progress: 'Updating',
 						emoji: '🔔',
-					},
-				});
-				// updatePercent(button, message);
-				return;
+					})
+				);
 			}
 		}
 
