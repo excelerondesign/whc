@@ -20,8 +20,8 @@ import worker from './includes/worker';
 	/**
 	 * @type {whcOptions}
 	 */
-	const whcConfig = Object.assign(
-		{
+	const whcConfig = {
+		...{
 			button: '[type="submit"]',
 			form: '.whc-form',
 			difficulty: 3,
@@ -29,8 +29,8 @@ import worker from './includes/worker';
 			events: true,
 			perf: false,
 		},
-		w.whcConfig || {}
-	);
+		...(w.whcConfig || {}),
+	};
 
 	/** @type {NodeListOf<HTMLFormElement>} */
 	const forms = document.querySelectorAll(whcConfig.form);
@@ -51,13 +51,13 @@ import worker from './includes/worker';
 			)
 		);
 	// emitter.on('*', console.log);
-	const getDataset = (target, str) => {
-		if (!str in target.dataset) return false;
+	const getSetting = (target, str) => {
+		// console.log(whcConfig[str]);
+		if (str in target.dataset === false) return whcConfig[str];
 		var value = target.dataset[str];
 		var num = +value; // coerces value into a number
 
-		if (isNaN(num) || num !== num) return value;
-		return num;
+		return isNaN(num) || num !== num ? value : num;
 	};
 
 	/**
@@ -73,10 +73,9 @@ import worker from './includes/worker';
 		/**
 		 * @type {number}
 		 */
-		const difficulty =
-			getDataset(button, 'difficulty') || whcConfig.difficulty;
+		const difficulty = getSetting(button, 'difficulty');
 
-		const finished = getDataset(button, 'finished') || whcConfig.finished;
+		const finished = getSetting(button, 'finished');
 
 		const eventDefault = {
 			eventName: 'whc:Update#' + i,
@@ -99,7 +98,7 @@ import worker from './includes/worker';
 		/** @param {Function} fn */
 		function createWorker(fn) {
 			try {
-				// generates a worker by converting  into a string and then running that function as a worker
+				// generates a worker by converting into a string and then running that function as a worker
 				const blob = new Blob(['(' + fn.toString() + ')();'], {
 					type: 'application/javascript',
 				});
@@ -110,9 +109,7 @@ import worker from './includes/worker';
 			}
 		}
 
-		/**
-		 * @param {Worker} laborer
-		 */
+		/** @param {Worker} laborer */
 		function removeWorker(laborer) {
 			laborer.terminate();
 			whcWorkers[i] = null;
