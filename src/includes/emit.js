@@ -6,22 +6,7 @@ export default new (function () {
 		 * @param {Function} fn function to run when the event is called, should accept an object
 		 */
 		on(e, fn) {
-			const handlers = all.get(e);
-			const added = handlers && handlers.push(fn);
-			if (!added) {
-				all.set(e, [fn]);
-			}
-		},
-		// https://github.com/developit/mitt/blob/master/src/index.ts#L56
-		/**
-		 * @param {string} e event type
-		 * @param {Function} fn function to run when the event is called, should accept an object
-		 */
-		off(e, fn) {
-			const handlers = all.get(e);
-			if (handlers) {
-				handlers.splice(handlers.indexOf(fn) >>> 0, 1);
-			}
+			return (h = all.get(e)), !(h && h.push(fn)) && all.set(e, [fn]);
 		},
 		/**
 		 *
