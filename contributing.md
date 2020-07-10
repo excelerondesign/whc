@@ -27,17 +27,6 @@ That does not mean that you should use the latest and greatest. If you add or re
 
 It is always better to lean towards explicit functions and variables over code golfing.
 
-```js
-var avoid = object && object.property;
-
-var better = object ? object.property : null;
-
-var best =
-  object !== undefined && object.property !== undefined
-    ? object.property
-    : null;
-```
-
 ## Types
 
 This project takes advantage of [JSDoc](https://jsdoc.app/index.html) to comment and record functions, parameters, and classes. Editors that support JSDoc automatically read/interpret comments and turn it into TypeScript like documentation, which gives everyone access to safer code without the steep learning curve and config fatigue that Typescript has.
@@ -79,30 +68,4 @@ function toHexStr(n) {
 
 ### When do I need to add an `@returns`?
 
-Most editors that can interpret JSDoc can figure out what most functions returns. Most. Here's an example.
-
-```js
-function setButtonPercent(button, string) {
-  var percent = string.match(/\d*%/);
-  if (percent === null) return;
-
-  button.setAttribute("data-progress", percent);
-}
-```
-
-With no `return` statement, the editor can tell that the function returns `void`.
-
-```js
-/**
- * @param {(string|number)} msg
- * @returns {string}
- */
-obscureClass.hashMessage(msg) {
-	const encodedMessage = this.encodeMessage(msg);
-	const intermediateHash = this.computeHash(encodedMessage, this.H, this.K);
-	const hashedString = intermediateHash.join(''); // does not have an inherent type attached
-	return hashedString;
-};
-```
-
-Now when `hashMessage` is called, the editor will tell us to pass in a string/number and to expect a string in response.
+Most editors that support JSDoc can interpret the return value without the need for `@returns`. If the editor can't interpret that, you should add an `@returns`.

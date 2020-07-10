@@ -1,31 +1,36 @@
-/**
- * @typedef {Object} Verification
- * @prop {number} nonce
- * @prop {number} time
- * @prop {string} question
- */
-
-/**
- * @typedef {Object} WHCEventDetail
- * @prop {HTMLFormElement} form
- * @prop {number} time
- * @prop {boolean} complete
- * @prop {number} [progress]
- * @prop {string} [error]
- * @prop {Verification[]} [verification]
- * @prop {string} emoji
- */
-
-/**
- * @param {HTMLElement} element
- * @param {string} eventType
- * @param {WHCEventDetail} detail
- */
-export default function (element, eventType, detail) {
-	var event = new CustomEvent(eventType, {
-		bubbles: true,
-		detail: detail || {},
-	});
-
-	element.dispatchEvent(event);
-}
+export default new (function () {
+	const all = new Map();
+	return {
+		/**
+		 * @param {string} e - event type
+		 * @param {Function} fn function to run when the event is called, should accept an object
+		 */
+		on(e, fn) {
+			const handlers = all.get(e);
+			const added = handlers && handlers.push(fn);
+			if (!added) {
+				all.set(e, [fn]);
+			}
+		},
+		// https://github.com/developit/mitt/blob/master/src/index.ts#L56
+		/**
+		 * @param {string} e event type
+		 * @param {Function} fn function to run when the event is called, should accept an object
+		 */
+		off(e, fn) {
+			const handlers = all.get(e);
+			if (handlers) {
+				handlers.splice(handlers.indexOf(fn) >>> 0, 1);
+			}
+		},
+		/**
+		 *
+		 * @param {string} e - event type
+		 * @param {EventObject} obj Arguments used for event handlers
+		 */
+		run(e, obj) {
+			(all.get(e) || []).forEach(fn => fn(obj));
+			(all.get('*') || []).forEach(fn => fn(e, obj));
+		},
+	};
+})();

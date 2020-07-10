@@ -9,7 +9,7 @@
 		"regex": "^_"
 	},
 	"scripts": {
-		"bundle:start": "microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
+		"bundle:start": "microbundle watch --compress false -f modern,umd --raw=true",
 		"bundle:build": "microbundle -f modern,umd --no-sourcemap",
 		"clean:dist": "rm -rf dist",
 		"clean:build": "rm -rf build",
@@ -24,7 +24,17 @@
 		"url": "git+https://github.com/excelerondesign/whc.git"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Frankie (https://github.com/frankie-tech)",
+	"contributors": [
+		{
+			"name": "Frankie",
+			"profile": "https://github.com/frankie-tech"
+		},
+		{
+			"name": "Ryan Babka",
+			"profile": "https://github.com/4rch1m3d35"
+		}
+	],
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/excelerondesign/whc/issues"

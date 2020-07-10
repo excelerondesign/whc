@@ -313,6 +313,7 @@ export default function () {
 	 */
 	function solveCaptcha({ question, time }, nonce = 1) {
 		nonce++;
+
 		var verifyArray = {
 			question: question,
 			time: time,

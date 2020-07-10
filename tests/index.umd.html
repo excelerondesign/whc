@@ -10,10 +10,7 @@
 			media="print"
 			onload="this.onload=null;this.media='all';"
 		/>
-		<script>
-			window.whcConfig = window.whcConfig || {};
-			window.whcConfig.events = true;
-		</script>
+		<script async defer src="test.js"></script>
 	</head>
 	<body>
 		<nav>
@@ -53,34 +50,20 @@
 					<strong>Build Type:</strong> Universal Module Definition
 				</li>
 			</ul>
+
+			<iframe
+				src="https://giphy.com/embed/hRwtOlZ1SBdpHV6QRZ"
+				width="480"
+				height="198"
+				frameborder="0"
+				class="giphy-embed"
+				allowfullscreen
+			></iframe>
 			<form action="" id="singleForm" class="whc-form">
 				<h3>Form One</h3>
-				<input
-					type="submit"
-					value="verifying"
-					disabled
-					data-finished="verified"
-					class="whc-button"
-					data-difficulty="3"
-				/>
+				<input type="submit" value="verifying" disabled />
 			</form>
 		</main>
-		<script
-			async
-			defer
-			src="../build/whc.umd.js"
-			id="whcScriptTag"
-			data-button="whc-button"
-			data-form="whc-form"
-		></script>
-		<script>
-			document
-				.querySelector('form')
-				.addEventListener('WHC::Progress', console.log);
-
-			document
-				.querySelector('form')
-				.addEventListener('WHC::Verification', console.log);
-		</script>
+		<script async defer src="../build/whc.umd.js"></script>
 	</body>
 </html>
