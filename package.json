@@ -9,7 +9,7 @@
 		"regex": "^_"
 	},
 	"scripts": {
-		"bundle:start": "microbundle watch --compress false -f modern,umd --raw=true",
+		"bundle:start": "microbundle watch --compress false -f umd --raw=true",
 		"bundle:build": "microbundle -f modern,umd --no-sourcemap",
 		"clean:dist": "rm -rf dist",
 		"clean:build": "rm -rf build",
