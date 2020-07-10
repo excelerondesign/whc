@@ -20,7 +20,7 @@ import worker from './includes/worker';
 	/**
 	 * @type {whcOptions}
 	 */
-	const whcConfig = {
+	const config = {
 		...{
 			button: '[type="submit"]',
 			form: '.whc-form',
@@ -33,7 +33,7 @@ import worker from './includes/worker';
 	};
 
 	/** @type {NodeListOf<HTMLFormElement>} */
-	const forms = document.querySelectorAll(whcConfig.form);
+	const forms = document.querySelectorAll(config.form);
 
 	/**
 	 * A weird bug in firefox leads to web workers with no "Active reference" to be garbage collected
@@ -41,10 +41,9 @@ import worker from './includes/worker';
 	 * once the workers complete their job, they are splice from the array
 	 * and terminated
 	 */
-	w.whcWorkers = new Array();
-	w.whcWorkers.length = forms.length;
+	w.whcWorkers = [];
 
-	whcConfig.events &&
+	config.events &&
 		emitter.on('*', (type, detail) =>
 			detail.form.dispatchEvent(
 				new CustomEvent(type, { capture: true, detail })
@@ -53,18 +52,11 @@ import worker from './includes/worker';
 	// emitter.on('*', console.log);
 	const getSetting = (target, str) => {
 		// console.log(whcConfig[str]);
-		if (str in target.dataset === false) return whcConfig[str];
+		if (str in target.dataset === false) return config[str];
 		var value = target.dataset[str];
 		var num = +value; // coerces value into a number
 
 		return isNaN(num) || num !== num ? value : num;
-	};
-
-	const merge = (obj1, obj2) => {
-		return {
-			...obj1,
-			...obj2,
-		};
 	};
 
 	/**
@@ -75,7 +67,7 @@ import worker from './includes/worker';
 		/**
 		 * @type {HTMLButtonElement}
 		 */
-		const button = form.querySelector(whcConfig.button);
+		const button = form.querySelector(config.button);
 
 		/**
 		 * @type {number}
@@ -85,7 +77,7 @@ import worker from './includes/worker';
 		const finished = getSetting(button, 'finished');
 
 		const eventDefault = {
-			eventName: 'whc:Update#' + i,
+			event: 'whc:Update#' + i,
 			form,
 			time: +new Date(),
 			difficulty,
@@ -95,12 +87,12 @@ import worker from './includes/worker';
 			done: false,
 		};
 
-		/** @param {HTMLButtonElement} button */
-		function enableButton() {
-			button.classList.add('done');
-			button.removeAttribute('disabled');
-			button.setAttribute('value', finished);
-		}
+		const mergeDefault = obj => {
+			return {
+				...eventDefault,
+				...obj,
+			};
+		};
 
 		/** @param {Function} fn */
 		function createWorker(fn) {
@@ -116,12 +108,6 @@ import worker from './includes/worker';
 			}
 		}
 
-		/** @param {Worker} laborer */
-		function removeWorker(laborer) {
-			laborer.terminate();
-			whcWorkers[i] = null;
-		}
-
 		function verify() {
 			const time = +new Date();
 			this.whcWorkers[i] = createWorker(worker);
@@ -133,8 +119,8 @@ import worker from './includes/worker';
 			});
 			emitter.run(
 				'whc:Start#' + i,
-				merge(eventDefault, {
-					eventName: 'whc:Start#' + i,
+				mergeDefault({
+					event: 'whc:Start#' + i,
 					time,
 					emoji: '🚗💨',
 				})
@@ -152,6 +138,10 @@ import worker from './includes/worker';
 			input.setAttribute('name', 'captcha_verification');
 			input.setAttribute('value', JSON.stringify(verification));
 			form.appendChild(input);
+			button.classList.add('done');
+			button.removeAttribute('disabled');
+			button.setAttribute('value', finished);
+			whcWorkers[i].terminate();
 		}
 
 		/**
@@ -166,8 +156,8 @@ import worker from './includes/worker';
 			button.setAttribute('data-progress', percent + '%');
 			emitter.run(
 				'whc:Progress#' + i,
-				merge(eventDefault, {
-					eventName: 'whc:Progress#' + i,
+				mergeDefault({
+					event: 'whc:Progress#' + i,
 					time: +new Date(),
 					progress: percent[0] + '%',
 					done: +percent[0] === 100,
@@ -178,8 +168,6 @@ import worker from './includes/worker';
 
 		emitter.on('whc:Update#' + i, updatePercent);
 		emitter.on('whc:Complete#' + i, appendVerification);
-		emitter.on('whc:Complete#' + i, enableButton);
-		emitter.on('whc:Complete#' + i, () => removeWorker(whcWorkers[i]));
 
 		/**
 		 * @this {Worker}
@@ -192,8 +180,8 @@ import worker from './includes/worker';
 			if (action === 'captchaSuccess') {
 				return emitter.run(
 					'whc:Complete#' + i,
-					merge(eventDefault, {
-						eventName: 'whc:Complete#' + i,
+					mergeDefault({
+						event: 'whc:Complete#' + i,
 						verification,
 						done: true,
 						emoji: '✅',
@@ -204,8 +192,8 @@ import worker from './includes/worker';
 			if (action === 'message') {
 				return emitter.run(
 					'whc:Update#' + i,
-					merge(eventDefault, {
-						eventName: 'whc:Completed#' + i,
+					mergeDefault({
+						event: 'whc:Completed#' + i,
 						time: +new Date(),
 						message,
 						button,
