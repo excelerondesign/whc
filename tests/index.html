@@ -10,6 +10,7 @@
 			media="print"
 			onload="this.onload=null;this.media='all';"
 		/>
+		<script async defer src="test.js"></script>
 	</head>
 	<body>
 		<nav>
@@ -27,14 +28,14 @@
 					<a href="./multiple-forms.umd.html">Multiple Forms (UMD)</a>
 				</li>
 				<li>
-					<a href="./max-difficulty.html"
-						>Maximum Difficulty (Modern)</a
-					>
+					<a href="./max-difficulty.html">
+						Maximum Difficulty (Modern)
+					</a>
 				</li>
 				<li>
-					<a href="./max-difficulty.umd.html"
-						>Maximum Difficulty (UMD)</a
-					>
+					<a href="./max-difficulty.umd.html">
+						Maximum Difficulty (UMD)
+					</a>
 				</li>
 			</ul>
 		</nav>
@@ -47,25 +48,21 @@
 				<li><strong>Form Class:</strong> whc-form</li>
 				<li><strong>Build Type:</strong> Modern</li>
 			</ul>
-			<form action="" id="singleForm" class="whc-form" data-debug="1">
+			<!--
+			<iframe
+				src="https://giphy.com/embed/hRwtOlZ1SBdpHV6QRZ"
+				width="480"
+				height="198"
+				frameborder="0"
+				class="giphy-embed"
+				allowfullscreen
+			></iframe>
+			-->
+			<form action="" id="singleForm" class="whc-form">
 				<h3>Form One</h3>
-				<input
-					type="submit"
-					value="verifying"
-					disabled
-					data-finished="verified"
-					class="whc-button"
-					data-difficulty="3"
-				/>
+				<input type="submit" value="verifying" disabled="true" />
 			</form>
 		</main>
-		<script
-			async
-			defer
-			src="../build/whc.modern.js"
-			id="whcScriptTag"
-			data-form="whc-form"
-			data-button="whc-button"
-		></script>
+		<script async defer src="../build/whc.modern.js"></script>
 	</body>
 </html>

@@ -10,6 +10,7 @@
 			media="print"
 			onload="this.onload=null;this.media='all';"
 		/>
+		<script async defer src="test.js"></script>
 	</head>
 	<body>
 		<nav>
@@ -27,14 +28,14 @@
 					<a href="./multiple-forms.umd.html">Multiple Forms (UMD)</a>
 				</li>
 				<li>
-					<a href="./max-difficulty.html"
-						>Maximum Difficulty (Modern)</a
-					>
+					<a href="./max-difficulty.html">
+						Maximum Difficulty (Modern)
+					</a>
 				</li>
 				<li>
-					<a href="./max-difficulty.umd.html"
-						>Maximum Difficulty (UMD)</a
-					>
+					<a href="./max-difficulty.umd.html">
+						Maximum Difficulty (UMD)
+					</a>
 				</li>
 			</ul>
 		</nav>
@@ -49,25 +50,20 @@
 					<strong>Build Type:</strong> Universal Module Definition
 				</li>
 			</ul>
-			<form action="" id="singleForm" class="whc-form" data-debug="1">
+
+			<iframe
+				src="https://giphy.com/embed/hRwtOlZ1SBdpHV6QRZ"
+				width="480"
+				height="198"
+				frameborder="0"
+				class="giphy-embed"
+				allowfullscreen
+			></iframe>
+			<form action="" id="singleForm" class="whc-form">
 				<h3>Form One</h3>
-				<input
-					type="submit"
-					value="verifying"
-					disabled
-					data-finished="verified"
-					class="whc-button"
-					data-difficulty="3"
-				/>
+				<input type="submit" value="verifying" disabled />
 			</form>
 		</main>
-		<script
-			async
-			defer
-			src="../build/whc.umd.js"
-			id="whcScriptTag"
-			data-button="whc-button"
-			data-form="whc-form"
-		></script>
+		<script async defer src="../build/whc.umd.js"></script>
 	</body>
 </html>
