@@ -1,36 +1,27 @@
+// @ts-check
 /*!
  * WeHateCaptchas Self-Instantiating-Plugin
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
 
-/**
- * @typedef whcOptions
- * @type {Object}
- * @prop {string} button - Valid querySelector string
- * @prop {string} form - Valid className string
- * @prop {number} difficulty - Number of "questions" to answer
- * @prop {string} finished - Final value after all questions are solved
- * @prop {boolean} events - Should emit custom events?
- * @prop {boolean} perf - Should track performance?
- */
 import emitter from './includes/emit';
 import worker from './includes/worker';
 
 (function (w) {
-	/**
-	 * @type {whcOptions}
-	 */
-	const config = {
-		...{
+	const e = emitter();
+	/** @type {import("./types").whcOptions} */
+	const config = Object.assign(
+		{
 			button: '[type="submit"]',
 			form: '.whc-form',
 			difficulty: 3,
 			finished: 'Submit',
 			events: true,
 			perf: false,
+			// @ts-ignore
 		},
-		...(w.whcConfig || {}),
-	};
+		...(w.whcConfig || {})
+	);
 
 	/** @type {NodeListOf<HTMLFormElement>} */
 	const forms = document.querySelectorAll(config.form);
@@ -41,58 +32,47 @@ import worker from './includes/worker';
 	 * once the workers complete their job, they are splice from the array
 	 * and terminated
 	 */
+	// @ts-ignore
 	w.whcWorkers = [];
 
 	config.events &&
-		emitter.on('*', (type, detail) =>
-			detail.form.dispatchEvent(
-				new CustomEvent(type, { capture: true, detail })
-			)
+		e.on('*', (type, detail) =>
+			detail.form.dispatchEvent(new CustomEvent(type, { detail }))
 		);
-	// emitter.on('*', console.log);
-	const getSetting = (target, str) => {
-		// console.log(whcConfig[str]);
+
+	/** @type {(target: HTMLElement, str: string) => string | number}*/
+	function getSetting(target, str) {
 		if (str in target.dataset === false) return config[str];
 		var value = target.dataset[str];
 		var num = +value; // coerces value into a number
 
 		return isNaN(num) || num !== num ? value : num;
-	};
+	}
 
 	/**
 	 * @param {HTMLFormElement} form
 	 * @param {number} i
 	 */
 	var Constructor = function (form, i) {
-		/**
-		 * @type {HTMLButtonElement}
-		 */
+		/** @type {HTMLButtonElement} */
 		const button = form.querySelector(config.button);
 
-		/**
-		 * @type {number}
-		 */
 		const difficulty = getSetting(button, 'difficulty');
 
 		const finished = getSetting(button, 'finished');
 
+		/** @type {import('./types').eventInterface} */
 		const eventDefault = {
 			event: 'whc:Update#' + i,
 			form,
-			time: +new Date(),
 			difficulty,
 			verification: [],
-			perf: [],
-			progress: '0%',
+			progress: 0,
 			done: false,
 		};
 
-		const mergeDefault = obj => {
-			return {
-				...eventDefault,
-				...obj,
-			};
-		};
+		/** @type { ( obj:import('./types').eventInterface ) => object } */
+		const merge = obj => Object.assign(eventDefault, obj);
 
 		/** @param {Function} fn */
 		function createWorker(fn) {
@@ -117,21 +97,15 @@ import worker from './includes/worker';
 				difficulty,
 				time,
 			});
-			emitter.run(
+			e.run(
 				'whc:Start#' + i,
-				mergeDefault({
+				merge({
 					event: 'whc:Start#' + i,
-					time,
-					emoji: '🚗💨',
 				})
 			);
 		}
 
-		/**
-		 * @param {Object} param
-		 * @param {HTMLFormElement} param.form
-		 * @param {import('./includes/worker.js').Verification} param.verification
-		 */
+		/** @type { (event: import('./types').eventInterface) => void } */
 		function appendVerification({ form, verification }) {
 			const input = document.createElement('input');
 			input.setAttribute('type', 'hidden');
@@ -140,12 +114,13 @@ import worker from './includes/worker';
 			form.appendChild(input);
 			button.classList.add('done');
 			button.removeAttribute('disabled');
-			button.setAttribute('value', finished);
-			whcWorkers[i].terminate();
+			button.setAttribute('value', '' + finished);
+			// @ts-ignore
+			w.whcWorkers[i].terminate();
 		}
 
 		/**
-		 * @param {Object} param
+		 * @param {object} param
 		 * @param {HTMLButtonElement} param.button
 		 * @param {string} param.message
 		 */
@@ -154,51 +129,46 @@ import worker from './includes/worker';
 			if (!percent) return;
 
 			button.setAttribute('data-progress', percent + '%');
-			emitter.run(
+			e.run(
 				'whc:Progress#' + i,
-				mergeDefault({
+				merge({
 					event: 'whc:Progress#' + i,
-					time: +new Date(),
-					progress: percent[0] + '%',
+					progress: +percent[0],
 					done: +percent[0] === 100,
-					emoji: '🔔',
 				})
 			);
 		}
 
-		emitter.on('whc:Update#' + i, updatePercent);
-		emitter.on('whc:Complete#' + i, appendVerification);
+		e.on('whc:Update#' + i, updatePercent);
+		e.on('whc:Complete#' + i, appendVerification);
 
 		/**
 		 * @this {Worker}
-		 * @param {Object} param
-		 * @param {import('./includes/worker.js').WorkerResponse} param.data
+		 * @param {object} param
+		 * @param {import('./types').WorkerResponse} param.data
 		 */
 		function workerHandler({ data }) {
 			const { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
-				return emitter.run(
+				return e.run(
 					'whc:Complete#' + i,
-					mergeDefault({
+					merge({
 						event: 'whc:Complete#' + i,
 						verification,
 						done: true,
-						emoji: '✅',
-						progress: '100%',
+						progress: 100,
 					})
 				);
 			}
 			if (action === 'message') {
-				return emitter.run(
+				return e.run(
 					'whc:Update#' + i,
-					mergeDefault({
+					merge({
 						event: 'whc:Completed#' + i,
-						time: +new Date(),
 						message,
 						button,
-						progress: 'Updating',
-						emoji: '🔔',
+						progress: 0,
 					})
 				);
 			}

@@ -1,4 +1,5 @@
-export default new (function () {
+// @ts-check
+export default function () {
 	const all = new Map();
 	return {
 		/**
@@ -26,11 +27,11 @@ export default new (function () {
 		/**
 		 *
 		 * @param {string} e - event type
-		 * @param {EventObject} obj Arguments used for event handlers
+		 * @param {import('../types').eventInterface} obj Arguments used for event handlers
 		 */
 		run(e, obj) {
 			(all.get(e) || []).forEach(fn => fn(obj));
 			(all.get('*') || []).forEach(fn => fn(e, obj));
 		},
 	};
-})();
+}

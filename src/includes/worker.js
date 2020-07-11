@@ -1,22 +1,4 @@
-/**
- * @typedef {Object} WorkerResponse
- * @prop {string} action
- * @prop {string} message
- * @prop {number} difficulty
- * @prop {number} time
- * @prop {Verification[]} verification
- */
-/**
- * @typedef {Object} Verification
- * @prop {number} nonce
- * @prop {number} time
- * @prop {string} question
- */
-/**
- * @typedef {Object} EncodedMessage
- * @prop {number[][]} M
- * @prop {number} N
- */
+// @ts-check
 export default function () {
 	/*  SHA-256 implementation in JavaScript | (c) Chris Veness 2002-2010 | www.movable-type.co.uk    */
 	/*   - see http://csrc.nist.gov/groups/ST/toolkit/secure_sha256.html                             */
@@ -108,9 +90,7 @@ export default function () {
 			0x5be0cd19,
 		],
 
-		/**
-		 * @param {number} n
-		 */
+		/** @param {number} n */
 		_toHexString: function (n) {
 			var s = '',
 				v;
@@ -128,21 +108,15 @@ export default function () {
 			return (x >>> n) | (x << (32 - n));
 		},
 
-		/**
-		 * @param {number} x
-		 */
+		/** @param {number} x */
 		_Sigma0: function (x) {
 			return this._ROTR(2, x) ^ this._ROTR(13, x) ^ this._ROTR(22, x);
 		},
-		/**
-		 * @param {number} x
-		 */
+		/** @param {number} x */
 		_Sigma1: function (x) {
 			return this._ROTR(6, x) ^ this._ROTR(11, x) ^ this._ROTR(25, x);
 		},
-		/**
-		 * @param {number} x
-		 * */
+		/** @param {number} x */
 		_sigma0: function (x) {
 			return this._ROTR(7, x) ^ this._ROTR(18, x) ^ (x >>> 3);
 		},
@@ -171,11 +145,12 @@ export default function () {
 	};
 	/**
 	 * Contains all the hashing functions for sha256 algorithm
+	 * @namespace sha256
 	 */
 	function sha256() {
 		/**
-		 * @param {string} msg
-		 * @returns {EncodedMessage}
+		 * @type { (msg: string) => import('../types').EncodedMessage}
+		 * @memberof sha256
 		 */
 		this._encodeMessage = function (msg) {
 			msg += String.fromCharCode(0x80); // add trailing '1' bit (+ 0's padding) to string [§5.1.1]
@@ -209,11 +184,10 @@ export default function () {
 				N,
 			};
 		};
+
 		/**
-		 * @param {EncodedMessage} encodedMessage
-		 * @param {number[]} H
-		 * @param {number[]} K
-		 * @return {string[]}
+		 * @type { (encodedMessage: import('../types').EncodedMessage, H:number[], K:number[]) => string[]}
+		 * @memberof sha256
 		 */
 		this._computeHash = function ({ M, N }, H, K) {
 			var W = new Array(64);
@@ -266,9 +240,10 @@ export default function () {
 			const hashMap = H.map(hash => this._toHexString(hash));
 			return hashMap;
 		};
+
 		/**
-		 * @param {string|number} msg
-		 * @returns {string}
+		 * @type {(msg: string|number) => string}
+		 * @memberof sha256
 		 */
 		this.hash = function (msg) {
 			const encodedMessage = this._encodeMessage(msg);
@@ -285,12 +260,10 @@ export default function () {
 
 	sha256.prototype = Object.assign({}, utilities.prototype);
 
+	/** @type {sha256} */
 	var sha = new sha256();
 
-	/**
-	 * @param {number} percentFor
-	 * @param {number} percentOf
-	 */
+	/** @type { (percentFor: number, percentOf: number) => number } */
 	var getWholePercent = (percentFor, percentOf) => {
 		return Math.floor((percentFor / percentOf) * 100);
 	};
@@ -306,7 +279,7 @@ export default function () {
 	};
 
 	/**
-	 * @param {Object} object
+	 * @param {object} object
 	 * @param {string} object.question
 	 * @param {number} object.time
 	 * @param {number} nonce
@@ -339,10 +312,6 @@ export default function () {
 		};
 	}
 
-	/**
-	 * @param {string} url
-	 * @returns {string}
-	 */
 	async function sendRequest() {
 		var formData = new FormData();
 
@@ -361,17 +330,19 @@ export default function () {
 	self.addEventListener(
 		'message',
 		/**
-		 * @param {Object} param
-		 * @param {WorkerResponse} param.data
+		 * @param {object} param
+		 * @param {import('../types').WorkerResponse} param.data
 		 */
 		function ({ data }) {
+			// @ts-ignore
+			var { difficulty, time, hostname } = data;
+			// @ts-ignore
 			self.postMessage({
 				action: 'message',
 				message:
 					"Checking if you're a bot before enabling submit button...",
 			});
 
-			var { difficulty, time } = data;
 			sendRequest().then(
 				/** @param {string} question */
 				function (question) {
@@ -383,6 +354,7 @@ export default function () {
 						var nonce = response.nonce;
 						verification.push(response.verify_array);
 						var percentDone = getWholePercent(i + 1, difficulty);
+						// @ts-ignore
 						self.postMessage({
 							action: 'message',
 							message:
@@ -390,6 +362,7 @@ export default function () {
 						});
 					}
 
+					// @ts-ignore
 					self.postMessage({
 						action: 'captchaSuccess',
 						verification: verification,
