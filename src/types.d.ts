@@ -1,16 +1,3 @@
-function getSetting(target: HTMLElement, str: string): string | number;
-
-function merge(obj: object): object;
-
-function createWorker(fn: Function): Worker;
-
-function updatePercent(eventInterface: {
-	button: HTMLButtonElement;
-	message: string;
-}): void;
-
-export { getSetting, merge, createWorker, updatePercent };
-
 type whcOptions = {
 	button: string;
 	form: string;
@@ -37,18 +24,20 @@ type WorkerResponse = {
 	difficulty: number;
 	time: number;
 	verification: Verification[];
+	hostname: string;
 };
 
 export { whcOptions, Verification, EncodedMessage, WorkerResponse };
 
 interface eventInterface {
 	event: string;
-	form: HTMLFormElement;
-	time: number;
-	difficulty: number;
-	verification: Verification[];
-	progress: number;
-	done: boolean;
+	form?: HTMLFormElement;
+	button?: HTMLButtonElement;
+	difficulty?: number | string;
+	verification?: Verification[];
+	progress?: number;
+	done?: boolean;
+	message?: string;
 }
 
 export { eventInterface };
