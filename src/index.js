@@ -34,7 +34,8 @@ import worker from './includes/worker';
 		forms = document.querySelectorAll(config.form),
 		getSetting = (el, str) => {
 			// console.log(whcConfig[str]);
-			if (str in el[(d = 'dataset')] === false) return config[str];
+			var d = 'dataset';
+			if (str in el[d] === false) return config[str];
 			var v = el[d][str];
 			var n = +v; // coerces value into a number
 
