@@ -3,7 +3,7 @@ $captcha_verification = !empty($_POST['captcha_verification']) ? $_POST['captcha
 if ($captcha_verification !== false) {
     $data = [
         "endpoint" => "verify",
-        "captcha_verification" => $captchaVerification,
+        "captcha_verification" => $captcha_verification,
         "captcha_difficulty" => $captcha_difficulty
     ];
    
