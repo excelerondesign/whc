@@ -4,14 +4,16 @@ WeHateCaptchas is a form verification service created by [Edward Dalton](DaltonW
 
 Here we've altered the Javascript aspect from the example to add some extra benefits.
 
-- Support for multiple forms
-- Advanced debugging (per form)
-  - Logging verification steps
-  - Details object
+-   Support for multiple forms
+-   Advanced debugging (per form)
+    -   Logging verification steps
+    -   Details object
 
 # Documentation
 
-To include in a project, upload or copy `dist/whc-plugin.umd.js` or `dist/min/whc-plugin.umd.js` to your project, and add the necessary parameters below.
+To include in a project, upload or copy `dist/whc-plugin.umd.js` to your project, and add the necessary parameters below.
+
+_If you only need to support more modern browsers, you can use the js inside of `dist/whc-plugin.modern.js`_
 
 ## Parameters
 
