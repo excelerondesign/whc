@@ -80,7 +80,7 @@ import worker from './includes/worker';
 			return employee;
 		};
 
-		internalWorker = createWorker();
+		const internalWorker = createWorker();
 
 		var beginVerification = function () {
 			emit('Difficulty Level: ' + difficulty);
