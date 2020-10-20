@@ -5,12 +5,6 @@
 import worker from './includes/worker';
 
 (function () {
-	const script = document.getElementById('whcScriptTag');
-
-	const forms = Array.from(
-		document.getElementsByClassName(script.dataset.form),
-	);
-
 	var Constructor = function (form, index) {
 		// now converted to seconds
 		const eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
@@ -127,5 +121,7 @@ import worker from './includes/worker';
 		emit('Constructed');
 	};
 
-	forms.forEach((form, i) => new Constructor(form, i));
+	document
+		.querySelectorAll('[data-whc]')
+		.forEach((form, i) => new Constructor(form, i));
 })();
