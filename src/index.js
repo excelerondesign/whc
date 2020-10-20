@@ -32,9 +32,9 @@ import worker from './includes/worker';
 		// so truthy becomes Boolean true, and Falsy becomes Boolean false
 		// (https://developer.mozilla.org/en-US/docs/Glossary/Truthy - https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
 		// checks all the forms to see if any of them have the debug flag, and then checks if it is true
-		Private.debug = 'debug' in form.dataset && Boolean(form.dataset.debug);
 
-		if (Private.debug) {
+		var emit = function () {};
+		if ('debug' in form.dataset && Boolean(form.dataset.debug)) {
 			localStorage.removeItem('WHCStorage');
 			window.WHCDetails = window.WHCDetails || [];
 			window.WHCDetails.push({
@@ -48,12 +48,11 @@ import worker from './includes/worker';
 					console.log(eventName + '::Message -> ' + detail),
 				false,
 			);
+			emit = function (detail) {
+				const evt = customEvent(detail);
+				window.dispatchEvent(evt);
+			};
 		}
-
-		var emit = function (detail) {
-			if (!Private.debug) return;
-			window.dispatchEvent(customEvent(detail));
-		};
 
 		emit('Constructing');
 
