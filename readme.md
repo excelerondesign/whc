@@ -30,13 +30,15 @@ _use getElementsByClassName_
 
 ### HTMLFormElement
 
+`id`: **Required** Necessary for things like event name and finding submit buttons.
+
 `data-whc`: **Required** Marks the form as needing verification.
 
-`data-button`: _Optional_ Add to signify use of a submit button outside the form element using [the form attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#htmlattrdefform).
+`data-button`: _Optional_ Add to signify use of a submit button outside the form element using [the form attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#htmlattrdefform). Else, uses querySelector to find an element with `[type="submit"]`.
 
 `data-difficulty`: _Optional_ An Integer between 1 - 10. Default is 5.
 
-`data-debug`: _Optional_ Add this to get helpful console messages about the verification process.
+`data-debug`: _Optional_ Add this to get helpful console messages about the verification process. No value needed.
 
 `data-finished`: _Optional_ The text/value of the submit button after the form has been verified. Default is "Submit".
 
