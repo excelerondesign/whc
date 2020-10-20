@@ -40,12 +40,6 @@ import worker from './includes/worker';
 
 		emit('Constructing');
 
-		var enableButton = function (button) {
-			button.classList.add('done');
-			button.disabled = false;
-			button.value = button.dataset.finished;
-		};
-
 		var createWorker = function () {
 			var employee = null;
 			try {
@@ -108,7 +102,9 @@ import worker from './includes/worker';
 					)}'/>`,
 				);
 
-				enableButton(button);
+				button.classList.add('done');
+				button.disabled = false;
+				button.value = button.dataset.finished;
 
 				return;
 			} else if (data.action === 'message') {
