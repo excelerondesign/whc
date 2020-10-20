@@ -38,7 +38,7 @@ import getData from './includes/get-data';
 			try {
 				var blob = new Blob(
 					// generates a worker by converting  into a string and then running that function as a worker
-					['(' + worker.toString() + ')();'],
+					[`(${worker})();`],
 					{ type: 'application/javascript' },
 				);
 				var url = window.URL || window.webkitURL;
