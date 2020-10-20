@@ -5,9 +5,7 @@ WeHateCaptchas is a form verification service created by [Edward Dalton](DaltonW
 Here we've altered the Javascript aspect from the example to add some extra benefits.
 
 -   Support for multiple forms
--   Advanced debugging (per form)
-    -   Logging verification steps
-    -   Details object
+-   Logging verification steps
 
 # Documentation
 
