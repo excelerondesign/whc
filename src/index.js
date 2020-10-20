@@ -7,14 +7,20 @@ import getData from './includes/get-data';
 
 (function () {
 	var Constructor = function (form) {
-		const { eventName, button, difficulty, debug } = getData(form);
+		const data = getData(form),
+			debug = data.debug,
+			button = data.button,
+			difficulty = data.difficulty,
+			eventName = data.eventName,
+			finished = data.finished;
 
 		var emit = function () {};
 		if (debug) {
 			window.addEventListener(
 				eventName,
-				({ detail }) =>
-					console.log(eventName + '::Message -> ' + detail),
+				function (e) {
+					console.log(eventName + '::Message -> ' + e.detail);
+				},
 				true,
 			);
 			emit = function (detail) {
@@ -54,9 +60,8 @@ import getData from './includes/get-data';
 			sendRequest('https://wehatecaptchas.com/api.php').then(function (
 				data,
 			) {
-				const { question } = data.data;
 				internalWorker.postMessage({
-					question: question,
+					question: data.data.question,
 					time: Math.floor(Date.now() / 1000),
 					difficulty: difficulty,
 				});
@@ -66,7 +71,7 @@ import getData from './includes/get-data';
 		};
 
 		var sendRequest = async function (url) {
-			var formData = new FormData();
+			let formData = new FormData();
 
 			formData.append('endpoint', 'question');
 
@@ -80,7 +85,8 @@ import getData from './includes/get-data';
 			return data;
 		};
 
-		var workerMessageHandler = function ({ data }) {
+		var workerMessageHandler = function (response) {
+			const data = response.data;
 			if (data.action === 'captchaSuccess') {
 				form.insertAdjacentHTML(
 					'beforeend',
@@ -91,7 +97,7 @@ import getData from './includes/get-data';
 
 				button.classList.add('done');
 				button.disabled = false;
-				button.value = button.dataset.finished;
+				button.value = finished;
 
 				return;
 			} else if (data.action === 'message') {
