@@ -15,19 +15,18 @@ import worker from './includes/worker';
 		const Private = {};
 
 		// now converted to seconds
-		const time = Math.floor(Date.now() / 1000);
+		const time = Math.floor(Date.now() / 1000),
+			eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
+			customEvent = (detail) =>
+				new CustomEvent(eventName, {
+					detail,
+				});
 
-		// current time + 1 hour;
-		// Private.ttl = Private.time + 3600;
-
-		Private.ID = form.getAttribute('id') || 'Form ' + index;
 		// should be a class selector
 		// each button should also have a 'data-finished' text that the button should end on
 		Private.button = form.getElementsByClassName(script.dataset.button)[0];
 
 		Private.difficulty = parseInt(Private.button.dataset.difficulty) || 5;
-
-		Private.eventName = 'WHC|' + Private.ID;
 
 		// converts the debug value into a boolean,
 		// so truthy becomes Boolean true, and Falsy becomes Boolean false
@@ -44,18 +43,16 @@ import worker from './includes/worker';
 				difficulty: Private.difficulty,
 			});
 			window.addEventListener(
-				Private.eventName,
+				eventName,
 				({ detail }) =>
-					console.log(Private.eventName + '::Message -> ' + detail),
+					console.log(eventName + '::Message -> ' + detail),
 				false,
 			);
 		}
 
 		var emit = function (detail) {
 			if (!Private.debug) return;
-			window.dispatchEvent(
-				new CustomEvent(Private.eventName, { detail }),
-			);
+			window.dispatchEvent(customEvent(detail));
 		};
 
 		emit('Constructing');
@@ -100,7 +97,7 @@ import worker from './includes/worker';
 				const { question } = data.data;
 				Private.worker.postMessage({
 					question: question,
-					time: Private.time,
+					time,
 					difficulty: difficulty,
 				});
 
