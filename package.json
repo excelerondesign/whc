@@ -6,8 +6,7 @@
 	"module": "dist/whc.modern.js",
 	"source": "src/index.js",
 	"scripts": {
-		"start": "rm -rf build && microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
-		"build": "rm -rf build && microbundle -f modern,umd --no-sourcemap",
+		"start": "microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
 		"pack:src": "microbundle --compress false -f umd,modern --no-sourcemap",
 		"pack:dist:umd": "microbundle -i src/index.js -o dist/min/whc.min.js -f umd --no-sourcemap --name WHC",
 		"pack:dist:modern": "microbundle -i src/index.js -o dist/min/whc.min.js -f modern --no-sourcemap --name WHC",
