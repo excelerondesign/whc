@@ -6,6 +6,7 @@ export default function getData(form) {
 		difficulty: parseInt(form.dataset.difficulty) || 5,
 		debug: 'debug' in form.dataset,
 		eventName: 'WHC|' + form.getAttribute('id'),
+		finished: 'finished' in form.dataset ? form.dataset.finished : 'Submit',
 	};
 
 	// prettier-ignore
