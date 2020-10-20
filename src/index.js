@@ -34,7 +34,7 @@ import worker from './includes/worker';
 		// checks all the forms to see if any of them have the debug flag, and then checks if it is true
 
 		var emit = function () {};
-		if ('debug' in form.dataset && Boolean(form.dataset.debug)) {
+		if ('debug' in form.dataset) {
 			localStorage.removeItem('WHCStorage');
 			window.WHCDetails = window.WHCDetails || [];
 			window.WHCDetails.push({
