@@ -17,17 +17,6 @@ _If you only need to support more modern browsers, you can use the js inside of 
 
 ## Parameters
 
-### HTMLScriptElement
-
-`id` = `whcScriptTag` _required_
-
-_use getElementsByClassName_
-`data-form` a class name for the forms on the page.
-
-`data-button` a class name for the submit buttons/inputs on the page.
-
----
-
 ### HTMLFormElement
 
 `id`: **Required** Necessary for things like event name and finding submit buttons.
