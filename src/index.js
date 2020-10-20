@@ -80,7 +80,7 @@ import worker from './includes/worker';
 			return employee;
 		};
 
-		Private.worker = createWorker();
+		internalWorker = createWorker();
 
 		var beginVerification = function () {
 			emit('Difficulty Level: ' + difficulty);
@@ -88,7 +88,7 @@ import worker from './includes/worker';
 				data,
 			) {
 				const { question } = data.data;
-				Private.worker.postMessage({
+				internalWorker.postMessage({
 					question: question,
 					time,
 					difficulty: difficulty,
@@ -140,7 +140,7 @@ import worker from './includes/worker';
 			capture: true,
 		});
 
-		Private.worker.addEventListener('message', workerMessageHandler, false);
+		internalWorker.addEventListener('message', workerMessageHandler, false);
 
 		emit('Constructed');
 	};
