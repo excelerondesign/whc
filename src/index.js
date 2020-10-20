@@ -16,13 +16,14 @@ import worker from './includes/worker';
 
 		// now converted to seconds
 		const time = Math.floor(Date.now() / 1000),
-			eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index);
-
-		// should be a class selector
-		// each button should also have a 'data-finished' text that the button should end on
-		Private.button = form.getElementsByClassName(script.dataset.button)[0];
-
-		Private.difficulty = parseInt(Private.button.dataset.difficulty) || 5;
+			eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
+			// should be a class selector
+			// each button should also have a 'data-finished' text that the button should end on
+			// This defaults to a search of the whole document,
+			button =
+				form.getElementsByClassName(script.dataset.button)[0] ||
+				document.getElementsByClassName(script.dataset.button)[0],
+			difficulty = parseInt(button.dataset.difficulty) || 5;
 
 		// converts the debug value into a boolean,
 		// so truthy becomes Boolean true, and Falsy becomes Boolean false
@@ -34,8 +35,8 @@ import worker from './includes/worker';
 			window.WHCDetails = window.WHCDetails || [];
 			window.WHCDetails.push({
 				form,
-				button: Private.button,
-				difficulty: Private.difficulty,
+				button,
+				difficulty,
 			});
 			window.addEventListener(
 				eventName,
@@ -84,8 +85,6 @@ import worker from './includes/worker';
 		Private.worker = createWorker();
 
 		var beginVerification = function () {
-			var difficulty = Private.difficulty;
-
 			emit('Difficulty Level: ' + difficulty);
 			sendRequest('https://wehatecaptchas.com/api.php').then(function (
 				data,
@@ -125,13 +124,13 @@ import worker from './includes/worker';
 					)}'/>`,
 				);
 
-				enableButton(Private.button);
+				enableButton(button);
 
 				return;
 			} else if (data.action === 'message') {
 				var percent = data.message.match(/\d*%/);
 				if (percent === null) return;
-				Private.button.dataset.progress = percent;
+				button.dataset.progress = percent;
 				emit('workerMessageHandler: Progress ' + percent);
 				return;
 			}
