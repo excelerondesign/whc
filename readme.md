@@ -30,32 +30,16 @@ _use getElementsByClassName_
 
 ### HTMLFormElement
 
-`data-debug`: A boolean for getting more information about what is going on behind the scenes. Accepted values are any `Integer`, `'true'` or `'false'`, `''`.
+`data-whc`: **Required** Marks the form as needing verification.
 
-While you can use `'false'`, it is an anti-pattern and should be avoided in production.
+`data-button`: _Optional_ Add to signify use of a submit button outside the form element using [the form attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#htmlattrdefform).
 
-### HTMLButtonElement or HTMLInputElement
+`data-difficulty`: _Optional_ An Integer between 1 - 10. Default is 5.
 
-`data-difficulty`: A number between 1 - 10. Determines the number of "questions" to answer before marking the user as verified.
+`data-debug`: _Optional_ Add this to get helpful console messages about the verification process.
 
-`data-finished`: The text/value of the element after verified.
+`data-finished`: _Optional_ The text/value of the submit button after the form has been verified. Default is "Submit".
 
 #### Automatic data attributes
 
 `data-progress`: Visual representation of the verification progress
-
-### Internal Variables
-
-_Private.time_ The time the verification starts
-_Private.script_ The script element
-_Private.form_ Current form
-_Private.button_ Current submit button
-_Private.difficulty_ The difficulty of the verification process, either the default (5), the `data-difficulty` of the only button/input on the page, or an average of all on the page.
-_Private.eventName_ Internal event name for debugging
-_Private.workerFunc_ Inline WebWorker function
-_Private.worker_ The WebWorker after it is creater
-_Private.debug_ A function that checks all the forms for a debug value, turns on extra debugging features if true
-
-### Globals
-
-To limit Global variables, if _Private.debug_ is true, it will add `window.WHCDetails` with an object including all the forms, buttons, and the current difficulty.
