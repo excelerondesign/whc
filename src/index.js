@@ -16,11 +16,7 @@ import worker from './includes/worker';
 
 		// now converted to seconds
 		const time = Math.floor(Date.now() / 1000),
-			eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
-			customEvent = (detail) =>
-				new CustomEvent(eventName, {
-					detail,
-				});
+			eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index);
 
 		// should be a class selector
 		// each button should also have a 'data-finished' text that the button should end on
@@ -48,7 +44,9 @@ import worker from './includes/worker';
 				false,
 			);
 			emit = function (detail) {
-				const evt = customEvent(detail);
+				const evt = new CustomEvent(eventName, {
+					detail,
+				});
 				window.dispatchEvent(evt);
 			};
 		}
