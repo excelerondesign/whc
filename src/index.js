@@ -114,7 +114,7 @@ import worker from './includes/worker';
 				emit('workerMessageHandler: Progress ' + percent);
 				return;
 			}
-			emit('workerMessageHandler: ERROR - UNKNOWN');
+			console.error('workerMessageHandler: ERROR - UNKNOWN');
 		};
 
 		window.addEventListener('load', beginVerification, {
