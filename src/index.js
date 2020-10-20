@@ -12,8 +12,6 @@ import worker from './includes/worker';
 	);
 
 	var Constructor = function (form, index) {
-		const Private = {};
-
 		// now converted to seconds
 		const time = Math.floor(Date.now() / 1000),
 			eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
