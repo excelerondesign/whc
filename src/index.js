@@ -3,21 +3,14 @@
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
 import worker from './includes/worker';
+import getData from './includes/get-data';
 
 (function () {
-	var Constructor = function (form, index) {
-		// now converted to seconds
-		const eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
-			// should be a class selector
-			// each button should also have a 'data-finished' text that the button should end on
-			// This defaults to a search of the whole document,
-			button =
-				form.getElementsByClassName(script.dataset.button)[0] ||
-				document.getElementsByClassName(script.dataset.button)[0],
-			difficulty = parseInt(button.dataset.difficulty) || 5;
+	var Constructor = function (form) {
+		const { eventName, button, difficulty, debug } = getData(form);
 
 		var emit = function () {};
-		if ('debug' in form.dataset) {
+		if (debug) {
 			window.addEventListener(
 				eventName,
 				({ detail }) =>
@@ -123,5 +116,5 @@ import worker from './includes/worker';
 
 	document
 		.querySelectorAll('[data-whc]')
-		.forEach((form, i) => new Constructor(form, i));
+		.forEach((form) => new Constructor(form));
 })();
