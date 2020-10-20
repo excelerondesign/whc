@@ -13,8 +13,7 @@ import worker from './includes/worker';
 
 	var Constructor = function (form, index) {
 		// now converted to seconds
-		const time = Math.floor(Date.now() / 1000),
-			eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
+		const eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
 			// should be a class selector
 			// each button should also have a 'data-finished' text that the button should end on
 			// This defaults to a search of the whole document,
@@ -83,7 +82,7 @@ import worker from './includes/worker';
 				const { question } = data.data;
 				internalWorker.postMessage({
 					question: question,
-					time,
+					time: Math.floor(Date.now() / 1000),
 					difficulty: difficulty,
 				});
 
