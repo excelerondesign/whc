@@ -23,11 +23,6 @@ import worker from './includes/worker';
 				document.getElementsByClassName(script.dataset.button)[0],
 			difficulty = parseInt(button.dataset.difficulty) || 5;
 
-		// converts the debug value into a boolean,
-		// so truthy becomes Boolean true, and Falsy becomes Boolean false
-		// (https://developer.mozilla.org/en-US/docs/Glossary/Truthy - https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
-		// checks all the forms to see if any of them have the debug flag, and then checks if it is true
-
 		var emit = function () {};
 		if ('debug' in form.dataset) {
 			window.WHCDetails = window.WHCDetails || [];
