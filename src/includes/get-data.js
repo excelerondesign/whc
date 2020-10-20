@@ -9,8 +9,7 @@ export default function getData(form) {
 		finished: 'finished' in form.dataset ? form.dataset.finished : 'Submit',
 	};
 
-	// prettier-ignore
-	if ('button' in form.dataset && (data.button === null || data.button === undefined)) {
+	if ('button' in form.dataset) {
 		// prettier-ignore
 		data.button = document.querySelector('[form="' + form.getAttribute('id') + '"][type="submit"]');
 	}
