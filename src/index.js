@@ -13,17 +13,15 @@ import worker from './includes/worker';
         const Private = {};
 
         // now converted to seconds
-        Private.time = Math.floor(Date.now() / 1000);
+        const time = Math.floor(Date.now() / 1000),
 
         // current time + 1 hour;
         // Private.ttl = Private.time + 3600;
 
-        Private.form = form;
-
-        Private.ID = Private.form.getAttribute("id") || "Form " + index;
+        Private.ID = form.getAttribute("id") || "Form " + index;
         // should be a class selector
         // each button should also have a 'data-finished' text that the button should end on
-        Private.button = Private.form.getElementsByClassName(
+        Private.button = form.getElementsByClassName(
             script.dataset.button
         )[0];
 
@@ -36,7 +34,7 @@ import worker from './includes/worker';
         // (https://developer.mozilla.org/en-US/docs/Glossary/Truthy - https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
         // checks all the forms to see if any of them have the debug flag, and then checks if it is true
         Private.debug =
-            "debug" in Private.form.dataset && Boolean(Private.form.dataset.debug);
+            "debug" in form.dataset && Boolean(form.dataset.debug);
 
         if (Private.debug) {
             localStorage.removeItem("WHCStorage");
@@ -121,7 +119,7 @@ import worker from './includes/worker';
 
         var workerMessageHandler = function ({ data }) {
             if (data.action === "captchaSuccess") {
-                Private.form.insertAdjacentHTML(
+                form.insertAdjacentHTML(
                     "beforeend",
                     `<input type="hidden" name="captcha_verification" value='${JSON.stringify(
                         data.verification
