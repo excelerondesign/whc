@@ -3,31 +3,24 @@
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
 import worker from './includes/worker';
+import getData from './includes/get-data';
 
 (function () {
-	const script = document.getElementById('whcScriptTag');
-
-	const forms = Array.from(
-		document.getElementsByClassName(script.dataset.form),
-	);
-
-	var Constructor = function (form, index) {
-		// now converted to seconds
-		const eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
-			// should be a class selector
-			// each button should also have a 'data-finished' text that the button should end on
-			// This defaults to a search of the whole document,
-			button =
-				form.getElementsByClassName(script.dataset.button)[0] ||
-				document.getElementsByClassName(script.dataset.button)[0],
-			difficulty = parseInt(button.dataset.difficulty) || 5;
+	var Constructor = function (form) {
+		const data = getData(form),
+			debug = data.debug,
+			button = data.button,
+			difficulty = data.difficulty,
+			eventName = data.eventName,
+			finished = data.finished;
 
 		var emit = function () {};
-		if ('debug' in form.dataset) {
+		if (debug) {
 			window.addEventListener(
 				eventName,
-				({ detail }) =>
-					console.log(eventName + '::Message -> ' + detail),
+				function (e) {
+					console.log(eventName + '::Message -> ' + e.detail);
+				},
 				true,
 			);
 			emit = function (detail) {
@@ -45,7 +38,7 @@ import worker from './includes/worker';
 			try {
 				var blob = new Blob(
 					// generates a worker by converting  into a string and then running that function as a worker
-					['(' + worker.toString() + ')();'],
+					[`(${worker})();`],
 					{ type: 'application/javascript' },
 				);
 				var url = window.URL || window.webkitURL;
@@ -67,9 +60,8 @@ import worker from './includes/worker';
 			sendRequest('https://wehatecaptchas.com/api.php').then(function (
 				data,
 			) {
-				const { question } = data.data;
 				internalWorker.postMessage({
-					question: question,
+					question: data.data.question,
 					time: Math.floor(Date.now() / 1000),
 					difficulty: difficulty,
 				});
@@ -79,7 +71,7 @@ import worker from './includes/worker';
 		};
 
 		var sendRequest = async function (url) {
-			var formData = new FormData();
+			let formData = new FormData();
 
 			formData.append('endpoint', 'question');
 
@@ -93,7 +85,8 @@ import worker from './includes/worker';
 			return data;
 		};
 
-		var workerMessageHandler = function ({ data }) {
+		var workerMessageHandler = function (response) {
+			const data = response.data;
 			if (data.action === 'captchaSuccess') {
 				form.insertAdjacentHTML(
 					'beforeend',
@@ -104,7 +97,7 @@ import worker from './includes/worker';
 
 				button.classList.add('done');
 				button.disabled = false;
-				button.value = button.dataset.finished;
+				button.value = finished;
 
 				return;
 			} else if (data.action === 'message') {
@@ -127,5 +120,7 @@ import worker from './includes/worker';
 		emit('Constructed');
 	};
 
-	forms.forEach((form, i) => new Constructor(form, i));
+	document
+		.querySelectorAll('[data-whc]')
+		.forEach((form) => new Constructor(form));
 })();
