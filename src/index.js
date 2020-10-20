@@ -24,12 +24,6 @@ import worker from './includes/worker';
 
 		var emit = function () {};
 		if ('debug' in form.dataset) {
-			window.WHCDetails = window.WHCDetails || [];
-			window.WHCDetails.push({
-				form,
-				button,
-				difficulty,
-			});
 			window.addEventListener(
 				eventName,
 				({ detail }) =>
