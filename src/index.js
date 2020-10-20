@@ -35,7 +35,6 @@ import worker from './includes/worker';
 
 		var emit = function () {};
 		if ('debug' in form.dataset) {
-			localStorage.removeItem('WHCStorage');
 			window.WHCDetails = window.WHCDetails || [];
 			window.WHCDetails.push({
 				form,
