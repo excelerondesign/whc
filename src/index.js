@@ -28,7 +28,7 @@ import worker from './includes/worker';
 				eventName,
 				({ detail }) =>
 					console.log(eventName + '::Message -> ' + detail),
-				false,
+				true,
 			);
 			emit = function (detail) {
 				const evt = new CustomEvent(eventName, {
@@ -126,7 +126,7 @@ import worker from './includes/worker';
 			capture: true,
 		});
 
-		internalWorker.addEventListener('message', workerMessageHandler, false);
+		internalWorker.onmessage = workerMessageHandler;
 
 		emit('Constructed');
 	};
