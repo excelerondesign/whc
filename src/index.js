@@ -94,7 +94,6 @@ import getData from './includes/get-data';
 						data.verification,
 					)}'/>`,
 				);
-
 				button.classList.add('done');
 				button.disabled = false;
 				button.value = finished;
@@ -103,7 +102,7 @@ import getData from './includes/get-data';
 			} else if (data.action === 'message') {
 				var percent = data.message.match(/\d*%/);
 				if (percent === null) return;
-				button.dataset.progress = percent;
+				form.dataset.progress = percent;
 				emit('workerMessageHandler: Progress ' + percent);
 				return;
 			}
