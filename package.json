@@ -11,7 +11,7 @@
 		"pack:src": "microbundle --compress false -f umd,modern --no-sourcemap",
 		"pack:dist:umd": "microbundle -i src/index.js -o dist/min/whc.min.js -f umd --no-sourcemap --name WHC",
 		"pack:dist:modern": "microbundle -i src/index.js -o dist/min/whc.min.js -f modern --no-sourcemap --name WHC",
-		"pack": "npm-run-all pack:src pack:dist:*"
+		"pack": "run-p pack:src pack:dist:*"
 	},
 	"repository": {
 		"type": "git",
