@@ -94,7 +94,6 @@ import getData from './includes/get-data';
 						data.verification,
 					)}'/>`,
 				);
-
 				button.classList.add('done');
 				button.disabled = false;
 				button.value = finished;
