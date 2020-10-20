@@ -5,151 +5,127 @@
 import worker from './includes/worker';
 
 (function () {
-    const script = document.getElementById("whcScriptTag");
+	const script = document.getElementById('whcScriptTag');
 
-    const forms = Array.from(document.getElementsByClassName(script.dataset.form));
+	const forms = Array.from(
+		document.getElementsByClassName(script.dataset.form),
+	);
 
-    var Constructor = function (form, index) {
-        const Private = {};
+	var Constructor = function (form, index) {
+		// now converted to seconds
+		const eventName = 'WHC|' + (form.getAttribute('id') || 'Form ' + index),
+			// should be a class selector
+			// each button should also have a 'data-finished' text that the button should end on
+			// This defaults to a search of the whole document,
+			button =
+				form.getElementsByClassName(script.dataset.button)[0] ||
+				document.getElementsByClassName(script.dataset.button)[0],
+			difficulty = parseInt(button.dataset.difficulty) || 5;
 
-        // now converted to seconds
-        Private.time = Math.floor(Date.now() / 1000);
+		var emit = function () {};
+		if ('debug' in form.dataset) {
+			window.addEventListener(
+				eventName,
+				({ detail }) =>
+					console.log(eventName + '::Message -> ' + detail),
+				true,
+			);
+			emit = function (detail) {
+				const evt = new CustomEvent(eventName, {
+					detail,
+				});
+				window.dispatchEvent(evt);
+			};
+		}
 
-        // current time + 1 hour;
-        // Private.ttl = Private.time + 3600;
+		emit('Constructing');
 
-        Private.form = form;
+		var createWorker = function () {
+			var employee = null;
+			try {
+				var blob = new Blob(
+					// generates a worker by converting  into a string and then running that function as a worker
+					['(' + worker.toString() + ')();'],
+					{ type: 'application/javascript' },
+				);
+				var url = window.URL || window.webkitURL;
+				var blobUrl = url.createObjectURL(blob);
+				employee = new Worker(blobUrl);
+			} catch (e1) {
+				emit('createWorker: Worker Error');
+				//if it still fails, there is nothing much we can do
+				console.error(e1);
+			}
+			emit('createWorker: Worker Created');
+			return employee;
+		};
 
-        Private.ID = Private.form.getAttribute("id") || "Form " + index;
-        // should be a class selector
-        // each button should also have a 'data-finished' text that the button should end on
-        Private.button = Private.form.getElementsByClassName(
-            script.dataset.button
-        )[0];
+		const internalWorker = createWorker();
 
-        Private.difficulty = parseInt(Private.button.dataset.difficulty) || 5;
+		var beginVerification = function () {
+			emit('Difficulty Level: ' + difficulty);
+			sendRequest('https://wehatecaptchas.com/api.php').then(function (
+				data,
+			) {
+				const { question } = data.data;
+				internalWorker.postMessage({
+					question: question,
+					time: Math.floor(Date.now() / 1000),
+					difficulty: difficulty,
+				});
 
-        Private.eventName = "WHC|" + Private.ID;
+				emit('beginVerification: Request Sent');
+			});
+		};
 
-        // converts the debug value into a boolean,
-        // so truthy becomes Boolean true, and Falsy becomes Boolean false
-        // (https://developer.mozilla.org/en-US/docs/Glossary/Truthy - https://developer.mozilla.org/en-US/docs/Glossary/Falsy)
-        // checks all the forms to see if any of them have the debug flag, and then checks if it is true
-        Private.debug =
-            "debug" in Private.form.dataset && Boolean(Private.form.dataset.debug);
+		var sendRequest = async function (url) {
+			var formData = new FormData();
 
-        if (Private.debug) {
-            localStorage.removeItem("WHCStorage");
-            window.WHCDetails = window.WHCDetails || [];
-            window.WHCDetails.push({
-                form,
-                button: Private.button,
-                difficulty: Private.difficulty
-            });
-            window.addEventListener(
-                Private.eventName,
-                ({ detail }) => console.log(Private.eventName + "::Message -> " + detail),
-                false
-            );
-        }
+			formData.append('endpoint', 'question');
 
-        var emit = function (detail) {
-            if (!Private.debug) return;
-            window.dispatchEvent(new CustomEvent(Private.eventName, { detail }));
-        };
+			let response = await fetch(url, {
+				method: 'POST',
+				body: formData,
+			});
 
-        emit("Constructing");
+			let data = await response.json();
+			emit('sendRequest: Response Received');
+			return data;
+		};
 
-        // var publicAPIs = {};
+		var workerMessageHandler = function ({ data }) {
+			if (data.action === 'captchaSuccess') {
+				form.insertAdjacentHTML(
+					'beforeend',
+					`<input type="hidden" name="captcha_verification" value='${JSON.stringify(
+						data.verification,
+					)}'/>`,
+				);
 
-        var enableButton = function (button) {
-            button.classList.add("done");
-            button.disabled = false;
-            button.value = button.dataset.finished;
-        };
+				button.classList.add('done');
+				button.disabled = false;
+				button.value = button.dataset.finished;
 
-        var createWorker = function () {
-            var employee = null;
-            try {
-                var blob = new Blob(
-                    // generates a worker by converting  into a string and then running that function as a worker
-                    ['(' + worker.toString() + ')();'], { type: 'application/javascript' });
-                var url = window.URL || window.webkitURL;
-                var blobUrl = url.createObjectURL(blob);
-                employee = new Worker(blobUrl);
-            } catch (e1) {
-                emit('createWorker: Worker Error');
-                //if it still fails, there is nothing much we can do
-                console.error(e1);
-            }
-            emit('createWorker: Worker Created');
-            return employee;
-        };
+				return;
+			} else if (data.action === 'message') {
+				var percent = data.message.match(/\d*%/);
+				if (percent === null) return;
+				button.dataset.progress = percent;
+				emit('workerMessageHandler: Progress ' + percent);
+				return;
+			}
+			console.error('workerMessageHandler: ERROR - UNKNOWN');
+		};
 
-        Private.worker = createWorker();
+		window.addEventListener('load', beginVerification, {
+			once: true,
+			capture: true,
+		});
 
-        var beginVerification = function () {
-            var difficulty = Private.difficulty;
+		internalWorker.onmessage = workerMessageHandler;
 
-            emit("Difficulty Level: " + difficulty);
-            sendRequest("https://wehatecaptchas.com/api.php").then(function (data) {
-                const { question } = data.data;
-                Private.worker.postMessage({
-                    question: question,
-                    time: Private.time,
-                    difficulty: difficulty
-                });
+		emit('Constructed');
+	};
 
-                emit("beginVerification: Request Sent");
-            });
-        };
-
-        var sendRequest = async function (url) {
-            var formData = new FormData();
-
-            formData.append("endpoint", "question");
-
-            let response = await fetch(url, {
-                method: "POST",
-                body: formData
-            });
-
-            let data = await response.json();
-            emit("sendRequest: Response Received");
-            return data;
-        };
-
-        var workerMessageHandler = function ({ data }) {
-            if (data.action === "captchaSuccess") {
-                Private.form.insertAdjacentHTML(
-                    "beforeend",
-                    `<input type="hidden" name="captcha_verification" value='${JSON.stringify(
-                        data.verification
-                    )}'/>`
-                );
-
-                enableButton(Private.button);
-
-                return;
-            } else if (data.action === "message") {
-                var percent = data.message.match(/\d*%/);
-                if (percent === null) return;
-                Private.button.dataset.progress = percent;
-                emit("workerMessageHandler: Progress " + percent);
-                return;
-            }
-            emit("workerMessageHandler: ERROR - UNKNOWN");
-        };
-
-        window.addEventListener("load", beginVerification, {
-            once: true,
-            capture: true
-        });
-
-        Private.worker.addEventListener("message", workerMessageHandler, false);
-
-        emit("Constructed");
-    };
-
-    forms.forEach((form, i) => new Constructor(form, i));
+	forms.forEach((form, i) => new Constructor(form, i));
 })();
