@@ -336,7 +336,7 @@ export default function () {
 		 */
 		function ({ data }) {
 			// @ts-ignore
-			var { difficulty, time, hostname } = data;
+			var { difficulty, time } = data;
 			// @ts-ignore
 			self.postMessage({
 				action: 'message',
