@@ -1,23 +1,19 @@
 {
 	"name": "whc",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"description": "",
-	"main": "build/whc.js",
-	"unpkg": "build/whc.umd.js",
+	"main": "dist/whc.js",
+	"unpkg": "dist/whc.umd.js",
 	"source": "src/index.js",
 	"mangle": {
 		"regex": "^_"
 	},
 	"scripts": {
-		"bundle:start": "microbundle watch --compress false -f modern,umd --raw=true",
-		"bundle:build": "microbundle -f modern,umd --no-sourcemap",
-		"clean:dist": "rm -rf dist",
-		"clean:build": "rm -rf build",
-		"pack:src": "microbundle --compress false -i src/index.js -o dist/ -f modern,umd --no-sourcemap",
-		"pack:dist": "microbundle -i src/index.js -o dist/min -f modern,umd --no-sourcemap",
-		"pack": "npm-run-all clean:dist pack:*",
-		"build": "npm-run-all clean:build bundle:build",
-		"start": "npm-run-all clean:build bundle:start"
+		"start": "microbundle watch --compress false -f modern,umd --no-sourcemap --raw=true",
+		"pack:src": "microbundle --compress false -f umd,modern --no-sourcemap",
+		"pack:dist:umd": "microbundle -i src/index.js -o dist/min/whc.min.js -f umd --no-sourcemap --name WHC",
+		"pack:dist:modern": "microbundle -i src/index.js -o dist/min/whc.min.js -f modern --no-sourcemap --name WHC",
+		"pack": "run-p pack:src pack:dist:*"
 	},
 	"repository": {
 		"type": "git",

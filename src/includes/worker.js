@@ -148,6 +148,7 @@ export default function () {
 	 * @namespace sha256
 	 */
 	function sha256() {
+		const u = new utilities();
 		/**
 		 * @type { (msg: string) => import('../types').EncodedMessage}
 		 * @memberof sha256
@@ -188,6 +189,7 @@ export default function () {
 		/**
 		 * @type { (encodedMessage: import('../types').EncodedMessage, H:number[], K:number[]) => string[]}
 		 * @memberof sha256
+		 * @this utilities
 		 */
 		this._computeHash = function ({ M, N }, H, K) {
 			var W = new Array(64);
@@ -197,9 +199,9 @@ export default function () {
 				for (var t = 0; t < 16; t++) W[t] = M[i][t];
 				for (var t = 16; t < 64; t++)
 					W[t] =
-						(this._sigma1(W[t - 2]) +
+						(u._sigma1(W[t - 2]) +
 							W[t - 7] +
-							this._sigma0(W[t - 15]) +
+							u._sigma0(W[t - 15]) +
 							W[t - 16]) &
 						0xffffffff;
 
@@ -215,9 +217,8 @@ export default function () {
 
 				// 3 - main loop (note 'addition modulo 2^32')
 				for (var t = 0; t < 64; t++) {
-					var T1 =
-						h + this._Sigma1(e) + this._Ch(e, f, g) + K[t] + W[t];
-					var T2 = this._Sigma0(a) + this._Maj(a, b, c);
+					var T1 = h + u._Sigma1(e) + u._Ch(e, f, g) + K[t] + W[t];
+					var T2 = u._Sigma0(a) + u._Maj(a, b, c);
 					h = g;
 					g = f;
 					f = e;
@@ -237,20 +238,20 @@ export default function () {
 				H[6] = (H[6] + g) & 0xffffffff;
 				H[7] = (H[7] + h) & 0xffffffff;
 			}
-			const hashMap = H.map(hash => this._toHexString(hash));
+			const hashMap = H.map(hash => u._toHexString(hash));
 			return hashMap;
 		};
 
 		/**
-		 * @type {(msg: string|number) => string}
+		 * @type {(msg: string) => string}
 		 * @memberof sha256
 		 */
 		this.hash = function (msg) {
 			const encodedMessage = this._encodeMessage(msg);
 			const intermediateHash = this._computeHash(
 				encodedMessage,
-				this.H,
-				this.K
+				u.H,
+				u.K
 			);
 			const hashedString = intermediateHash.join('');
 			return hashedString;

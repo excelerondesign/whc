@@ -6,10 +6,12 @@
 
 import emitter from './includes/emit';
 import worker from './includes/worker';
+import getSettings from './includes/get-settings';
 
 (function (w) {
 	const e = emitter();
 	/** @type {import("./types").whcOptions} */
+	/*
 	const config = Object.assign(
 		{
 			button: '[type="submit"]',
@@ -20,11 +22,12 @@ import worker from './includes/worker';
 			perf: false,
 			// @ts-ignore
 		},
-		...(w.whcConfig || {})
+		// @ts-ignore
+		w.whcConfig || {}
 	);
-
+	*/
 	/** @type {NodeListOf<HTMLFormElement>} */
-	const forms = document.querySelectorAll(config.form);
+	const forms = document.querySelectorAll('[data-whc]');
 
 	/**
 	 * A weird bug in firefox leads to web workers with no "Active reference" to be garbage collected
@@ -35,12 +38,14 @@ import worker from './includes/worker';
 	// @ts-ignore
 	w.whcWorkers = [];
 
+	/*
 	config.events &&
 		e.on('*', (type, detail) =>
 			detail.form.dispatchEvent(new CustomEvent(type, { detail }))
 		);
-
+	*/
 	/** @type {(target: HTMLElement, str: string) => string | number}*/
+	/*
 	function getSetting(target, str) {
 		if (str in target.dataset === false) return config[str];
 		var value = target.dataset[str];
@@ -48,19 +53,26 @@ import worker from './includes/worker';
 
 		return isNaN(num) || num !== num ? value : num;
 	}
+	*/
 
 	/**
 	 * @param {HTMLFormElement} form
 	 * @param {number} i
 	 */
 	var Constructor = function (form, i) {
-		/** @type {HTMLButtonElement} */
-		const button = form.querySelector(config.button);
+		// TODO: implement the eventName into the pubsub system
+		const { button, difficulty, finished, debug } = getSettings(form);
 
-		const difficulty = getSetting(button, 'difficulty');
-
-		const finished = getSetting(button, 'finished');
-
+		if (debug) {
+			/**
+			 * @param {string} type
+			 * @param {object} detail
+			 */
+			const allEmit = (type, detail) =>
+				detail.form.dispatchEvent(new CustomEvent(type, { detail }));
+			// TODO: Change this so that it doesn't do ALL forms, just the ones that have debug
+			e.on('*', allEmit);
+		}
 		/** @type {import('./types').eventInterface} */
 		const eventDefault = {
 			event: 'whc:Update#' + i,
@@ -106,12 +118,9 @@ import worker from './includes/worker';
 		}
 
 		/** @type { (event: import('./types').eventInterface) => void } */
-		function appendVerification({ form, verification }) {
-			const input = document.createElement('input');
-			input.setAttribute('type', 'hidden');
-			input.setAttribute('name', 'captcha_verification');
-			input.setAttribute('value', JSON.stringify(verification));
-			form.appendChild(input);
+		function appendVerification({ verification }) {
+			// prettier-ignore
+			form.insertAdjacentHTML('beforeend', `<input type="hidden" name="captcha_verification" value='${JSON.stringify(verification)}' />`);
 			button.classList.add('done');
 			button.removeAttribute('disabled');
 			button.setAttribute('value', '' + finished);
@@ -124,11 +133,11 @@ import worker from './includes/worker';
 		 * @param {HTMLButtonElement} param.button
 		 * @param {string} param.message
 		 */
-		function updatePercent({ button, message }) {
+		function updatePercent({ message }) {
 			const percent = message.match(/\d{2,3}/);
 			if (!percent) return;
 
-			button.setAttribute('data-progress', percent + '%');
+			form.dataset.progress = percent + '%';
 			e.run(
 				'whc:Progress#' + i,
 				merge({
@@ -167,7 +176,6 @@ import worker from './includes/worker';
 					merge({
 						event: 'whc:Completed#' + i,
 						message,
-						button,
 						progress: 0,
 					})
 				);

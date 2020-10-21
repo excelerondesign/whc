@@ -5,39 +5,30 @@ WeHateCaptchas is a form verification service created by [Edward Dalton](DaltonW
 Here we've altered the Javascript aspect from the example to add some extra benefits.
 
 -   Support for multiple forms
--   Advanced debugging (per form)
-    -   Logging verification steps
-    -   Details object
+-   Logging verification steps
 
 # Documentation
 
-To include in a project, upload or copy `dist/whc-plugin.umd.js` or `dist/min/whc-plugin.umd.js` to your project, and add the necessary parameters below.
+To include in a project, upload or copy `dist/whc-plugin.umd.js` to your project, and add the necessary parameters below.
 
-## Options
+_If you only need to support more modern browsers, you can use the js inside of `dist/whc-plugin.modern.js`_
 
--   `form` ( default: `.whc-form` ) Marker class for all forms to be verified on the page
+## Parameters
 
--   `button` ( default: `.whc-button` ) Marker class for button/input, extra `data-*` attributes can be added here for form specific settings
+### HTMLFormElement
 
--   `debug` ( default: `false` ) Boolean to turn on/off extra debugging during the verification process. Can also be set on the form using the `data-debug` attribute.
+`id`: **Required** Necessary for things like event name and finding submit buttons.
 
--   `difficulty` ( default: `3` ) The number of "questions" to answer before marking a form as verified. Can also be set on the button/input using the `data-difficulty` attribute.
+`data-whc`: **Required** Marks the form as needing verification.
 
--   `finished` ( default: `Submit`) The button text/input value after verification is done. Can also be set on the button/input using the `data-finished` attribute.
+`data-button`: _Optional_ Add to signify use of a submit button outside the form element using [the form attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#htmlattrdefform). Else, uses querySelector to find an element with `[type="submit"]`.
+
+`data-difficulty`: _Optional_ An Integer between 1 - 10. Default is 5.
+
+`data-debug`: _Optional_ Add this to get helpful console messages about the verification process. No value needed.
+
+`data-finished`: _Optional_ The text/value of the submit button after the form has been verified. Default is "Submit".
 
 #### Automatic data attributes
 
 `data-progress`: Visual representation of the verification progress
-
-### Debug Additions
-
-When `debug` is set to `true`, there are a few additions that are made.
-
-First, messages are logged to the console for every step along the way. Specifically:
-
--   Constructor: Start and Complete
--   Creating Worker: Start, Complete, and Error
--   Verification: Message Sent, Progress xx%, and Progress Complete
--   Message Handler: Error
-
-Second, it creates `window.whcDetails` an array of all the forms being verified. This can be helpful for getting a bird's eye view.
