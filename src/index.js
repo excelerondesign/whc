@@ -45,6 +45,7 @@ import getSettings from './includes/get-settings';
 		const eventDefault = {
 			event: 'whc:Update#' + i,
 			difficulty,
+			form,
 			verification: [],
 			progress: 0,
 			done: false,
@@ -68,13 +69,12 @@ import getSettings from './includes/get-settings';
 		}
 
 		function verify() {
-			const time = +new Date();
-			this.whcWorkers[i] = createWorker(worker);
+			form.__worker = createWorker(worker);
 
-			this.whcWorkers[i].addEventListener('message', workerHandler);
-			this.whcWorkers[i].postMessage({
+			form.__worker.addEventListener('message', workerHandler);
+			form.__worker.postMessage({
 				difficulty,
-				time,
+				time: Date.now(),
 			});
 			e.run(
 				'whc:Start#' + i,
@@ -92,7 +92,7 @@ import getSettings from './includes/get-settings';
 			button.removeAttribute('disabled');
 			button.setAttribute('value', '' + finished);
 			// @ts-ignore
-			w.whcWorkers[i].terminate();
+			form.__worker.terminate();
 		}
 
 		/**
