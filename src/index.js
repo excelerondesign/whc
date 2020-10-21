@@ -16,15 +16,6 @@ import getSettings from './includes/get-settings';
 	const forms = document.querySelectorAll('[data-whc]');
 
 	/**
-	 * A weird bug in firefox leads to web workers with no "Active reference" to be garbage collected
-	 * So we create a global array to push workers into so that they don't get collected
-	 * once the workers complete their job, they are splice from the array
-	 * and terminated
-	 */
-	// @ts-ignore
-	w.whcWorkers = [];
-
-	/**
 	 * @param {HTMLFormElement} form
 	 * @param {number} i
 	 */
@@ -57,7 +48,7 @@ import getSettings from './includes/get-settings';
 
 		function createWorker() {
 			try {
-				// generates a worker by converting into a string and then running that function as a worker
+				// converts hashing prototypes into a string version and then exports it to a web worker
 				const blob = new Blob(
 					[
 						`
@@ -112,6 +103,7 @@ import getSettings from './includes/get-settings';
 			button.setAttribute('value', '' + finished);
 			// @ts-ignore
 			form.__worker.terminate();
+			delete form.__worker;
 		}
 
 		/**
