@@ -1,8 +1,16 @@
+// @ts-check
+/**
+ * @param {string} val
+ */
 const parseDifficulty = val => {
 	let n = parseInt(val);
 	return n === n && !Number.isNaN(parseInt(val)) && n;
 };
 
+/**
+ * @param {HTMLFormElement} form
+ * @returns Element
+ */
 const getButton = form => {
 	if ('button' in form.dataset) {
 		return document.querySelector(
@@ -12,6 +20,9 @@ const getButton = form => {
 	return form.querySelector('[type="submit"]');
 };
 
+/**
+ * @param {HTMLFormElement} form
+ */
 export default function getSettings(form) {
 	if (!form.hasAttribute('id')) throw Error('Form is missing ID attribute');
 
