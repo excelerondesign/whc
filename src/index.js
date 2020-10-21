@@ -44,7 +44,6 @@ import getSettings from './includes/get-settings';
 		/** @type {import('./types').eventInterface} */
 		const eventDefault = {
 			event: 'whc:Update#' + i,
-			form,
 			difficulty,
 			verification: [],
 			progress: 0,
