@@ -45,6 +45,7 @@ import getSettings from './includes/get-settings';
 		const eventDefault = {
 			event: 'whc:Update#' + i,
 			difficulty,
+			form,
 			verification: [],
 			progress: 0,
 			done: false,
@@ -84,8 +85,8 @@ import getSettings from './includes/get-settings';
 			);
 		}
 
-		/** @type { (event: import('./types').eventInterface) => void } */
-		function appendVerification({ verification }) {
+		/** @type { (verification: import('./types').Verification[]) => void } */
+		function appendVerification(verification) {
 			// prettier-ignore
 			form.insertAdjacentHTML('beforeend', `<input type="hidden" name="captcha_verification" value='${JSON.stringify(verification)}' />`);
 			button.classList.add('done');
@@ -96,11 +97,9 @@ import getSettings from './includes/get-settings';
 		}
 
 		/**
-		 * @param {object} param
-		 * @param {HTMLButtonElement} param.button
-		 * @param {string} param.message
+		 * @param {string} message
 		 */
-		function updatePercent({ message }) {
+		function updatePercent(message) {
 			const percent = message.match(/\d{2,3}/);
 			if (!percent) return;
 
@@ -115,8 +114,8 @@ import getSettings from './includes/get-settings';
 			);
 		}
 
-		e.on('whc:Update#' + i, updatePercent);
-		e.on('whc:Complete#' + i, appendVerification);
+		// e.on('whc:Update#' + i, updatePercent);
+		// e.on('whc:Complete#' + i, appendVerification);
 
 		/**
 		 * @this {Worker}
@@ -127,6 +126,8 @@ import getSettings from './includes/get-settings';
 			const { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
+				return appendVerification(verification);
+				/*
 				return e.run(
 					'whc:Complete#' + i,
 					merge({
@@ -136,8 +137,11 @@ import getSettings from './includes/get-settings';
 						progress: 100,
 					})
 				);
+				*/
 			}
 			if (action === 'message') {
+				return updatePercent(message);
+				/*
 				return e.run(
 					'whc:Update#' + i,
 					merge({
@@ -146,6 +150,7 @@ import getSettings from './includes/get-settings';
 						progress: 0,
 					})
 				);
+				*/
 			}
 		}
 
