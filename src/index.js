@@ -6,6 +6,7 @@
 
 import emitter from './includes/emit';
 import worker from './includes/worker';
+import { sha256, Utilities } from './includes/sha256';
 import getSettings from './includes/get-settings';
 
 (function (w) {
@@ -54,13 +55,31 @@ import getSettings from './includes/get-settings';
 		/** @type { ( obj:import('./types').eventInterface ) => object } */
 		const merge = obj => Object.assign(eventDefault, obj);
 
-		/** @param {Function} fn */
-		function createWorker(fn) {
+		function createWorker() {
 			try {
 				// generates a worker by converting into a string and then running that function as a worker
-				const blob = new Blob(['(' + fn.toString() + ')();'], {
-					type: 'application/javascript',
-				});
+				const blob = new Blob(
+					[
+						`
+					${Utilities};
+					Utilities.prototype = ${JSON.stringify(Utilities.prototype)};
+					Utilities.prototype._toHexString = ${Utilities.prototype._toHexString};
+					Utilities.prototype._ROTR = ${Utilities.prototype._ROTR};
+					Utilities.prototype._Sigma0 = ${Utilities.prototype._Sigma0};
+					Utilities.prototype._Sigma1 = ${Utilities.prototype._Sigma1};
+					Utilities.prototype._sigma0 = ${Utilities.prototype._sigma0};
+					Utilities.prototype._sigma1 = ${Utilities.prototype._sigma1};
+					Utilities.prototype._Ch = ${Utilities.prototype._Ch};
+					Utilities.prototype._Maj = ${Utilities.prototype._Maj};
+					${sha256};
+					sha256.prototype = Object.assign({}, Utilities.prototype);
+					const sha = new sha256();
+					(${worker})()`.trim(),
+					],
+					{
+						type: 'application/javascript',
+					}
+				);
 				const blobUrl = URL.createObjectURL(blob);
 				return new Worker(blobUrl);
 			} catch (e) {
@@ -69,7 +88,7 @@ import getSettings from './includes/get-settings';
 		}
 
 		function verify() {
-			form.__worker = createWorker(worker);
+			form.__worker = createWorker();
 
 			form.__worker.addEventListener('message', workerHandler);
 			form.__worker.postMessage({
