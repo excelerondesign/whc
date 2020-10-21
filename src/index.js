@@ -6,6 +6,7 @@
 
 import emitter from './includes/emit';
 import worker from './includes/worker';
+import getSettings from './includes/get-settings';
 
 (function (w) {
 	const e = emitter();
@@ -20,6 +21,7 @@ import worker from './includes/worker';
 			perf: false,
 			// @ts-ignore
 		},
+		// @ts-ignore
 		...(w.whcConfig || {})
 	);
 
@@ -41,6 +43,7 @@ import worker from './includes/worker';
 		);
 
 	/** @type {(target: HTMLElement, str: string) => string | number}*/
+	/*
 	function getSetting(target, str) {
 		if (str in target.dataset === false) return config[str];
 		var value = target.dataset[str];
@@ -48,19 +51,22 @@ import worker from './includes/worker';
 
 		return isNaN(num) || num !== num ? value : num;
 	}
+	*/
 
 	/**
 	 * @param {HTMLFormElement} form
 	 * @param {number} i
 	 */
 	var Constructor = function (form, i) {
+		const { button, difficulty, finished, eventName } = getSettings(form);
 		/** @type {HTMLButtonElement} */
+		/*
 		const button = form.querySelector(config.button);
 
 		const difficulty = getSetting(button, 'difficulty');
 
 		const finished = getSetting(button, 'finished');
-
+		*/
 		/** @type {import('./types').eventInterface} */
 		const eventDefault = {
 			event: 'whc:Update#' + i,
