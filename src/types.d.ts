@@ -22,6 +22,7 @@ export { Verification, EncodedMessage, WorkerResponse };
 interface eventInterface {
 	event: string;
 	difficulty?: number | string;
+	form?: HTMLFormElement;
 	verification?: Verification[];
 	progress?: number;
 	done?: boolean;
