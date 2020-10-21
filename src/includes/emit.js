@@ -4,7 +4,7 @@ export default function () {
 	return {
 		/**
 		 * @param {string} e - event type
-		 * @param {Function} fn function to run when the event is called, should accept an object
+		 * @param {Function} fn - function to run when the event is called, should accept an object
 		 */
 		on(e, fn) {
 			const handlers = all.get(e);
@@ -15,8 +15,8 @@ export default function () {
 		},
 		// https://github.com/developit/mitt/blob/master/src/index.ts#L56
 		/**
-		 * @param {string} e event type
-		 * @param {Function} fn function to run when the event is called, should accept an object
+		 * @param {string} e - event type
+		 * @param {Function} fn - function to run when the event is called, should accept an object
 		 */
 		off(e, fn) {
 			const handlers = all.get(e);
@@ -27,7 +27,7 @@ export default function () {
 		/**
 		 *
 		 * @param {string} e - event type
-		 * @param {import('../types').eventInterface} obj Arguments used for event handlers
+		 * @param {import('../types').eventInterface} obj - Arguments used for event handlers
 		 */
 		run(e, obj) {
 			(all.get(e) || []).forEach(fn => fn(obj));
