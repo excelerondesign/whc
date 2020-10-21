@@ -120,7 +120,7 @@ import getSettings from './includes/get-settings';
 		/** @type { (event: import('./types').eventInterface) => void } */
 		function appendVerification({ verification }) {
 			// prettier-ignore
-			form.insertAdjacentHTML('beforeend', `<input type="hidden" name="captcha_verification" value="${JSON.stringify(verification)}" />`);
+			form.insertAdjacentHTML('beforeend', `<input type="hidden" name="captcha_verification" value='${JSON.stringify(verification)}' />`);
 			button.classList.add('done');
 			button.removeAttribute('disabled');
 			button.setAttribute('value', '' + finished);
