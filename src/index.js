@@ -77,12 +77,14 @@ import getSettings from './includes/get-settings';
 				difficulty,
 				time,
 			});
+			/*
 			e.run(
 				'whc:Start#' + i,
 				merge({
 					event: 'whc:Start#' + i,
 				})
 			);
+			*/
 		}
 
 		/** @type { (verification: import('./types').Verification[]) => void } */
