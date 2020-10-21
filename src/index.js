@@ -3,14 +3,10 @@
  * WeHateCaptchas Self-Instantiating-Plugin
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
-
-// import emitter from './includes/emit';
 import worker from './includes/worker';
 import getSettings from './includes/get-settings';
 
 (function (w) {
-	// const e = emitter();
-
 	/** @type {NodeListOf<HTMLFormElement>} */
 	const forms = document.querySelectorAll('[data-whc]');
 
@@ -32,31 +28,8 @@ import getSettings from './includes/get-settings';
 		const { button, difficulty, finished, debug } = getSettings(form);
 
 		if (debug) {
-			/**
-			 * @param {string} type
-			 * @param {object} detail
-			 */
-			/*
-			const allEmit = (type, detail) =>
-				detail.form.dispatchEvent(new CustomEvent(type, { detail }));
-			// TODO: Change this so that it doesn't do ALL forms, just the ones that have debug
-			e.on('*', allEmit);
-			*/
+			// TODO: Add a debug solution her
 		}
-		/** @type {import('./types').eventInterface} */
-		/*
-		const eventDefault = {
-			event: 'whc:Update#' + i,
-			difficulty,
-			form,
-			verification: [],
-			progress: 0,
-			done: false,
-		};
-		*/
-
-		/** @type { ( obj:import('./types').eventInterface ) => object } */
-		// const merge = obj => Object.assign(eventDefault, obj);
 
 		/** @param {Function} fn */
 		function createWorker(fn) {
@@ -81,14 +54,6 @@ import getSettings from './includes/get-settings';
 				difficulty,
 				time,
 			});
-			/*
-			e.run(
-				'whc:Start#' + i,
-				merge({
-					event: 'whc:Start#' + i,
-				})
-			);
-			*/
 		}
 
 		/** @type { (verification: import('./types').Verification[]) => void } */
@@ -110,21 +75,7 @@ import getSettings from './includes/get-settings';
 			if (!percent) return;
 
 			form.dataset.progress = percent + '%';
-			/*
-			e.run(
-				'whc:Progress#' + i,
-				merge({
-					event: 'whc:Progress#' + i,
-					progress: +percent[0],
-					done: +percent[0] === 100,
-				})
-			);
-			*/
 		}
-
-		// e.on('whc:Update#' + i, updatePercent);
-		// e.on('whc:Complete#' + i, appendVerification);
-
 		/**
 		 * @this {Worker}
 		 * @param {object} param
@@ -135,30 +86,9 @@ import getSettings from './includes/get-settings';
 
 			if (action === 'captchaSuccess') {
 				return appendVerification(verification);
-				/*
-				return e.run(
-					'whc:Complete#' + i,
-					merge({
-						event: 'whc:Complete#' + i,
-						verification,
-						done: true,
-						progress: 100,
-					})
-				);
-				*/
 			}
 			if (action === 'message') {
 				return updatePercent(message);
-				/*
-				return e.run(
-					'whc:Update#' + i,
-					merge({
-						event: 'whc:Completed#' + i,
-						message,
-						progress: 0,
-					})
-				);
-				*/
 			}
 		}
 
