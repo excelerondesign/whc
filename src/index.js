@@ -6,6 +6,7 @@
 
 import emitter from './includes/emit';
 import worker from './includes/worker';
+import { sha256, Utilities } from './includes/sha256';
 import getSettings from './includes/get-settings';
 
 (function (w) {
@@ -13,15 +14,6 @@ import getSettings from './includes/get-settings';
 
 	/** @type {NodeListOf<HTMLFormElement>} */
 	const forms = document.querySelectorAll('[data-whc]');
-
-	/**
-	 * A weird bug in firefox leads to web workers with no "Active reference" to be garbage collected
-	 * So we create a global array to push workers into so that they don't get collected
-	 * once the workers complete their job, they are splice from the array
-	 * and terminated
-	 */
-	// @ts-ignore
-	w.whcWorkers = [];
 
 	/**
 	 * @param {HTMLFormElement} form
@@ -45,6 +37,7 @@ import getSettings from './includes/get-settings';
 		const eventDefault = {
 			event: 'whc:Update#' + i,
 			difficulty,
+			form,
 			verification: [],
 			progress: 0,
 			done: false,
@@ -53,13 +46,31 @@ import getSettings from './includes/get-settings';
 		/** @type { ( obj:import('./types').eventInterface ) => object } */
 		const merge = obj => Object.assign(eventDefault, obj);
 
-		/** @param {Function} fn */
-		function createWorker(fn) {
+		function createWorker() {
 			try {
-				// generates a worker by converting into a string and then running that function as a worker
-				const blob = new Blob(['(' + fn.toString() + ')();'], {
-					type: 'application/javascript',
-				});
+				// converts hashing prototypes into a string version and then exports it to a web worker
+				const blob = new Blob(
+					[
+						`
+					${Utilities};
+					Utilities.prototype = ${JSON.stringify(Utilities.prototype)};
+					Utilities.prototype._toHexString = ${Utilities.prototype._toHexString};
+					Utilities.prototype._ROTR = ${Utilities.prototype._ROTR};
+					Utilities.prototype._Sigma0 = ${Utilities.prototype._Sigma0};
+					Utilities.prototype._Sigma1 = ${Utilities.prototype._Sigma1};
+					Utilities.prototype._sigma0 = ${Utilities.prototype._sigma0};
+					Utilities.prototype._sigma1 = ${Utilities.prototype._sigma1};
+					Utilities.prototype._Ch = ${Utilities.prototype._Ch};
+					Utilities.prototype._Maj = ${Utilities.prototype._Maj};
+					${sha256};
+					sha256.prototype = Object.assign({}, Utilities.prototype);
+					const sha = new sha256();
+					(${worker})()`.trim(),
+					],
+					{
+						type: 'application/javascript',
+					}
+				);
 				const blobUrl = URL.createObjectURL(blob);
 				return new Worker(blobUrl);
 			} catch (e) {
@@ -68,13 +79,12 @@ import getSettings from './includes/get-settings';
 		}
 
 		function verify() {
-			const time = +new Date();
-			this.whcWorkers[i] = createWorker(worker);
+			form.__worker = createWorker();
 
-			this.whcWorkers[i].addEventListener('message', workerHandler);
-			this.whcWorkers[i].postMessage({
+			form.__worker.addEventListener('message', workerHandler);
+			form.__worker.postMessage({
 				difficulty,
-				time,
+				time: Date.now(),
 			});
 			e.run(
 				'whc:Start#' + i,
@@ -92,7 +102,8 @@ import getSettings from './includes/get-settings';
 			button.removeAttribute('disabled');
 			button.setAttribute('value', '' + finished);
 			// @ts-ignore
-			w.whcWorkers[i].terminate();
+			form.__worker.terminate();
+			delete form.__worker;
 		}
 
 		/**
