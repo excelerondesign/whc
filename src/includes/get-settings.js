@@ -8,7 +8,9 @@ const parseDifficulty = val => {
 };
 
 /**
+ * @function getButton
  * @param {HTMLFormElement} form
+ * @returns {HTMLInputElement|HTMLButtonElement}
  */
 const getButton = form => {
 	if ('button' in form.dataset) {
