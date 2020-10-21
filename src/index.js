@@ -4,12 +4,12 @@
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
 
-import emitter from './includes/emit';
+// import emitter from './includes/emit';
 import worker from './includes/worker';
 import getSettings from './includes/get-settings';
 
 (function (w) {
-	const e = emitter();
+	// const e = emitter();
 
 	/** @type {NodeListOf<HTMLFormElement>} */
 	const forms = document.querySelectorAll('[data-whc]');
@@ -36,12 +36,15 @@ import getSettings from './includes/get-settings';
 			 * @param {string} type
 			 * @param {object} detail
 			 */
+			/*
 			const allEmit = (type, detail) =>
 				detail.form.dispatchEvent(new CustomEvent(type, { detail }));
 			// TODO: Change this so that it doesn't do ALL forms, just the ones that have debug
 			e.on('*', allEmit);
+			*/
 		}
 		/** @type {import('./types').eventInterface} */
+		/*
 		const eventDefault = {
 			event: 'whc:Update#' + i,
 			difficulty,
@@ -50,9 +53,10 @@ import getSettings from './includes/get-settings';
 			progress: 0,
 			done: false,
 		};
+		*/
 
 		/** @type { ( obj:import('./types').eventInterface ) => object } */
-		const merge = obj => Object.assign(eventDefault, obj);
+		// const merge = obj => Object.assign(eventDefault, obj);
 
 		/** @param {Function} fn */
 		function createWorker(fn) {
@@ -106,6 +110,7 @@ import getSettings from './includes/get-settings';
 			if (!percent) return;
 
 			form.dataset.progress = percent + '%';
+			/*
 			e.run(
 				'whc:Progress#' + i,
 				merge({
@@ -114,6 +119,7 @@ import getSettings from './includes/get-settings';
 					done: +percent[0] === 100,
 				})
 			);
+			*/
 		}
 
 		// e.on('whc:Update#' + i, updatePercent);
