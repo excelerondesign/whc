@@ -10,22 +10,7 @@ import getSettings from './includes/get-settings';
 
 (function (w) {
 	const e = emitter();
-	/** @type {import("./types").whcOptions} */
-	/*
-	const config = Object.assign(
-		{
-			button: '[type="submit"]',
-			form: '.whc-form',
-			difficulty: 3,
-			finished: 'Submit',
-			events: true,
-			perf: false,
-			// @ts-ignore
-		},
-		// @ts-ignore
-		w.whcConfig || {}
-	);
-	*/
+
 	/** @type {NodeListOf<HTMLFormElement>} */
 	const forms = document.querySelectorAll('[data-whc]');
 
@@ -37,23 +22,6 @@ import getSettings from './includes/get-settings';
 	 */
 	// @ts-ignore
 	w.whcWorkers = [];
-
-	/*
-	config.events &&
-		e.on('*', (type, detail) =>
-			detail.form.dispatchEvent(new CustomEvent(type, { detail }))
-		);
-	*/
-	/** @type {(target: HTMLElement, str: string) => string | number}*/
-	/*
-	function getSetting(target, str) {
-		if (str in target.dataset === false) return config[str];
-		var value = target.dataset[str];
-		var num = +value; // coerces value into a number
-
-		return isNaN(num) || num !== num ? value : num;
-	}
-	*/
 
 	/**
 	 * @param {HTMLFormElement} form
