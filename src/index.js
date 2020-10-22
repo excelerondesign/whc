@@ -3,6 +3,7 @@
  * WeHateCaptchas Self-Instantiating-Plugin
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
+import Log from './includes/log';
 import worker from './includes/worker';
 import getSettings from './includes/get-settings';
 
@@ -18,7 +19,6 @@ import getSettings from './includes/get-settings';
 	 */
 	// @ts-ignore
 	w.whcWorkers = [];
-
 	/**
 	 * @param {HTMLFormElement} form
 	 * @param {number} i
@@ -26,11 +26,7 @@ import getSettings from './includes/get-settings';
 	var Constructor = function (form, i) {
 		// TODO: implement the eventName into the pubsub system
 		const { button, difficulty, finished, debug } = getSettings(form);
-
-		if (debug) {
-			// TODO: Add a debug solution her
-		}
-
+		const log = debug ? Log(form) : {};
 		/** @param {Function} fn */
 		function createWorker(fn) {
 			try {
@@ -39,8 +35,16 @@ import getSettings from './includes/get-settings';
 					type: 'application/javascript',
 				});
 				const blobUrl = URL.createObjectURL(blob);
+				log.info = {
+					title: 'Worker Created',
+				};
 				return new Worker(blobUrl);
 			} catch (e) {
+				// @ts-ignore
+				log.error = {
+					title: 'Unknown Error',
+					error: e,
+				};
 				throw new Error('Unknown Error: ' + e);
 			}
 		}
@@ -64,6 +68,11 @@ import getSettings from './includes/get-settings';
 			button.removeAttribute('disabled');
 			button.setAttribute('value', '' + finished);
 			// @ts-ignore
+			log.info = {
+				title: 'Verified Form',
+				verification,
+			};
+			// @ts-ignore
 			w.whcWorkers[i].terminate();
 		}
 
@@ -75,6 +84,11 @@ import getSettings from './includes/get-settings';
 			if (!percent) return;
 
 			form.dataset.progress = percent + '%';
+			// @ts-ignore
+			log.info = {
+				title: 'Progress Update',
+				percent: percent + '%',
+			};
 		}
 		/**
 		 * @this {Worker}
