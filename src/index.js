@@ -3,14 +3,11 @@
  * WeHateCaptchas Self-Instantiating-Plugin
  * (c) 2020 Exceleron Designs, MIT License, https://excelerondesigns.com
  */
-
-import emitter from './includes/emit';
+import Log from './includes/log';
 import worker from './includes/worker';
 import getSettings from './includes/get-settings';
 
 (function (w) {
-	const e = emitter();
-
 	/** @type {NodeListOf<HTMLFormElement>} */
 	const forms = document.querySelectorAll('[data-whc]');
 
@@ -22,7 +19,6 @@ import getSettings from './includes/get-settings';
 	 */
 	// @ts-ignore
 	w.whcWorkers = [];
-
 	/**
 	 * @param {HTMLFormElement} form
 	 * @param {number} i
@@ -30,29 +26,7 @@ import getSettings from './includes/get-settings';
 	var Constructor = function (form, i) {
 		// TODO: implement the eventName into the pubsub system
 		const { button, difficulty, finished, debug } = getSettings(form);
-
-		if (debug) {
-			/**
-			 * @param {string} type
-			 * @param {object} detail
-			 */
-			const allEmit = (type, detail) =>
-				detail.form.dispatchEvent(new CustomEvent(type, { detail }));
-			// TODO: Change this so that it doesn't do ALL forms, just the ones that have debug
-			e.on('*', allEmit);
-		}
-		/** @type {import('./types').eventInterface} */
-		const eventDefault = {
-			event: 'whc:Update#' + i,
-			difficulty,
-			verification: [],
-			progress: 0,
-			done: false,
-		};
-
-		/** @type { ( obj:import('./types').eventInterface ) => object } */
-		const merge = obj => Object.assign(eventDefault, obj);
-
+		const log = debug ? Log(form) : {};
 		/** @param {Function} fn */
 		function createWorker(fn) {
 			try {
@@ -61,8 +35,16 @@ import getSettings from './includes/get-settings';
 					type: 'application/javascript',
 				});
 				const blobUrl = URL.createObjectURL(blob);
+				log.info = {
+					title: 'Worker Created',
+				};
 				return new Worker(blobUrl);
 			} catch (e) {
+				// @ts-ignore
+				log.error = {
+					title: 'Unknown Error',
+					error: e,
+				};
 				throw new Error('Unknown Error: ' + e);
 			}
 		}
@@ -76,48 +58,38 @@ import getSettings from './includes/get-settings';
 				difficulty,
 				time,
 			});
-			e.run(
-				'whc:Start#' + i,
-				merge({
-					event: 'whc:Start#' + i,
-				})
-			);
 		}
 
-		/** @type { (event: import('./types').eventInterface) => void } */
-		function appendVerification({ verification }) {
+		/** @type { (verification: import('./types').Verification[]) => void } */
+		function appendVerification(verification) {
 			// prettier-ignore
 			form.insertAdjacentHTML('beforeend', `<input type="hidden" name="captcha_verification" value='${JSON.stringify(verification)}' />`);
 			button.classList.add('done');
 			button.removeAttribute('disabled');
 			button.setAttribute('value', '' + finished);
 			// @ts-ignore
+			log.info = {
+				title: 'Verified Form',
+				verification,
+			};
+			// @ts-ignore
 			w.whcWorkers[i].terminate();
 		}
 
 		/**
-		 * @param {object} param
-		 * @param {HTMLButtonElement} param.button
-		 * @param {string} param.message
+		 * @param {string} message
 		 */
-		function updatePercent({ message }) {
+		function updatePercent(message) {
 			const percent = message.match(/\d{2,3}/);
 			if (!percent) return;
 
 			form.dataset.progress = percent + '%';
-			e.run(
-				'whc:Progress#' + i,
-				merge({
-					event: 'whc:Progress#' + i,
-					progress: +percent[0],
-					done: +percent[0] === 100,
-				})
-			);
+			// @ts-ignore
+			log.info = {
+				title: 'Progress Update',
+				percent: percent + '%',
+			};
 		}
-
-		e.on('whc:Update#' + i, updatePercent);
-		e.on('whc:Complete#' + i, appendVerification);
-
 		/**
 		 * @this {Worker}
 		 * @param {object} param
@@ -127,25 +99,10 @@ import getSettings from './includes/get-settings';
 			const { action, message, verification } = data;
 
 			if (action === 'captchaSuccess') {
-				return e.run(
-					'whc:Complete#' + i,
-					merge({
-						event: 'whc:Complete#' + i,
-						verification,
-						done: true,
-						progress: 100,
-					})
-				);
+				return appendVerification(verification);
 			}
 			if (action === 'message') {
-				return e.run(
-					'whc:Update#' + i,
-					merge({
-						event: 'whc:Completed#' + i,
-						message,
-						progress: 0,
-					})
-				);
+				return updatePercent(message);
 			}
 		}
 
